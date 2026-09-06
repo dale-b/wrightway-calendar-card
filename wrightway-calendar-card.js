@@ -73,6 +73,7 @@ const CSS = `
 }
 .rail-btn svg { width: 22px; height: 22px; }
 .rail-btn.active { background: #fff; color: var(--ink); box-shadow: 0 1px 4px rgba(0,0,0,.06); }
+.rail-btn.settings { margin-top: auto; }
 .main {
   flex: 1;
   min-width: 0;
@@ -115,6 +116,20 @@ const CSS = `
   color: var(--ink);
 }
 .tools button:hover { background: var(--wash); }
+.month-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 2px 16px 6px;
+  flex-shrink: 0;
+}
+.month-bar .title {
+  font-family: "Iowan Old Style", Palatino, "Palatino Linotype", Georgia, serif;
+  font-size: clamp(22px, 2.4vw, 34px);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
 .legend { display: flex; gap: 8px; flex-wrap: wrap; padding: 0 16px 6px; flex-shrink: 0; }
 .today-box {
   margin: 0 16px 8px;
@@ -1694,13 +1709,20 @@ class WrightWayCalendarCard extends HTMLElement {
           <span class="time">${esc(time)}</span>
         </div>
         <div class="wx"><span class="temp">${esc(temp)}</span><span>${esc(cond)}</span></div>
-        <div class="tools">
-          <button data-act="prev" title="Previous">‹</button>
-          <button data-act="today">Today</button>
-          <button data-act="next" title="Next">›</button>
-          <button class="gear" data-act="settings" title="Settings">${ICONS.gear}</button>
-        </div>
       </div>`;
+  }
+
+  _renderMonthBar() {
+    const y = this._cursor.getFullYear();
+    const m = this._cursor.getMonth();
+    return `<div class="month-bar">
+      <div class="title">${esc(MONTHS[m])} ${y}</div>
+      <div class="tools">
+        <button data-act="prev" title="Previous month">‹</button>
+        <button data-act="today">Today</button>
+        <button data-act="next" title="Next month">›</button>
+      </div>
+    </div>`;
   }
 
   _todayEvents() {
@@ -1779,6 +1801,7 @@ class WrightWayCalendarCard extends HTMLElement {
     return `
       <div class="stage">
         <div class="cal-col">
+          ${this._renderMonthBar()}
           ${this._renderLegend()}
           ${this._renderToday()}
           <div class="grid-wrap">
@@ -1837,7 +1860,6 @@ class WrightWayCalendarCard extends HTMLElement {
     return `<div class="chore-wrap" style="--chore-rows:${rows}">
       <div class="chore-head">
         <span>Today's chores — tap to check off</span>
-        <button data-act="settings" title="Set up chores">${ICONS.gear}</button>
       </div>
       <div class="chore-bar">${lists.map(({ person: c, helpers, todos }) => {
         const empty = !helpers.length && !todos.length;
@@ -2069,6 +2091,7 @@ class WrightWayCalendarCard extends HTMLElement {
           <button class="rail-btn ${view === "calendar" ? "active" : ""}" data-act="view" data-view="calendar">${ICONS.calendar}Calendar</button>
           <button class="rail-btn ${view === "lists" ? "active" : ""}" data-act="view" data-view="lists">${ICONS.shop}Shop</button>
           <button class="rail-btn ${view === "meals" ? "active" : ""}" data-act="view" data-view="meals">${ICONS.meals}Meals</button>
+          <button class="rail-btn settings" data-act="settings" title="Settings">${ICONS.gear}Settings</button>
         </nav>
         <div class="main">
           ${this._renderHeader()}
