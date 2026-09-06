@@ -222,45 +222,143 @@ const CSS = `
 }
 .home {
   flex: 1; min-height: 0; overflow: auto;
-  padding: 4px 20px 24px;
+  padding: 0 16px 20px;
 }
+.home > .tabs { margin: 0 0 14px; }
 .home-head {
   display: flex; align-items: center; gap: 10px;
-  margin: 4px 0 12px;
+  margin: 0 0 14px;
 }
-.home-head h2 { margin: 0; font-size: 22px; }
+.home-head h2 { margin: 0; font-size: 26px; font-weight: 650; }
 .home-head .back {
   border: 1px solid var(--line); background: #fff; border-radius: 999px;
   padding: 8px 14px; font: inherit; font-weight: 700; cursor: pointer;
 }
-.room-grid, .ctl-grid {
+.room-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(168px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
   gap: 12px;
 }
-.room-tile, .ctl {
+.ctl-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 12px;
+}
+.room-tile, .ctl, .device {
   border: 0;
-  border-radius: 18px;
-  min-height: 92px;
-  padding: 16px;
+  border-radius: 20px;
+  background: var(--wash);
+  color: var(--ink);
+  -webkit-tap-highlight-color: transparent;
+  animation: rise .35s ease both;
+}
+.room-tile {
+  min-height: 110px;
+  padding: 18px 16px 14px;
   font: inherit;
   font-weight: 800;
-  font-size: 16px;
+  font-size: 17px;
   text-align: left;
-  background: var(--wash);
   cursor: pointer;
-  color: var(--ink);
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  -webkit-tap-highlight-color: transparent;
 }
-.room-tile:active, .ctl:active { transform: scale(0.98); }
-.room-tile.on, .ctl.on { background: #ffedd5; }
-.ctl.busy { background: #dbeafe; }
-.ctl .st { font-size: 13px; font-weight: 600; color: var(--muted); margin-top: 8px; }
-.ctl.on .st, .ctl.busy .st { color: #9a3412; }
-.home-note { color: var(--muted); font-size: 14px; margin: 8px 0 14px; }
+.room-tile .ico {
+  width: 36px; height: 36px; border-radius: 12px;
+  background: #fff; display: flex; align-items: center; justify-content: center;
+  margin-bottom: 10px;
+}
+.room-tile .ico svg { width: 20px; height: 20px; }
+.room-tile:active, .ctl:active, .device-hit:active { transform: scale(0.98); }
+.room-tile.on, .ctl.on, .device.on { background: #ffedd5; }
+.ctl.busy, .device.busy { background: #ffedd5; }
+.ctl {
+  min-height: 96px; padding: 16px;
+  font: inherit; font-weight: 800; font-size: 16px;
+  text-align: left; cursor: pointer;
+  display: flex; flex-direction: column; justify-content: space-between;
+}
+.ctl .st, .device .st, .room-tile .st {
+  font-size: 13px; font-weight: 600; color: var(--muted); margin-top: 6px;
+}
+.device {
+  padding: 14px 16px 12px;
+  display: flex; flex-direction: column; gap: 8px;
+}
+.device-hit {
+  border: 0; background: transparent; padding: 0;
+  font: inherit; font-weight: 800; font-size: 16px;
+  text-align: left; cursor: pointer; color: inherit;
+  display: flex; justify-content: space-between; align-items: center; gap: 8px;
+  width: 100%;
+}
+.device input[type=range] {
+  width: 100%; accent-color: var(--accent); height: 22px;
+}
+.chip-row { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 14px; }
+.opt {
+  border: 1px solid var(--line); background: #fff; border-radius: 999px;
+  padding: 10px 16px; font: inherit; font-weight: 700; font-size: 14px;
+  cursor: pointer; color: var(--ink);
+}
+.opt.on { background: #1c1917; color: #fff; border-color: #1c1917; }
+.vac-layout, .gar-layout {
+  display: grid;
+  grid-template-columns: 1.15fr 0.85fr;
+  gap: 14px;
+  margin-bottom: 16px;
+  align-items: stretch;
+}
+.map-card, .gar-cam {
+  background: #111; border-radius: 20px; overflow: hidden; min-height: 280px;
+  position: relative;
+}
+.map-card img, .gar-cam img {
+  width: 100%; height: 100%; object-fit: contain; display: block; background: #111;
+}
+.gar-cam img { object-fit: cover; min-height: 280px; }
+.map-card .cap, .gar-cam .cap {
+  position: absolute; left: 12px; bottom: 12px;
+  background: rgba(0,0,0,.5); color: #fff; font-size: 12px; font-weight: 700;
+  padding: 4px 8px; border-radius: 999px;
+}
+.vac-side, .gar-side { display: flex; flex-direction: column; gap: 10px; }
+.stat {
+  background: var(--wash); border-radius: 20px; padding: 16px 18px;
+}
+.stat .big { font-size: 28px; font-weight: 700; letter-spacing: -0.03em; }
+.stat .sub { color: var(--muted); font-weight: 600; font-size: 13px; margin-top: 2px; }
+.batt {
+  height: 8px; border-radius: 99px; background: #e7e5e4; overflow: hidden; margin-top: 10px;
+}
+.batt span { display: block; height: 100%; background: #16a34a; border-radius: 99px; }
+.gdoors { display: grid; grid-template-columns: 1fr; gap: 10px; }
+.gdoor {
+  background: var(--wash); border-radius: 20px; padding: 12px 14px 14px;
+  cursor: pointer; border: 0; font: inherit; text-align: left; color: inherit;
+}
+.gdoor .name { font-weight: 800; font-size: 16px; display: flex; justify-content: space-between; }
+.gvis {
+  margin-top: 10px; height: 72px; border-radius: 12px; background: #d6d3d1;
+  position: relative; overflow: hidden;
+}
+.gvis .panel {
+  position: absolute; left: 8%; right: 8%; top: 10%; height: 80%;
+  background: repeating-linear-gradient(#78716c, #78716c 10px, #57534e 10px, #57534e 12px);
+  border-radius: 4px; transition: transform .45s ease;
+}
+.gdoor.open .gvis .panel { transform: translateY(-78%); }
+.gdoor.open { background: #ffedd5; }
+.home-note { color: var(--muted); font-size: 14px; margin: 0 0 12px; }
+.sec-title {
+  font-size: 13px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase;
+  color: var(--muted); margin: 16px 0 8px;
+}
+@keyframes rise {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: none; }
+}
 .chip {
   border: 0;
   background: transparent;
@@ -933,11 +1031,12 @@ const HOME_ROOMS = [
     { entity: "light.basement_play_area", name: "Play area" },
     { entity: "light.bar_lights", name: "Bar lights" },
   ]},
-  { id: "garage", name: "Garage", entities: [
-    { entity: "cover.ratgdov25i_c849a9_door", name: "Door 1" },
-    { entity: "cover.ratgdov25i_e4516b_door", name: "Door 2" },
-    { entity: "cover.ratgdov25i_ca0b6e_door", name: "Door 3" },
-  ]},
+];
+
+const GARAGE_DOORS = [
+  { entity: "cover.ratgdov25i_c849a9_door", name: "Door 1" },
+  { entity: "cover.ratgdov25i_e4516b_door", name: "Door 2" },
+  { entity: "cover.ratgdov25i_ca0b6e_door", name: "Door 3" },
 ];
 
 const HOME_OUTSIDE = [
@@ -990,6 +1089,7 @@ class WrightWayCalendarCard extends HTMLElement {
     this._homeTab = "rooms";
     this._homeRoom = null;
     this._homeSnap = "";
+    this._slideLock = false;
     this._prefs = { muted: true, order: DEFAULT_ORDER.slice(), colors: {}, calEntities: {} };
     this._loadPrefs();
   }
@@ -1039,9 +1139,14 @@ class WrightWayCalendarCard extends HTMLElement {
         }
         this._onClick(e);
       });
-      this.shadowRoot.addEventListener("pointerdown", () => { this._idleAt = Date.now(); });
+      this.shadowRoot.addEventListener("input", (e) => this._onInput(e));
+      this.shadowRoot.addEventListener("pointerdown", (e) => {
+        this._idleAt = Date.now();
+        if (e.target.matches("input[type=range]")) this._slideLock = true;
+      });
       this.shadowRoot.addEventListener("pointerup", (e) => {
-        const input = e.target.closest("input:not([type=checkbox]), textarea");
+        if (e.target.matches("input[type=range]")) this._slideLock = false;
+        const input = e.target.closest("input:not([type=checkbox]):not([type=range]), textarea");
         if (input && typeof input.focus === "function") input.focus();
       });
       this.shadowRoot.addEventListener("submit", (e) => {
@@ -1355,8 +1460,12 @@ class WrightWayCalendarCard extends HTMLElement {
     HOME_OUTSIDE.forEach((e) => ids.push(e.entity));
     HOME_VACUUM_ROOMS.forEach((e) => ids.push(e.entity));
     ids.push("vacuum.roborock_qrevo_pro", "input_boolean.auto_vacuum_enabled");
-    ids.push("input_boolean.dishwasher_is_clean", "input_boolean.washer_is_done");
-    ids.push("sensor.washer_current_status", "sensor.dryer_current_status");
+    ids.push("input_boolean.vacuum_qp_twice", "input_boolean.vacuum_qp_mopping", "input_boolean.mop_when_gone_next");
+    ids.push("select.kitchen_roborock_qrevo_pro_cleaning_mode", "sensor.roborock_qrevo_pro_battery");
+    ids.push("sensor.roborock_qrevo_pro_status", "image.roborock_qrevo_pro_upstairs");
+    GARAGE_DOORS.forEach((d) => ids.push(d.entity));
+    ids.push("camera.garage_high", "binary_sensor.tesla_wall_connector_vehicle_connected");
+    ids.push("climate.garage_thermostat", "switch.air_exchanger");
     (this._cfg.scenes || []).forEach((s) => ids.push(s.entity));
     return ids;
   }
@@ -1366,7 +1475,7 @@ class WrightWayCalendarCard extends HTMLElement {
   }
 
   _tickHome() {
-    if (this._view !== "home") return;
+    if (this._view !== "home" || this._slideLock) return;
     const sig = this._homeSig();
     if (sig === this._homeSnap) return;
     this._homeSnap = sig;
@@ -1697,6 +1806,14 @@ class WrightWayCalendarCard extends HTMLElement {
       this._vacuumCmd(t.dataset.cmd);
       return;
     }
+    if (act === "set-option") {
+      this._hass.callService("select", "select_option", { entity_id: t.dataset.entity, option: t.dataset.option });
+      return;
+    }
+    if (act === "set-fan") {
+      this._hass.callService("vacuum", "set_fan_speed", { entity_id: "vacuum.roborock_qrevo_pro", fan_speed: t.dataset.speed });
+      return;
+    }
     if (act === "prev") {
       this._cursor = new Date(this._cursor.getFullYear(), this._cursor.getMonth() - 1, 1);
       this._loadEvents();
@@ -1915,6 +2032,17 @@ class WrightWayCalendarCard extends HTMLElement {
     }
   }
 
+  _onInput(e) {
+    const t = e.target;
+    if (t.dataset.bright && this._hass) {
+      const val = Math.max(1, Math.min(255, Number(t.value) || 1));
+      clearTimeout(this._brightT);
+      this._brightT = setTimeout(() => {
+        this._hass.callService("light", "turn_on", { entity_id: t.dataset.bright, brightness: val });
+      }, 80);
+    }
+  }
+
   _renderHeader() {
     const n = this._now;
     let h = n.getHours();
@@ -1984,19 +2112,122 @@ class WrightWayCalendarCard extends HTMLElement {
     </div>`;
   }
 
+  _pic(entity) {
+    const st = this._hass && this._hass.states[entity];
+    const pic = st && st.attributes && st.attributes.entity_picture;
+    if (!pic || !this._hass) return "";
+    return this._hass.hassUrl(pic) + "&t=" + encodeURIComponent(st.state || Date.now());
+  }
+
   _ctlTile(entity, name, extra) {
     const st = this._hass && this._hass.states[entity];
     if (!st || st.state === "unavailable") return "";
     const on = this._entOn(entity);
-    const label = extra || (on ? "On" : "Off");
     const domain = entity.split(".")[0];
-    let status = label;
-    if (domain === "cover") status = st.state === "open" || st.state === "opening" ? "Open" : "Closed";
-    if (domain === "fan") status = on ? "On" : "Off";
+    let status = extra || (on ? "On" : "Off");
+    if (domain === "cover") status = (st.state === "open" || st.state === "opening") ? "Open" : "Closed";
     return `<button type="button" class="ctl ${on ? "on" : ""}" data-act="ent-toggle" data-entity="${esc(entity)}">
       <span>${esc(name)}</span>
       <span class="st">${esc(status)}</span>
     </button>`;
+  }
+
+  _deviceRow(entity, name) {
+    const st = this._hass && this._hass.states[entity];
+    if (!st || st.state === "unavailable") return "";
+    const domain = entity.split(".")[0];
+    const on = this._entOn(entity);
+    let status = on ? "On" : "Off";
+    if (domain === "cover") status = (st.state === "open" || st.state === "opening") ? "Open" : "Closed";
+    const bright = domain === "light" && st.attributes && st.attributes.brightness != null
+      ? Number(st.attributes.brightness) : null;
+    return `<div class="device ${on ? "on" : ""}">
+      <button type="button" class="device-hit" data-act="ent-toggle" data-entity="${esc(entity)}">
+        <span>${esc(name)}</span>
+        <span class="st">${esc(status)}${bright != null && on ? ` · ${Math.round(bright / 2.55)}%` : ""}</span>
+      </button>
+      ${bright != null ? `<input type="range" min="1" max="255" value="${bright}" data-bright="${esc(entity)}"/>` : ""}
+    </div>`;
+  }
+
+  _renderVacuum() {
+    const vac = this._hass && this._hass.states["vacuum.roborock_qrevo_pro"];
+    const vstate = vac ? vac.state : "unknown";
+    const batt = Number(this._entState("sensor.roborock_qrevo_pro_battery")) || 0;
+    const status = (this._entState("sensor.roborock_qrevo_pro_status") || vstate).replace(/_/g, " ");
+    const room = this._entState("sensor.roborock_qrevo_pro_current_room") || "";
+    const mode = this._entState("select.kitchen_roborock_qrevo_pro_cleaning_mode");
+    const speed = vac && vac.attributes ? vac.attributes.fan_speed : "";
+    const map = this._pic("image.roborock_qrevo_pro_upstairs");
+    const cleaning = vstate === "cleaning" || status.includes("clean") || status.includes("mop");
+    const opt = (ent, label) => {
+      const on = this._entOn(ent);
+      return `<button type="button" class="opt ${on ? "on" : ""}" data-act="ent-toggle" data-entity="${esc(ent)}">${esc(label)}</button>`;
+    };
+    return `<div class="vac-layout">
+        <div class="map-card">
+          ${map ? `<img src="${esc(map)}" alt="Vacuum map">` : `<div class="cap">Map unavailable</div>`}
+          <div class="cap">${esc(room ? `Now: ${room}` : "Upstairs map")}</div>
+        </div>
+        <div class="vac-side">
+          <div class="stat">
+            <div class="big">${esc(status)}</div>
+            <div class="sub">${batt}% battery${cleaning ? " · running" : ""}</div>
+            <div class="batt"><span style="width:${Math.max(0, Math.min(100, batt))}%"></span></div>
+          </div>
+          <div class="ctl-grid">
+            <button type="button" class="ctl ${cleaning ? "busy" : ""}" data-act="vac" data-cmd="start"><span>Start</span><span class="st">Clean now</span></button>
+            <button type="button" class="ctl" data-act="vac" data-cmd="pause"><span>Pause</span><span class="st">Hold</span></button>
+            <button type="button" class="ctl ${vstate === "docked" || vstate === "returning" ? "on" : ""}" data-act="vac" data-cmd="return_to_base"><span>Dock</span><span class="st">Send home</span></button>
+          </div>
+        </div>
+      </div>
+      <div class="sec-title">Options</div>
+      <div class="chip-row">
+        ${opt("input_boolean.vacuum_qp_twice", "×2")}
+        ${opt("input_boolean.vacuum_qp_mopping", "Mop")}
+        ${opt("input_boolean.mop_when_gone_next", "Mop when gone")}
+        ${opt("input_boolean.auto_vacuum_enabled", "Auto")}
+      </div>
+      <div class="sec-title">Mode</div>
+      <div class="chip-row">
+        ${["vacuum", "vac_and_mop", "mop"].map((o) => `
+          <button type="button" class="opt ${mode === o ? "on" : ""}" data-act="set-option" data-entity="select.kitchen_roborock_qrevo_pro_cleaning_mode" data-option="${o}">${o === "vac_and_mop" ? "Vac + mop" : o === "vacuum" ? "Vacuum" : "Mop only"}</button>`).join("")}
+      </div>
+      <div class="sec-title">Suction</div>
+      <div class="chip-row">
+        ${(vac && vac.attributes && vac.attributes.fan_speed_list ? vac.attributes.fan_speed_list : ["quiet", "balanced", "turbo", "max"]).filter((s) => !["off", "custom", "smart_mode"].includes(s)).map((s) => `
+          <button type="button" class="opt ${speed === s ? "on" : ""}" data-act="set-fan" data-speed="${esc(s)}">${esc(s.replace(/_/g, " "))}</button>`).join("")}
+      </div>
+      <div class="sec-title">Send to a room</div>
+      <div class="ctl-grid">${HOME_VACUUM_ROOMS.map((r, i) => this._ctlTile(r.entity, r.name, "Clean")).join("")}</div>`;
+  }
+
+  _renderGarage() {
+    const cam = this._pic("camera.garage_high");
+    const tesla = this._entOn("binary_sensor.tesla_wall_connector_vehicle_connected");
+    const clim = this._hass && this._hass.states["climate.garage_thermostat"];
+    const temp = clim && clim.attributes ? Math.round(clim.attributes.current_temperature || 0) : "";
+    return `<div class="gar-layout">
+        <div class="gar-cam">
+          ${cam ? `<img src="${esc(cam)}" alt="Garage">` : ""}
+          <div class="cap">Garage</div>
+        </div>
+        <div class="gar-side">
+          <div class="gdoors">${GARAGE_DOORS.map((d) => {
+            const open = this._entOn(d.entity);
+            return `<button type="button" class="gdoor ${open ? "open" : ""}" data-act="ent-toggle" data-entity="${esc(d.entity)}">
+              <div class="name"><span>${esc(d.name)}</span><span class="st">${open ? "Open" : "Closed"}</span></div>
+              <div class="gvis"><div class="panel"></div></div>
+            </button>`;
+          }).join("")}</div>
+        </div>
+      </div>
+      <div class="ctl-grid">
+        <div class="ctl ${tesla ? "on" : ""}"><span>Tesla</span><span class="st">${tesla ? "Plugged in" : "Not connected"}</span></div>
+        <div class="ctl"><span>Garage</span><span class="st">${temp ? `${temp}°` : "—"}</span></div>
+        ${this._ctlTile("switch.air_exchanger", "Air exchanger")}
+      </div>`;
   }
 
   _renderHome() {
@@ -2005,34 +2236,13 @@ class WrightWayCalendarCard extends HTMLElement {
       <div class="tabs">
         <button type="button" class="${tab === "rooms" ? "on" : ""}" data-act="home-tab" data-tab="rooms">Rooms</button>
         <button type="button" class="${tab === "vacuum" ? "on" : ""}" data-act="home-tab" data-tab="vacuum">Vacuum</button>
-        <button type="button" class="${tab === "appliances" ? "on" : ""}" data-act="home-tab" data-tab="appliances">Appliances</button>
+        <button type="button" class="${tab === "garage" ? "on" : ""}" data-act="home-tab" data-tab="garage">Garage</button>
         <button type="button" class="${tab === "outside" ? "on" : ""}" data-act="home-tab" data-tab="outside">Outside</button>
       </div>`;
     let body = "";
-    if (tab === "vacuum") {
-      const vac = this._hass && this._hass.states["vacuum.roborock_qrevo_pro"];
-      const vstate = vac ? vac.state : "unknown";
-      const batt = vac && vac.attributes && vac.attributes.battery_level != null ? `${vac.attributes.battery_level}%` : "";
-      body = `<p class="home-note">Roborock is <strong>${esc(vstate)}</strong>${batt ? ` · ${esc(batt)}` : ""}. Room buttons use your existing vacuum shortcuts.</p>
-        <div class="ctl-grid">
-          <button type="button" class="ctl ${vstate === "cleaning" ? "busy" : ""}" data-act="vac" data-cmd="start"><span>Start</span><span class="st">Clean</span></button>
-          <button type="button" class="ctl" data-act="vac" data-cmd="pause"><span>Pause</span><span class="st">Hold</span></button>
-          <button type="button" class="ctl ${vstate === "docked" || vstate === "returning" ? "on" : ""}" data-act="vac" data-cmd="return_to_base"><span>Dock</span><span class="st">Send home</span></button>
-          ${this._ctlTile("input_boolean.auto_vacuum_enabled", "Auto vacuum", this._entOn("input_boolean.auto_vacuum_enabled") ? "Enabled" : "Off")}
-        </div>
-        <h2>Clean a room</h2>
-        <div class="ctl-grid">${HOME_VACUUM_ROOMS.map((r) => this._ctlTile(r.entity, r.name, "Tap to send")).join("")}</div>`;
-    } else if (tab === "appliances") {
-      const wash = this._entState("sensor.washer_current_status") || "—";
-      const dry = this._entState("sensor.dryer_current_status") || "—";
-      body = `<p class="home-note">Status from the machines. Dishwasher and washer flags are the same helpers as the chore list.</p>
-        <div class="ctl-grid">
-          ${this._ctlTile("input_boolean.dishwasher_is_clean", "Dishwasher", this._entOn("input_boolean.dishwasher_is_clean") ? "Clean — unload" : "Not clean")}
-          ${this._ctlTile("input_boolean.washer_is_done", "Washer", this._entOn("input_boolean.washer_is_done") ? "Done — move laundry" : "Idle")}
-          <div class="ctl"><span>Washer</span><span class="st">${esc(String(wash).replace(/_/g, " "))}</span></div>
-          <div class="ctl"><span>Dryer</span><span class="st">${esc(String(dry).replace(/_/g, " "))}</span></div>
-        </div>`;
-    } else if (tab === "outside") {
+    if (tab === "vacuum") body = this._renderVacuum();
+    else if (tab === "garage") body = this._renderGarage();
+    else if (tab === "outside") {
       body = `<div class="ctl-grid">${HOME_OUTSIDE.map((e) => this._ctlTile(e.entity, e.name)).join("")}</div>`;
     } else if (this._homeRoom) {
       const room = HOME_ROOMS.find((r) => r.id === this._homeRoom);
@@ -2042,18 +2252,17 @@ class WrightWayCalendarCard extends HTMLElement {
           <h2>${esc(room ? room.name : "Room")}</h2>
         </div>
         <div class="ctl-grid">
-          ${(room ? room.entities : []).map((e) => this._ctlTile(e.entity, e.name)).join("")}
+          ${(room ? room.entities : []).map((e) => this._deviceRow(e.entity, e.name)).join("")}
           ${scenes.map((s) => `<button type="button" class="ctl" data-act="scene" data-entity="${esc(s.entity)}" style="background:${esc(this._sceneColor(s))}"><span>${esc(s.name)}</span><span class="st">Scene</span></button>`).join("")}
         </div>`;
     } else {
-      body = `<p class="home-note">Pick a room. Tiles turn orange when that light, fan, or door is on.</p>
-        <div class="room-grid">${HOME_ROOMS.map((r) => {
-          const onCount = r.entities.filter((e) => this._entOn(e.entity)).length;
-          return `<button type="button" class="room-tile ${onCount ? "on" : ""}" data-act="home-room" data-room="${esc(r.id)}">
-            <span>${esc(r.name)}</span>
-            <span class="st">${onCount ? `${onCount} on` : "All off"}</span>
-          </button>`;
-        }).join("")}</div>`;
+      body = `<div class="room-grid">${HOME_ROOMS.map((r, i) => {
+        const onCount = r.entities.filter((e) => this._entOn(e.entity)).length;
+        return `<button type="button" class="room-tile ${onCount ? "on" : ""}" style="animation-delay:${i * 30}ms" data-act="home-room" data-room="${esc(r.id)}">
+          <span>${esc(r.name)}</span>
+          <span class="st">${onCount ? `${onCount} on` : "All off"}</span>
+        </button>`;
+      }).join("")}</div>`;
     }
     return `<div class="home">${tab === "rooms" && this._homeRoom ? "" : tabs}${body}</div>`;
   }
