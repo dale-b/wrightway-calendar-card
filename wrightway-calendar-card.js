@@ -259,8 +259,8 @@ h2 { font-size: 22px; margin: 8px 0 14px; }
   background: var(--wash);
   border-radius: 18px;
   padding: 14px;
-  min-height: 280px;
 }
+.chore-grid .chore-col { min-height: 200px; }
 .chore-col h3 { margin: 0 0 10px; font-size: 16px; display: flex; align-items: center; gap: 8px; }
 .meals {
   display: grid;
@@ -382,18 +382,29 @@ h2 { font-size: 22px; margin: 8px 0 14px; }
   padding: 8px 12px; font: inherit; font-size: 13px; font-weight: 700; cursor: pointer;
 }
 .scenes button:hover { background: #ffedd5; }
-.dock-chores { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; flex: 1; min-height: 0; }
-.dock-chores .chore-col { min-height: 0; padding: 10px; }
-.dock-chores h3 { font-size: 13px; }
-.dock-chores .todo li { font-size: 13px; padding: 6px 0; }
+.dock-chores { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; flex: 0 0 auto; }
+.dock-chores .chore-col { padding: 8px 8px 4px; border-radius: 14px; }
+.dock-chores h3 { font-size: 12px; margin: 0 0 4px; }
+.dock-chores .todo li { font-size: 12px; padding: 3px 0; gap: 6px; }
+.dock-chores .todo input[type=checkbox] { width: 14px; height: 14px; }
+.dock-chores .add-row { display: none; }
 .shop {
   flex: 1; min-height: 0; display: grid;
-  grid-template-columns: 340px 1fr;
+  grid-template-columns: 300px 1fr;
   gap: 12px; padding: 8px 20px 20px;
 }
+.shop-side h2 { margin-top: 0; }
+.shop-actions { display: flex; flex-direction: column; gap: 8px; margin-top: 12px; }
+.shop-actions button {
+  border: 1px solid var(--line); background: #fff; border-radius: 12px;
+  padding: 10px 12px; font: inherit; font-weight: 700; cursor: pointer;
+}
+.shop-actions .primary { background: var(--fab); color: #fff; border: 0; }
+.shop-note { font-size: 13px; color: var(--muted); margin-top: 8px; line-height: 1.35; }
+.shop-main { display: flex; flex-direction: column; min-height: 0; }
 .shop-frame {
-  width: 100%; height: 100%; min-height: 420px;
-  border: 0; border-radius: 16px; background: #fff;
+  width: 100%; flex: 1; min-height: 480px;
+  border: 1px solid var(--line); border-radius: 16px; background: #fff;
 }
 .show {
   position: absolute; inset: 0; z-index: 40;
@@ -462,6 +473,15 @@ function contrastInk(hex) {
 function weatherLabel(state) {
   return (state || "").replace(/-/g, " ");
 }
+
+/* Decorative home stills until family photos are configured. Not your family. */
+const PLACEHOLDER_PHOTOS = [
+  "https://images.unsplash.com/photo-1556912173-46c336c7fd55?auto=format&fit=crop&w=1920&q=80",
+  "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?auto=format&fit=crop&w=1920&q=80",
+  "https://images.unsplash.com/photo-1490750967868-88aa4486c946?auto=format&fit=crop&w=1920&q=80",
+  "https://images.unsplash.com/photo-1509440159596-0249088772ff?auto=format&fit=crop&w=1920&q=80",
+  "https://images.unsplash.com/photo-1511895426328-dc8714191300?auto=format&fit=crop&w=1920&q=80",
+];
 
 const ICONS = {
   calendar: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>',
@@ -538,8 +558,15 @@ class WrightWayCalendarCard extends HTMLElement {
       });
       this.shadowRoot.addEventListener("change", (e) => this._onChange(e));
       this.shadowRoot.addEventListener("keydown", (e) => {
-        if (e.key === "Enter" && e.target.dataset && e.target.dataset.todoInput) {
+        if (e.key !== "Enter") return;
+        if (e.target.dataset && e.target.dataset.todoInput) {
           this._addTodo(e.target.dataset.todoInput, e.target.value);
+        }
+        if (e.target.matches("[data-shop-search]")) {
+          const q = e.target.value;
+          this._addTodo(this._cfg.shopping, q);
+          this._setWalmartSearch(q);
+          e.target.value = "";
         }
       });
     }
@@ -581,10 +608,7 @@ class WrightWayCalendarCard extends HTMLElement {
   _photos() {
     const listed = this._cfg.photos;
     if (Array.isArray(listed) && listed.length) return listed;
-    if (!this._hass) return [];
-    return Object.values(this._hass.states)
-      .filter((s) => s.entity_id.startsWith("person.") && s.attributes && s.attributes.entity_picture)
-      .map((s) => this._hass.hassUrl(s.attributes.entity_picture));
+    return PLACEHOLDER_PHOTOS;
   }
 
   _tickClock() {
@@ -633,7 +657,7 @@ class WrightWayCalendarCard extends HTMLElement {
     const img = this.shadowRoot.getElementById("slide-img");
     if (!img) return;
     if (!photos.length) {
-      img.src = `https://picsum.photos/1920/1080?random=${Date.now()}`;
+      img.src = PLACEHOLDER_PHOTOS[0];
       return;
     }
     this._slideIdx = (this._slideIdx + 1) % photos.length;
@@ -855,7 +879,38 @@ class WrightWayCalendarCard extends HTMLElement {
       this._mountCamera();
       return;
     }
+    if (act === "shop-add") {
+      const input = this.shadowRoot.querySelector("[data-shop-search]");
+      const q = input && input.value;
+      this._addTodo(this._cfg.shopping, q);
+      this._setWalmartSearch(q);
+      if (input) input.value = "";
+      return;
+    }
+    if (act === "shop-search") {
+      const input = this.shadowRoot.querySelector("[data-shop-search]");
+      this._setWalmartSearch(input && input.value);
+      return;
+    }
+    if (act === "shop-open") {
+      const input = this.shadowRoot.querySelector("[data-shop-search]");
+      const q = ((input && input.value) || "").trim();
+      const url = q
+        ? `https://www.walmart.com/search?q=${encodeURIComponent(q)}`
+        : (this._cfg.walmart || "https://www.walmart.com/grocery");
+      window.open(url, "_blank", "noopener");
+      return;
+    }
     this._render();
+  }
+
+  _setWalmartSearch(q) {
+    const frame = this.shadowRoot.querySelector(".shop-frame");
+    const query = (q || "").trim();
+    const url = query
+      ? `https://www.walmart.com/search?q=${encodeURIComponent(query)}`
+      : (this._cfg.walmart || "https://www.walmart.com/grocery");
+    if (frame) frame.src = url;
   }
 
   _onSubmit(e) {
@@ -990,31 +1045,48 @@ class WrightWayCalendarCard extends HTMLElement {
         ${chores.length ? `<div class="dock-chores">${chores.map((c) => `
           <div class="chore-col">
             <h3><span class="dot" style="background:${esc(c.color || "#aaa")}"></span>${esc(c.name)}</h3>
-            ${this._renderTodos(c.entity)}
+            ${this._renderTodos(c.entity, true)}
           </div>`).join("")}</div>` : ""}
       </aside>`;
   }
 
   _renderShop() {
     const shop = this._cfg.shopping;
-    const url = this._cfg.walmart || "https://www.walmart.com/shop";
+    const url = this._cfg.walmart || "https://www.walmart.com/grocery";
     return `<div class="shop">
-      <div>${shop ? this._renderTodos(shop) : "<p>No shopping list.</p>"}</div>
-      <iframe class="shop-frame" src="${esc(url)}" title="Walmart"></iframe>
+      <div class="shop-side">
+        <h2>Groceries</h2>
+        ${shop ? this._renderTodos(shop) : "<p>No shopping list.</p>"}
+        <div class="add-row">
+          <input data-shop-search placeholder="Milk, bananas…"/>
+        </div>
+        <div class="shop-actions">
+          <button class="primary" data-act="shop-add">Add to list</button>
+          <button data-act="shop-search">Find on Walmart</button>
+          <button data-act="shop-open">Open Walmart</button>
+        </div>
+        <p class="shop-note">Add keeps it on the family list. Find loads Walmart search here. If the pane stays white, Walmart blocked the frame — tap Open Walmart.</p>
+      </div>
+      <div class="shop-main">
+        <iframe class="shop-frame" src="${esc(url)}" title="Walmart" referrerpolicy="no-referrer-when-downgrade"></iframe>
+      </div>
     </div>`;
   }
 
-  _renderTodos(entity) {
-    const items = this._todos[entity] || [];
+  _renderTodos(entity, compact) {
+    const all = this._todos[entity] || [];
+    const items = compact
+      ? all.filter((it) => it.status !== "completed").slice(0, 4)
+      : all;
     return `<ul class="todo">${items.map((it) => `
       <li>
         <input type="checkbox" data-act="todo-toggle" data-entity="${esc(entity)}" data-uid="${esc(it.uid)}" ${it.status === "completed" ? "checked" : ""}/>
         <span class="${it.status === "completed" ? "done" : ""}">${esc(it.summary)}</span>
       </li>`).join("")}</ul>
-      <div class="add-row">
+      ${compact ? "" : `<div class="add-row">
         <input data-todo-input="${esc(entity)}" placeholder="Add an item"/>
         <button data-act="todo-add" data-entity="${esc(entity)}">Add</button>
-      </div>`;
+      </div>`}`;
   }
 
   _renderLists() {
