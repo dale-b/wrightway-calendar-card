@@ -333,22 +333,22 @@ h2 { font-size: 22px; margin: 8px 0 14px; }
   display: flex; align-items: center; justify-content: center;
 }
 .gear svg { width: 20px; height: 20px; }
-.stage { flex: 0 0 44vh; max-height: 44vh; min-height: 240px; display: flex; }
+.stage { flex: 1; min-height: 0; display: flex; }
 .cal-col { flex: 1.15; min-width: 0; min-height: 0; display: flex; flex-direction: column; }
 .chore-wrap {
-  flex: 1;
-  min-height: 0;
+  flex: 0 0 auto;
   display: flex;
   flex-direction: column;
   border-top: 1px solid var(--line);
   background: #fafaf9;
+  max-height: min(32vh, calc(var(--chore-rows, 1) * 46px + 58px));
 }
 .chore-head {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 10px 16px 6px;
-  font-size: 12px;
+  padding: 6px 16px 4px;
+  font-size: 11px;
   font-weight: 800;
   letter-spacing: .08em;
   text-transform: uppercase;
@@ -361,36 +361,34 @@ h2 { font-size: 22px; margin: 8px 0 14px; }
 }
 .chore-head button svg { width: 18px; height: 18px; }
 .chore-bar {
-  flex: 1;
-  min-height: 0;
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 12px;
-  padding: 4px 16px 16px;
+  gap: 8px;
+  padding: 0 16px 8px;
   overflow: auto;
 }
 .chore-person { min-width: 0; }
 .chore-person .who {
-  font-size: 13px; font-weight: 800; letter-spacing: .06em;
-  text-transform: uppercase; color: var(--muted); margin-bottom: 8px;
+  font-size: 11px; font-weight: 800; letter-spacing: .06em;
+  text-transform: uppercase; color: var(--muted); margin-bottom: 4px;
   display: flex; align-items: center; gap: 6px;
 }
 .chore-person .todo li {
-  font-size: 16px;
-  padding: 10px 10px;
-  gap: 10px;
+  font-size: 14px;
+  padding: 7px 10px;
+  gap: 8px;
   border-bottom: 0;
   background: #fff;
-  border-radius: 12px;
-  margin-bottom: 8px;
-  min-height: 48px;
+  border-radius: 10px;
+  margin-bottom: 6px;
+  min-height: 40px;
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
 }
 .chore-person .todo li:active { background: #ecfdf5; }
-.chore-person .todo input[type=checkbox] { width: 22px; height: 22px; flex-shrink: 0; pointer-events: none; }
+.chore-person .todo input[type=checkbox] { width: 18px; height: 18px; flex-shrink: 0; pointer-events: none; }
 .chore-person .todo li.late span { color: #c2410c; }
-.chore-empty { color: var(--muted); font-size: 14px; padding: 10px 0; }
+.chore-empty { color: var(--muted); font-size: 13px; padding: 6px 0; }
 .dlg.wide { width: min(720px, 94vw); }
 .freq { display: flex; flex-wrap: wrap; gap: 8px; margin: 8px 0; }
 .freq button, .daysel button {
@@ -1520,13 +1518,15 @@ class WrightWayCalendarCard extends HTMLElement {
     const chores = this._chores();
     if (!chores.length) return "";
     const today = isoDay(this._now);
-    return `<div class="chore-wrap">
+    const dueBy = chores.map((c) => (this._todos[c.entity] || []).filter((it) => choreIsDue(it, today)).slice(0, 6));
+    const rows = Math.max(1, Math.min(4, Math.max(0, ...dueBy.map((d) => d.length))));
+    return `<div class="chore-wrap" style="--chore-rows:${rows}">
       <div class="chore-head">
         <span>Today's chores — tap to check off</span>
         <button data-act="settings" title="Set up chores">${ICONS.gear}</button>
       </div>
-      <div class="chore-bar">${chores.map((c) => {
-        const due = (this._todos[c.entity] || []).filter((it) => choreIsDue(it, today)).slice(0, 6);
+      <div class="chore-bar">${chores.map((c, i) => {
+        const due = dueBy[i];
         return `<div class="chore-person">
           <div class="who"><span class="dot" style="background:${esc(c.color || "#aaa")}"></span>${esc(c.name)}</div>
           ${due.length ? `<ul class="todo">${due.map((it) => {
