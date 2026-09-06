@@ -26,9 +26,18 @@ Or load from jsDelivr after publishing.
 
 ## Configuration
 
+On a 21" landscape panel the month sits left; live camera, scenes, and chores sit on the right. Shop opens Walmart beside the grocery list. After idle, a photo slideshow fills the screen (person pictures, or `photos:` URLs).
+
 ```yaml
 type: custom:wrightway-calendar-card
 weather: weather.forecast_wrightway
+camera: camera.g6_bullet_high_resolution_channel
+camera_alert: binary_sensor.driveway_vehicle_detected_2
+walmart: https://www.walmart.com/shop
+idle_seconds: 90
+scenes:
+  - entity: input_button.kitchen_scene_cooking
+    name: Cooking
 calendars:
   - entity: calendar.dale
     name: Dale
