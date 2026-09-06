@@ -1107,6 +1107,8 @@ class WrightWayCalendarCard extends HTMLElement {
   _onClick(e) {
     const t = e.target.closest("[data-act]");
     if (!t) return;
+    // Backdrop has data-act=close. Ignore that when the click started inside the dialog.
+    if (t.classList.contains("overlay") && e.target !== t) return;
     const act = t.dataset.act;
     if (act === "view") this._view = t.dataset.view;
     if (act === "prev") {
@@ -1325,17 +1327,6 @@ class WrightWayCalendarCard extends HTMLElement {
       </button>`).join("")}</div>`;
   }
 
-  _todayBanner() {
-    const key = isoDay(this._now);
-    const evs = this._eventsOn(key).filter((e) => {
-      const t = eventTimeLabel(e);
-      return t !== "All day";
-    });
-    if (!evs.length) return "";
-    const first = evs[0];
-    return `<div class="banner">${esc(first.summary || "Event")} today</div>`;
-  }
-
   _renderMonth() {
     const y = this._cursor.getFullYear();
     const m = this._cursor.getMonth();
@@ -1369,7 +1360,6 @@ class WrightWayCalendarCard extends HTMLElement {
       <div class="stage">
         <div class="cal-col">
           ${this._renderLegend()}
-          ${this._todayBanner()}
           <div class="grid-wrap">
             <div class="dow">${WEEKDAYS.map((w) => `<div>${w}</div>`).join("")}</div>
             <div class="days">${cells.join("")}</div>
@@ -1494,7 +1484,7 @@ class WrightWayCalendarCard extends HTMLElement {
 
   _renderSettings() {
     const chores = this._chores();
-    return `<div class="overlay" data-act="close"><div class="dlg wide" onclick="event.stopPropagation()">
+    return `<div class="overlay" data-act="close"><div class="dlg wide">
       <h3>Family chores</h3>
       <div class="sub">Who does what, and how often it comes back. Checking one off the home screen marks it done until the next time.</div>
       <div class="setup">${chores.map((c) => {
@@ -1510,7 +1500,7 @@ class WrightWayCalendarCard extends HTMLElement {
               <button class="tiny" data-act="chore-edit" data-entity="${esc(c.entity)}" data-uid="${esc(it.uid || it.summary)}">Edit</button>
               <button class="tiny danger" data-act="chore-del" data-entity="${esc(c.entity)}" data-uid="${esc(it.uid || it.summary)}">Remove</button>
             </div>`).join("")}
-          <button class="add-chore" data-act="chore-new" data-entity="${esc(c.entity)}">+ Add a chore</button>
+          <button type="button" class="add-chore" data-act="chore-new" data-entity="${esc(c.entity)}">+ Add a chore</button>
         </div>`;
       }).join("")}</div>
       <div class="actions">
@@ -1522,7 +1512,7 @@ class WrightWayCalendarCard extends HTMLElement {
   _renderChoreForm() {
     const s = this._sheet;
     const chores = this._chores();
-    return `<div class="overlay" data-act="close"><form class="dlg" data-form="chore" onclick="event.stopPropagation()">
+    return `<div class="overlay" data-act="close"><form class="dlg" data-form="chore">
       <h3>${s.uid ? "Edit chore" : "New chore"}</h3>
       <div class="sub">Assign it, then pick how often it repeats.</div>
       <input name="chore-title" placeholder="Take out trash, feed the cat…" value="${esc(s.title || "")}" required autofocus/>
@@ -1554,7 +1544,7 @@ class WrightWayCalendarCard extends HTMLElement {
       const key = isoDay(d);
       const evs = this._eventsOn(key);
       const label = `${MONTHS[d.getMonth()]} ${d.getDate()}`;
-      return `<div class="overlay" data-act="close"><div class="dlg" onclick="event.stopPropagation()">
+      return `<div class="overlay" data-act="close"><div class="dlg">
         <h3>${esc(label)}</h3>
         <div class="sub">${evs.length} event${evs.length === 1 ? "" : "s"}</div>
         ${evs.map((ev) => `
@@ -1570,7 +1560,7 @@ class WrightWayCalendarCard extends HTMLElement {
     }
     const s = this._sheet;
     const cals = this._cals();
-    return `<div class="overlay" data-act="close"><form class="dlg" data-form="add" onclick="event.stopPropagation()">
+    return `<div class="overlay" data-act="close"><form class="dlg" data-form="add">
       <h3>New event</h3>
       <div class="sub">${esc(MONTHS[s.date.getMonth()])} ${s.date.getDate()}</div>
       <input name="title" placeholder="What's happening?" required autofocus/>
