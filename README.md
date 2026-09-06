@@ -60,4 +60,14 @@ meals:
   sunday: input_text.meal_sunday
 ```
 
+House helpers (cat litter sensor, dishwasher clean, washer done, trash, homework) can be bound with `house_chores`. `mode: done` means the helper is **on** after the job is finished. `mode: due` means the helper is **on** when the machine needs emptying.
+
+```yaml
+house_chores:
+  - helper: input_boolean.cat_litter_has_been_done
+    name: Cat litter
+    who: Dale
+    mode: done
+```
+
 Use a **Panel** view with this as the only card so the month grid can use the full 1920×1080 kitchen display.

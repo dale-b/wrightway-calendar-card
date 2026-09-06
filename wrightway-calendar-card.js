@@ -362,7 +362,7 @@ h2 { font-size: 22px; margin: 8px 0 14px; }
 .chore-head button svg { width: 18px; height: 18px; }
 .chore-bar {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
   gap: 8px;
   padding: 0 16px 8px;
   overflow: auto;
@@ -692,6 +692,19 @@ function freqLabel(meta) {
 
 const DAY_LETTERS = ["S", "M", "T", "W", "T", "F", "S"];
 
+const DEFAULT_HOUSE_CHORES = [
+  { helper: "input_boolean.cat_litter_has_been_done", name: "Cat litter", who: "Dale", mode: "done" },
+  { helper: "input_boolean.dishwasher_is_clean", name: "Unload dishwasher", who: "House", mode: "due" },
+  { helper: "input_boolean.washer_is_done", name: "Move laundry", who: "House", mode: "due" },
+  { helper: "input_boolean.take_out_trash", name: "Take out trash", who: "House", mode: "done" },
+  { helper: "input_boolean.homework_ben", name: "Homework", who: "Ben", mode: "done" },
+  { helper: "input_boolean.homework_david", name: "Homework", who: "David", mode: "done" },
+];
+
+function normName(s) {
+  return String(s || "").toLowerCase().replace(/[^a-z0-9]+/g, "");
+}
+
 /* Decorative home stills until family photos are configured. Not your family. */
 const PLACEHOLDER_PHOTOS = [
   "https://images.unsplash.com/photo-1556912173-46c336c7fd55?auto=format&fit=crop&w=1920&q=80",
@@ -731,6 +744,8 @@ class WrightWayCalendarCard extends HTMLElement {
     this._slideIdx = 0;
     this._homeCam = null;
     this._liveCam = null;
+    this._helperSnap = "";
+    this._helperOverride = {};
   }
 
   setConfig(config) {
@@ -748,6 +763,7 @@ class WrightWayCalendarCard extends HTMLElement {
         this._tickClock();
         this._tickIdle();
         this._tickAlert();
+        this._tickHelpers();
       }, 1000);
       this._loadEvents();
       this._loadTodos();
@@ -817,6 +833,54 @@ class WrightWayCalendarCard extends HTMLElement {
 
   _chores() {
     return (this._cfg.chores || []).filter((c) => c && c.entity);
+  }
+
+  _houseChores() {
+    const listed = this._cfg.house_chores;
+    const raw = Array.isArray(listed) && listed.length ? listed : DEFAULT_HOUSE_CHORES;
+    return raw.filter((c) => c && c.helper && (!this._hass || this._hass.states[c.helper]));
+  }
+
+  _helperState(id) {
+    if (this._helperOverride && this._helperOverride[id]) return this._helperOverride[id];
+    const st = this._hass && this._hass.states[id];
+    return st ? st.state : "";
+  }
+
+  _helperDue(c) {
+    const state = this._helperState(c.helper);
+    if (!state) return false;
+    const on = state === "on";
+    return (c.mode || "done") === "due" ? on : !on;
+  }
+
+  _chorePeople() {
+    const people = [];
+    const seen = new Set();
+    const add = (name, color, entity) => {
+      if (!name || seen.has(name)) return;
+      seen.add(name);
+      people.push({ name, color: color || "#5eead4", entity: entity || null });
+    };
+    this._chores().forEach((c) => add(c.name, c.color, c.entity));
+    this._houseChores().forEach((c) => add(c.who || "House", c.color, null));
+    return people;
+  }
+
+  _helperSig() {
+    return this._houseChores().map((c) => `${c.helper}:${this._helperState(c.helper)}`).join("|");
+  }
+
+  _tickHelpers() {
+    const sig = this._helperSig();
+    if (sig === this._helperSnap) return;
+    this._helperSnap = sig;
+    const wrap = this.shadowRoot.querySelector(".chore-wrap");
+    if (!wrap || this._view !== "calendar") return;
+    const tmp = document.createElement("div");
+    tmp.innerHTML = this._renderChoreBar();
+    const next = tmp.firstElementChild;
+    if (next) wrap.replaceWith(next);
   }
 
   _weather() {
@@ -1152,6 +1216,14 @@ class WrightWayCalendarCard extends HTMLElement {
     await this._loadTodos();
   }
 
+  async _toggleHelper(helper, mode) {
+    if (!helper || !this._hass) return;
+    const service = (mode || "done") === "due" ? "turn_off" : "turn_on";
+    this._helperOverride = { ...(this._helperOverride || {}), [helper]: service === "turn_on" ? "on" : "off" };
+    this._tickHelpers();
+    await this._hass.callService("input_boolean", service, { entity_id: helper });
+  }
+
   _readChoreForm() {
     const s = this._sheet;
     if (!s || s.type !== "chore") return;
@@ -1344,6 +1416,10 @@ class WrightWayCalendarCard extends HTMLElement {
       if (item) this._toggleTodo(t.dataset.entity, item);
       return;
     }
+    if (act === "helper-toggle") {
+      this._toggleHelper(t.dataset.helper, t.dataset.mode);
+      return;
+    }
     if (act === "scene") {
       t.classList.add("flash");
       t.blur();
@@ -1515,27 +1591,45 @@ class WrightWayCalendarCard extends HTMLElement {
   }
 
   _renderChoreBar() {
-    const chores = this._chores();
-    if (!chores.length) return "";
+    const people = this._chorePeople();
+    if (!people.length) return "";
     const today = isoDay(this._now);
-    const dueBy = chores.map((c) => (this._todos[c.entity] || []).filter((it) => choreIsDue(it, today)).slice(0, 6));
-    const rows = Math.max(1, Math.min(4, Math.max(0, ...dueBy.map((d) => d.length))));
+    const house = this._houseChores();
+    const lists = people.map((p) => {
+      const bound = house.filter((h) => (h.who || "House") === p.name);
+      const boundNames = new Set(bound.map((h) => normName(h.name)));
+      const helpers = bound.filter((h) => this._helperDue(h));
+      const todos = p.entity
+        ? (this._todos[p.entity] || [])
+          .filter((it) => choreIsDue(it, today) && !boundNames.has(normName(it.summary)))
+          .slice(0, 6)
+        : [];
+      return { person: p, helpers, todos };
+    });
+    const rows = Math.max(1, Math.min(4, Math.max(0, ...lists.map((l) => l.helpers.length + l.todos.length))));
     return `<div class="chore-wrap" style="--chore-rows:${rows}">
       <div class="chore-head">
         <span>Today's chores — tap to check off</span>
         <button data-act="settings" title="Set up chores">${ICONS.gear}</button>
       </div>
-      <div class="chore-bar">${chores.map((c, i) => {
-        const due = dueBy[i];
+      <div class="chore-bar">${lists.map(({ person: c, helpers, todos }) => {
+        const empty = !helpers.length && !todos.length;
         return `<div class="chore-person">
           <div class="who"><span class="dot" style="background:${esc(c.color || "#aaa")}"></span>${esc(c.name)}</div>
-          ${due.length ? `<ul class="todo">${due.map((it) => {
-            const late = (itemDueDay(it) || today) < today;
-            return `<li class="${late ? "late" : ""}" data-act="todo-toggle" data-entity="${esc(c.entity)}" data-uid="${esc(it.uid || it.summary)}">
-              <input type="checkbox" tabindex="-1" ${it.status === "completed" ? "checked" : ""}/>
-              <span>${esc(it.summary)}</span>
-            </li>`;
-          }).join("")}</ul>` : `<div class="chore-empty">All clear</div>`}
+          ${empty ? `<div class="chore-empty">All clear</div>` : `<ul class="todo">
+            ${helpers.map((h) => `
+              <li data-act="helper-toggle" data-helper="${esc(h.helper)}" data-mode="${esc(h.mode || "done")}">
+                <input type="checkbox" tabindex="-1"/>
+                <span>${esc(h.name)}</span>
+              </li>`).join("")}
+            ${todos.map((it) => {
+              const late = (itemDueDay(it) || today) < today;
+              return `<li class="${late ? "late" : ""}" data-act="todo-toggle" data-entity="${esc(c.entity)}" data-uid="${esc(it.uid || it.summary)}">
+                <input type="checkbox" tabindex="-1" ${it.status === "completed" ? "checked" : ""}/>
+                <span>${esc(it.summary)}</span>
+              </li>`;
+            }).join("")}
+          </ul>`}
         </div>`;
       }).join("")}</div>
     </div>`;
@@ -1730,6 +1824,7 @@ class WrightWayCalendarCard extends HTMLElement {
         </div>
       </div>`;
     this._mountCamera();
+    this._helperSnap = this._helperSig();
   }
 }
 
