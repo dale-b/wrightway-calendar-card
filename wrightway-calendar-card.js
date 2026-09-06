@@ -46,14 +46,14 @@ const CSS = `
   border-right: 1px solid var(--line);
 }
 .logo {
-  width: 42px; height: 42px;
+  width: 38px; height: 38px;
   border-radius: 12px;
   background: #1c1917;
   color: #fff;
   font-weight: 700;
-  font-size: 22px;
+  font-size: 20px;
   display: flex; align-items: center; justify-content: center;
-  margin-bottom: 18px;
+  margin-bottom: 12px;
 }
 .rail-btn {
   width: 72px;
@@ -85,22 +85,22 @@ const CSS = `
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 14px 28px 10px 24px;
-  gap: 16px;
+  padding: 8px 20px 4px 16px;
+  gap: 12px;
   flex-shrink: 0;
 }
 .when {
   font-family: "Iowan Old Style", Palatino, "Palatino Linotype", Georgia, serif;
-  font-size: clamp(28px, 3.2vw, 42px);
+  font-size: clamp(22px, 2.3vw, 32px);
   font-weight: 600;
   letter-spacing: -0.02em;
   display: flex;
   align-items: baseline;
-  gap: 14px;
+  gap: 12px;
   flex-wrap: wrap;
 }
 .when .time { font-size: 0.72em; font-weight: 500; color: #44403c; }
-.wx { display: flex; align-items: center; gap: 8px; color: var(--muted); font-size: 18px; }
+.wx { display: flex; align-items: center; gap: 8px; color: var(--muted); font-size: 15px; }
 .wx .temp { color: var(--ink); font-weight: 600; }
 .tools { display: flex; align-items: center; gap: 8px; }
 .tools button, .pill {
@@ -115,7 +115,7 @@ const CSS = `
   color: var(--ink);
 }
 .tools button:hover { background: var(--wash); }
-.legend { display: flex; gap: 8px; flex-wrap: wrap; padding: 0 24px 10px; flex-shrink: 0; }
+.legend { display: flex; gap: 8px; flex-wrap: wrap; padding: 0 16px 6px; flex-shrink: 0; }
 .chip {
   border: 0;
   background: transparent;
@@ -134,12 +134,12 @@ const CSS = `
 .chip.off { opacity: 0.35; }
 .dot { width: 10px; height: 10px; border-radius: 50%; }
 .banner {
-  margin: 0 24px 8px;
+  margin: 0 16px 6px;
   background: #fde8e8;
   color: #9f1239;
   border-radius: 999px;
-  padding: 8px 16px;
-  font-size: 14px;
+  padding: 6px 14px;
+  font-size: 13px;
   font-weight: 600;
   flex-shrink: 0;
 }
@@ -148,7 +148,7 @@ const CSS = `
   min-height: 0;
   display: flex;
   flex-direction: column;
-  padding: 0 8px 8px 8px;
+  padding: 0 8px 0 8px;
 }
 .dow {
   display: grid;
@@ -157,9 +157,9 @@ const CSS = `
 }
 .dow div {
   text-align: center;
-  font-size: 18px;
+  font-size: 13px;
   font-weight: 600;
-  padding: 8px 0 6px;
+  padding: 4px 0 3px;
   border-left: 1px solid var(--line);
 }
 .dow div:first-child { border-left: 0; }
@@ -176,7 +176,7 @@ const CSS = `
   overflow: hidden;
   border-left: 1px solid var(--line);
   border-bottom: 1px solid var(--line);
-  padding: 6px 6px 4px;
+  padding: 3px 5px 2px;
   display: flex;
   flex-direction: column;
   cursor: pointer;
@@ -189,14 +189,14 @@ const CSS = `
 .day-head {
   display: flex;
   justify-content: flex-end;
-  margin-bottom: 4px;
+  margin-bottom: 2px;
   flex-shrink: 0;
 }
 .num {
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 600;
-  width: 26px;
-  height: 26px;
+  width: 22px;
+  height: 22px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -207,11 +207,11 @@ const CSS = `
   color: #fff;
   border-radius: 50%;
 }
-.evs { flex: 1; min-height: 0; display: flex; flex-direction: column; gap: 3px; overflow: hidden; }
+.evs { flex: 1; min-height: 0; display: flex; flex-direction: column; gap: 2px; overflow: hidden; }
 .ev {
-  border-radius: 8px;
-  padding: 2px 7px;
-  font-size: 12px;
+  border-radius: 6px;
+  padding: 1px 6px;
+  font-size: 11px;
   font-weight: 650;
   line-height: 1.25;
   white-space: nowrap;
@@ -219,7 +219,7 @@ const CSS = `
   text-overflow: ellipsis;
   color: #1c1917;
 }
-.more { font-size: 12px; font-weight: 700; color: var(--muted); padding: 2px 4px; }
+.more { font-size: 11px; font-weight: 700; color: var(--muted); padding: 1px 4px; }
 .pane { flex: 1; min-height: 0; overflow: auto; padding: 8px 28px 28px; }
 h2 { font-size: 22px; margin: 8px 0 14px; }
 .todo { list-style: none; margin: 0; padding: 0; }
@@ -279,16 +279,17 @@ h2 { font-size: 22px; margin: 8px 0 14px; }
   position: absolute;
   right: 28px;
   bottom: 24px;
-  width: 64px; height: 64px;
+  width: 56px; height: 56px;
   border-radius: 50%;
   background: var(--fab);
   color: #fff;
   border: 0;
-  font-size: 36px;
+  font-size: 32px;
   line-height: 1;
   cursor: pointer;
   box-shadow: 0 8px 24px rgba(37,99,235,.35);
 }
+.app.home .fab { bottom: 148px; }
 .overlay {
   position: absolute; inset: 0;
   background: rgba(28,25,23,.28);
@@ -327,17 +328,101 @@ h2 { font-size: 22px; margin: 8px 0 14px; }
 .dlg .row { display: flex; gap: 8px; margin: 8px 0; }
 .dlg .actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 12px; }
 .dlg .ghost { background: transparent; border: 0; font: inherit; font-weight: 600; cursor: pointer; color: var(--muted); }
+.gear {
+  width: 40px; height: 40px; padding: 0 !important;
+  display: flex; align-items: center; justify-content: center;
+}
+.gear svg { width: 20px; height: 20px; }
 .stage { flex: 1; min-height: 0; display: flex; }
-.cal-col { flex: 1.25; min-width: 0; min-height: 0; display: flex; flex-direction: column; }
+.cal-col { flex: 1.15; min-width: 0; min-height: 0; display: flex; flex-direction: column; }
+.chore-wrap {
+  flex-shrink: 0;
+  border-top: 1px solid var(--line);
+  background: #fafaf9;
+}
+.chore-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 16px 0;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.chore-head button {
+  border: 0; background: transparent; color: var(--muted);
+  cursor: pointer; padding: 4px; display: flex; align-items: center;
+}
+.chore-head button svg { width: 18px; height: 18px; }
+.chore-bar {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+  padding: 4px 16px 8px;
+  max-height: 118px;
+  overflow: auto;
+}
+.chore-person { min-width: 0; }
+.chore-person .who {
+  font-size: 11px; font-weight: 800; letter-spacing: .06em;
+  text-transform: uppercase; color: var(--muted); margin-bottom: 2px;
+  display: flex; align-items: center; gap: 6px;
+}
+.chore-person .todo li { font-size: 13px; padding: 2px 0; gap: 6px; border-bottom: 0; }
+.chore-person .todo input[type=checkbox] { width: 14px; height: 14px; }
+.chore-person .todo li.late span { color: #c2410c; }
+.chore-empty { color: var(--muted); font-size: 12px; padding: 4px 0; }
+.dlg.wide { width: min(720px, 94vw); }
+.freq { display: flex; flex-wrap: wrap; gap: 8px; margin: 8px 0; }
+.freq button, .daysel button {
+  border: 1px solid var(--line);
+  background: #fff;
+  border-radius: 999px;
+  padding: 8px 12px;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.freq button.on, .daysel button.on {
+  background: #1c1917;
+  color: #fff;
+  border-color: #1c1917;
+}
+.daysel { display: flex; gap: 6px; flex-wrap: wrap; margin: 8px 0; }
+.daysel button { width: 40px; padding: 8px 0; }
+.n-row { display: flex; align-items: center; gap: 8px; margin: 8px 0; font-size: 15px; }
+.n-row input { width: 72px; flex: none; }
+.setup { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.setup .person-block { background: var(--wash); border-radius: 16px; padding: 12px; }
+.setup h4 { margin: 0 0 8px; font-size: 15px; display: flex; align-items: center; gap: 8px; }
+.chore-row {
+  display: flex; align-items: center; gap: 8px;
+  padding: 8px 0; border-bottom: 1px solid var(--line); font-size: 14px;
+}
+.chore-row .grow { flex: 1; min-width: 0; }
+.chore-row .meta { font-size: 12px; color: var(--muted); }
+.chore-row .tiny {
+  border: 0; background: transparent; color: var(--muted);
+  font: inherit; font-weight: 700; cursor: pointer; padding: 4px 6px;
+}
+.chore-row .tiny.danger { color: #9f1239; }
+.add-chore {
+  margin-top: 8px; border: 1px dashed var(--line); background: #fff;
+  border-radius: 10px; padding: 8px 10px; font: inherit; font-weight: 700;
+  cursor: pointer; width: 100%; color: var(--ink);
+}
 .dock {
-  width: 360px;
+  width: 300px;
   flex-shrink: 0;
   min-height: 0;
   overflow: auto;
   display: flex;
   flex-direction: column;
   gap: 10px;
-  padding: 0 16px 16px 8px;
+  padding: 0 16px 8px 8px;
   transition: width .25s ease;
 }
 .dock.hot { width: 520px; }
@@ -382,12 +467,6 @@ h2 { font-size: 22px; margin: 8px 0 14px; }
   padding: 8px 12px; font: inherit; font-size: 13px; font-weight: 700; cursor: pointer;
 }
 .scenes button:hover { background: #ffedd5; }
-.dock-chores { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; flex: 0 0 auto; }
-.dock-chores .chore-col { padding: 8px 8px 4px; border-radius: 14px; }
-.dock-chores h3 { font-size: 12px; margin: 0 0 4px; }
-.dock-chores .todo li { font-size: 12px; padding: 3px 0; gap: 6px; }
-.dock-chores .todo input[type=checkbox] { width: 14px; height: 14px; }
-.dock-chores .add-row { display: none; }
 .shop {
   flex: 1; min-height: 0; display: grid;
   grid-template-columns: 300px 1fr;
@@ -474,6 +553,98 @@ function weatherLabel(state) {
   return (state || "").replace(/-/g, " ");
 }
 
+function parseWW(desc) {
+  if (!desc) return null;
+  const m = String(desc).match(/WW:(\{.*\})/);
+  if (!m) return null;
+  try { return JSON.parse(m[1]); } catch (e) { return null; }
+}
+
+function encodeWW(meta) {
+  return "WW:" + JSON.stringify(meta);
+}
+
+function parseDay(s) {
+  if (s instanceof Date) {
+    return new Date(s.getFullYear(), s.getMonth(), s.getDate(), 12, 0, 0);
+  }
+  const [y, m, d] = String(s).slice(0, 10).split("-").map(Number);
+  return new Date(y, (m || 1) - 1, d || 1, 12, 0, 0);
+}
+
+function itemDueDay(it) {
+  const d = it.due;
+  if (!d) return null;
+  if (typeof d === "string") return d.slice(0, 10);
+  if (d.date) return d.date;
+  if (d.dateTime) return String(d.dateTime).slice(0, 10);
+  return null;
+}
+
+function nextDueDate(meta, from, today) {
+  const now = parseDay(today || new Date());
+  let d = parseDay(from || now);
+  if (d < now) d = now;
+  if (meta.freq === "daily" || (meta.freq === "every" && Number(meta.n) === 1)) {
+    d.setDate(d.getDate() + 1);
+    return isoDay(d);
+  }
+  if (meta.freq === "every") {
+    d.setDate(d.getDate() + Math.max(2, Number(meta.n) || 2));
+    return isoDay(d);
+  }
+  const days = Array.isArray(meta.days) ? meta.days.map(Number) : [];
+  for (let i = 1; i <= 8; i += 1) {
+    const t = new Date(d);
+    t.setDate(d.getDate() + i);
+    if (days.includes(t.getDay())) return isoDay(t);
+  }
+  d.setDate(d.getDate() + 1);
+  return isoDay(d);
+}
+
+function firstDueDate(meta, from) {
+  const d = parseDay(from || new Date());
+  if (meta.freq === "weekly") {
+    const days = Array.isArray(meta.days) ? meta.days.map(Number) : [];
+    for (let i = 0; i <= 7; i += 1) {
+      const t = new Date(d);
+      t.setDate(d.getDate() + i);
+      if (days.includes(t.getDay())) return isoDay(t);
+    }
+  }
+  return isoDay(d);
+}
+
+function choreIsDue(it, todayKey) {
+  if (it.status === "completed") return false;
+  const due = itemDueDay(it);
+  if (due) return due <= todayKey;
+  const meta = parseWW(it.description);
+  if (meta && meta.freq === "weekly") {
+    const days = (meta.days || []).map(Number);
+    const dow = parseDay(todayKey).getDay();
+    return days.includes(dow);
+  }
+  return true;
+}
+
+function freqLabel(meta) {
+  if (!meta) return "Once";
+  if (meta.freq === "daily") return "Every day";
+  if (meta.freq === "every") {
+    const n = Number(meta.n) || 2;
+    return n === 2 ? "Every other day" : `Every ${n} days`;
+  }
+  const names = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+  const days = (meta.days || []).map(Number).sort();
+  if (days.length === 7) return "Every day";
+  if (!days.length) return "Weekly";
+  return days.map((d) => names[d]).join(", ");
+}
+
+const DAY_LETTERS = ["S", "M", "T", "W", "T", "F", "S"];
+
 /* Decorative home stills until family photos are configured. Not your family. */
 const PLACEHOLDER_PHOTOS = [
   "https://images.unsplash.com/photo-1556912173-46c336c7fd55?auto=format&fit=crop&w=1920&q=80",
@@ -489,6 +660,7 @@ const ICONS = {
   tasks: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 13l4 4L19 7"/></svg>',
   meals: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 3v8a4 4 0 008 0V3M8 3v18M16 8v13M16 8s3-1 3-4-3-3-3-3"/></svg>',
   shop: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 7h15l-1.5 9h-12L5 4H2"/><circle cx="9" cy="20" r="1.5"/><circle cx="18" cy="20" r="1.5"/></svg>',
+  gear: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M12 2v2.5M12 19.5V22M4.93 4.93l1.77 1.77M17.3 17.3l1.77 1.77M2 12h2.5M19.5 12H22M4.93 19.07l1.77-1.77M17.3 6.7l1.77-1.77"/></svg>',
 };
 
 class WrightWayCalendarCard extends HTMLElement {
@@ -554,7 +726,7 @@ class WrightWayCalendarCard extends HTMLElement {
       });
       this.shadowRoot.addEventListener("pointerdown", () => { this._idleAt = Date.now(); });
       this.shadowRoot.addEventListener("submit", (e) => {
-        if (e.target.dataset && e.target.dataset.form === "add") this._onSubmit(e);
+        if (e.target.dataset && e.target.dataset.form) this._onSubmit(e);
       });
       this.shadowRoot.addEventListener("change", (e) => this._onChange(e));
       this.shadowRoot.addEventListener("keydown", (e) => {
@@ -609,6 +781,21 @@ class WrightWayCalendarCard extends HTMLElement {
     const listed = this._cfg.photos;
     if (Array.isArray(listed) && listed.length) return listed;
     return PLACEHOLDER_PHOTOS;
+  }
+
+  _cameraLabel(entity) {
+    if (!entity) return "Driveway";
+    const named = (this._cfg.cameras || []).find((c) => c.entity === entity);
+    if (named && named.name) return named.name;
+    const st = this._hass && this._hass.states[entity];
+    let name = (st && st.attributes && st.attributes.friendly_name) || "";
+    name = name.replace(/\s*High resolution channel\s*/gi, "").trim();
+    name = name.replace(/\s*Low resolution channel\s*/gi, "").trim();
+    if (!name || /channel/i.test(name)) {
+      if (/g6_bullet/.test(entity)) return "Driveway";
+      return "Camera";
+    }
+    return name;
   }
 
   _tickClock() {
@@ -805,6 +992,10 @@ class WrightWayCalendarCard extends HTMLElement {
     await this._loadEvents();
   }
 
+  _todoId(item) {
+    return item.uid || item.summary;
+  }
+
   async _addTodo(entity, text) {
     const item = (text || "").trim();
     if (!item || !this._hass) return;
@@ -813,12 +1004,99 @@ class WrightWayCalendarCard extends HTMLElement {
   }
 
   async _toggleTodo(entity, item) {
+    const meta = parseWW(item.description);
+    if (meta && item.status !== "completed") {
+      const today = isoDay(this._now);
+      const due = itemDueDay(item) || today;
+      await this._hass.callService("todo", "update_item", {
+        entity_id: entity,
+        item: this._todoId(item),
+        status: "needs_action",
+        due_date: nextDueDate(meta, due, today),
+      });
+      await this._loadTodos();
+      return;
+    }
     const next = item.status === "completed" ? "needs_action" : "completed";
     await this._hass.callService("todo", "update_item", {
       entity_id: entity,
-      item: item.summary,
+      item: this._todoId(item),
       status: next,
     });
+    await this._loadTodos();
+  }
+
+  _readChoreForm() {
+    const s = this._sheet;
+    if (!s || s.type !== "chore") return;
+    const titleEl = this.shadowRoot.querySelector("[name=chore-title]");
+    const nEl = this.shadowRoot.querySelector("[name=chore-n]");
+    if (titleEl) s.title = titleEl.value;
+    if (nEl) s.n = Math.max(2, Number(nEl.value) || 2);
+  }
+
+  _choreMetaFromSheet(s) {
+    if (s.freq === "once") return null;
+    if (s.freq === "every2") return { freq: "every", n: 2 };
+    if (s.freq === "every") return { freq: "every", n: Math.max(2, Number(s.n) || 3) };
+    const days = Array.isArray(s.days) && s.days.length ? s.days.map(Number) : [this._now.getDay()];
+    return { freq: "weekly", days };
+  }
+
+  async _saveChore() {
+    this._readChoreForm();
+    const s = this._sheet;
+    if (!s || !s.title || !s.entity || !this._hass) return;
+    const title = s.title.trim();
+    if (!title) return;
+    const meta = this._choreMetaFromSheet(s);
+    const description = meta ? encodeWW(meta) : "";
+    const due = meta ? firstDueDate(meta, this._now) : isoDay(this._now);
+    if (s.uid) {
+      const list = this._todos[s.entity] || [];
+      const current = list.find((i) => i.uid === s.uid || i.summary === s.uid);
+      const sameList = !s.fromEntity || s.fromEntity === s.entity;
+      if (current && sameList) {
+        const data = {
+          entity_id: s.entity,
+          item: this._todoId(current),
+          rename: title,
+          status: "needs_action",
+          description,
+          due_date: due,
+        };
+        await this._hass.callService("todo", "update_item", data);
+      } else {
+        if (s.fromEntity) {
+          await this._hass.callService("todo", "remove_item", {
+            entity_id: s.fromEntity,
+            item: s.uid,
+          });
+        }
+        await this._hass.callService("todo", "add_item", {
+          entity_id: s.entity,
+          item: title,
+          description,
+          due_date: due,
+        });
+      }
+    } else {
+      const data = { entity_id: s.entity, item: title, due_date: due };
+      if (description) data.description = description;
+      try {
+        await this._hass.callService("todo", "add_item", data);
+      } catch (e) {
+        await this._hass.callService("todo", "add_item", { entity_id: s.entity, item: title });
+      }
+    }
+    this._sheet = { type: "settings" };
+    await this._loadTodos();
+  }
+
+  async _deleteChore(entity, uid) {
+    if (!entity || !uid || !this._hass) return;
+    await this._hass.callService("todo", "remove_item", { entity_id: entity, item: uid });
+    this._sheet = { type: "settings" };
     await this._loadTodos();
   }
 
@@ -847,6 +1125,76 @@ class WrightWayCalendarCard extends HTMLElement {
     if (act === "day") this._openDay(new Date(t.dataset.date + "T12:00:00"));
     if (act === "add") this._openAdd(this._sheet && this._sheet.date ? this._sheet.date : new Date());
     if (act === "close") this._sheet = null;
+    if (act === "settings") this._sheet = { type: "settings" };
+    if (act === "chore-new") {
+      this._sheet = {
+        type: "chore",
+        entity: t.dataset.entity,
+        fromEntity: t.dataset.entity,
+        uid: null,
+        title: "",
+        freq: "weekly",
+        days: [this._now.getDay()],
+        n: 3,
+      };
+    }
+    if (act === "chore-edit") {
+      const list = this._todos[t.dataset.entity] || [];
+      const item = list.find((i) => i.uid === t.dataset.uid || i.summary === t.dataset.uid);
+      const meta = item ? parseWW(item.description) : null;
+      let freq = "once";
+      let n = 3;
+      let days = [this._now.getDay()];
+      if (meta && meta.freq === "weekly") {
+        freq = "weekly";
+        days = (meta.days || []).map(Number);
+      } else if (meta && meta.freq === "every" && Number(meta.n) === 2) {
+        freq = "every2";
+        n = 2;
+      } else if (meta && (meta.freq === "every" || meta.freq === "daily")) {
+        freq = "every";
+        n = meta.freq === "daily" ? 1 : Math.max(2, Number(meta.n) || 3);
+        if (n === 1) {
+          freq = "weekly";
+          days = [0, 1, 2, 3, 4, 5, 6];
+        }
+      }
+      this._sheet = {
+        type: "chore",
+        entity: t.dataset.entity,
+        fromEntity: t.dataset.entity,
+        uid: t.dataset.uid,
+        title: item ? item.summary : "",
+        freq,
+        days,
+        n,
+      };
+    }
+    if (act === "chore-who" && this._sheet) {
+      this._readChoreForm();
+      this._sheet.entity = t.dataset.entity;
+    }
+    if (act === "chore-freq" && this._sheet) {
+      this._readChoreForm();
+      this._sheet.freq = t.dataset.freq;
+    }
+    if (act === "chore-day" && this._sheet) {
+      this._readChoreForm();
+      const day = Number(t.dataset.day);
+      const days = new Set((this._sheet.days || []).map(Number));
+      if (days.has(day)) days.delete(day);
+      else days.add(day);
+      this._sheet.days = Array.from(days).sort();
+      this._sheet.freq = "weekly";
+    }
+    if (act === "chore-save") {
+      this._saveChore();
+      return;
+    }
+    if (act === "chore-del") {
+      this._deleteChore(t.dataset.entity, t.dataset.uid);
+      return;
+    }
     if (act === "filter") {
       const id = t.dataset.entity;
       if (this._hidden.has(id)) this._hidden.delete(id);
@@ -864,7 +1212,7 @@ class WrightWayCalendarCard extends HTMLElement {
     }
     if (act === "todo-toggle") {
       const list = this._todos[t.dataset.entity] || [];
-      const item = list.find((i) => i.uid === t.dataset.uid);
+      const item = list.find((i) => i.uid === t.dataset.uid || i.summary === t.dataset.uid);
       if (item) this._toggleTodo(t.dataset.entity, item);
       return;
     }
@@ -877,6 +1225,8 @@ class WrightWayCalendarCard extends HTMLElement {
       const host = this.shadowRoot.getElementById("live-cam");
       if (host) host.dataset.mounted = "";
       this._mountCamera();
+      const tag = this.shadowRoot.querySelector(".cam-tag");
+      if (tag) tag.textContent = this._cameraLabel(t.dataset.entity);
       return;
     }
     if (act === "shop-add") {
@@ -922,12 +1272,21 @@ class WrightWayCalendarCard extends HTMLElement {
       this._sheet.allDay = form.querySelector("[name=allday]").checked;
       this._saveEvent();
     }
+    if (form.dataset.form === "chore") {
+      this._saveChore();
+    }
   }
 
   _onChange(e) {
     const t = e.target;
     if (t.dataset.meal) {
       this._setMeal(t.dataset.meal, t.value);
+    }
+    if (t.name === "chore-n" && this._sheet && this._sheet.type === "chore") {
+      this._sheet.n = Math.max(2, Number(t.value) || 2);
+    }
+    if (t.name === "chore-title" && this._sheet && this._sheet.type === "chore") {
+      this._sheet.title = t.value;
     }
   }
 
@@ -954,6 +1313,7 @@ class WrightWayCalendarCard extends HTMLElement {
           <button data-act="prev" title="Previous">‹</button>
           <button data-act="today">Today</button>
           <button data-act="next" title="Next">›</button>
+          <button class="gear" data-act="settings" title="Chore settings">${ICONS.gear}</button>
         </div>
       </div>`;
   }
@@ -990,9 +1350,9 @@ class WrightWayCalendarCard extends HTMLElement {
       const weekend = d.getDay() === 0 || d.getDay() === 6;
       const today = key === todayKey;
       const evs = this._eventsOn(key);
-      const max = 3;
-      const show = evs.length > max ? evs.slice(0, 2) : evs.slice(0, max);
-      const extra = evs.length > max ? evs.length - 2 : 0;
+      const max = 2;
+      const show = evs.slice(0, max);
+      const extra = evs.length > max ? evs.length - max : 0;
       cells.push(`
         <div class="day ${other ? "other" : ""} ${weekend ? "weekend" : ""} ${today ? "today" : ""}" data-act="day" data-date="${key}">
           <div class="day-head"><span class="num">${d.getDate()}</span></div>
@@ -1022,14 +1382,12 @@ class WrightWayCalendarCard extends HTMLElement {
   _renderDock() {
     const extra = this._cfg.cameras || [];
     const scenes = this._cfg.scenes || [];
-    const chores = this._chores();
     const cam = this._cfg.camera;
-    const liveName = (this._hass && cam && this._hass.states[cam] && this._hass.states[cam].attributes.friendly_name) || "Driveway";
     return `
       <aside class="dock ${this._alertOn() ? "hot" : ""}">
         <div class="cam-box">
           <div id="live-cam"></div>
-          <div class="cam-tag">${esc(liveName)}</div>
+          <div class="cam-tag">${esc(this._cameraLabel(cam))}</div>
           <div class="cam-alert" ${this._alertOn() ? "" : "hidden"}><span>Car in the driveway</span></div>
         </div>
         ${extra.length ? `<div class="thumbs">${extra.map((c) => {
@@ -1037,17 +1395,37 @@ class WrightWayCalendarCard extends HTMLElement {
           const pic = st && st.attributes && st.attributes.entity_picture
             ? this._hass.hassUrl(st.attributes.entity_picture)
             : "";
-          return `<button data-act="cam" data-entity="${esc(c.entity)}" title="${esc(c.name || c.entity)}">${pic ? `<img src="${esc(pic)}" alt="">` : ""}</button>`;
+          return `<button data-act="cam" data-entity="${esc(c.entity)}" title="${esc(c.name || this._cameraLabel(c.entity))}">${pic ? `<img src="${esc(pic)}" alt="">` : ""}</button>`;
         }).join("")}</div>` : ""}
         ${scenes.length ? `<div class="scenes">${scenes.map((s) =>
           `<button data-act="scene" data-entity="${esc(s.entity)}">${esc(s.name || "Scene")}</button>`
         ).join("")}</div>` : ""}
-        ${chores.length ? `<div class="dock-chores">${chores.map((c) => `
-          <div class="chore-col">
-            <h3><span class="dot" style="background:${esc(c.color || "#aaa")}"></span>${esc(c.name)}</h3>
-            ${this._renderTodos(c.entity, true)}
-          </div>`).join("")}</div>` : ""}
       </aside>`;
+  }
+
+  _renderChoreBar() {
+    const chores = this._chores();
+    if (!chores.length) return "";
+    const today = isoDay(this._now);
+    return `<div class="chore-wrap">
+      <div class="chore-head">
+        <span>Today's chores</span>
+        <button data-act="settings" title="Set up chores">${ICONS.gear}</button>
+      </div>
+      <div class="chore-bar">${chores.map((c) => {
+        const due = (this._todos[c.entity] || []).filter((it) => choreIsDue(it, today)).slice(0, 6);
+        return `<div class="chore-person">
+          <div class="who"><span class="dot" style="background:${esc(c.color || "#aaa")}"></span>${esc(c.name)}</div>
+          ${due.length ? `<ul class="todo">${due.map((it) => {
+            const late = (itemDueDay(it) || today) < today;
+            return `<li class="${late ? "late" : ""}">
+              <input type="checkbox" data-act="todo-toggle" data-entity="${esc(c.entity)}" data-uid="${esc(it.uid || it.summary)}" ${it.status === "completed" ? "checked" : ""}/>
+              <span>${esc(it.summary)}</span>
+            </li>`;
+          }).join("")}</ul>` : `<div class="chore-empty">All clear</div>`}
+        </div>`;
+      }).join("")}</div>
+    </div>`;
   }
 
   _renderShop() {
@@ -1080,7 +1458,7 @@ class WrightWayCalendarCard extends HTMLElement {
       : all;
     return `<ul class="todo">${items.map((it) => `
       <li>
-        <input type="checkbox" data-act="todo-toggle" data-entity="${esc(entity)}" data-uid="${esc(it.uid)}" ${it.status === "completed" ? "checked" : ""}/>
+        <input type="checkbox" data-act="todo-toggle" data-entity="${esc(entity)}" data-uid="${esc(it.uid || it.summary)}" ${it.status === "completed" ? "checked" : ""}/>
         <span class="${it.status === "completed" ? "done" : ""}">${esc(it.summary)}</span>
       </li>`).join("")}</ul>
       ${compact ? "" : `<div class="add-row">
@@ -1092,16 +1470,6 @@ class WrightWayCalendarCard extends HTMLElement {
   _renderLists() {
     const shop = this._cfg.shopping;
     return `<div class="pane"><h2>Shopping list</h2>${shop ? this._renderTodos(shop) : "<p>No shopping list configured.</p>"}</div>`;
-  }
-
-  _renderTasks() {
-    const chores = this._chores();
-    return `<div class="pane"><h2>Family chores</h2>
-      <div class="chore-grid">${chores.map((c) => `
-        <div class="chore-col">
-          <h3><span class="dot" style="background:${esc(c.color || "#aaa")}"></span>${esc(c.name)}</h3>
-          ${this._renderTodos(c.entity)}
-        </div>`).join("")}</div></div>`;
   }
 
   _renderMeals() {
@@ -1120,8 +1488,67 @@ class WrightWayCalendarCard extends HTMLElement {
       }).join("")}</div></div>`;
   }
 
+  _setupItems(entity) {
+    return (this._todos[entity] || []).filter((it) => parseWW(it.description) || it.status !== "completed");
+  }
+
+  _renderSettings() {
+    const chores = this._chores();
+    return `<div class="overlay" data-act="close"><div class="dlg wide" onclick="event.stopPropagation()">
+      <h3>Family chores</h3>
+      <div class="sub">Who does what, and how often it comes back. Checking one off the home screen marks it done until the next time.</div>
+      <div class="setup">${chores.map((c) => {
+        const items = this._setupItems(c.entity);
+        return `<div class="person-block">
+          <h4><span class="dot" style="background:${esc(c.color || "#aaa")}"></span>${esc(c.name)}</h4>
+          ${items.map((it) => `
+            <div class="chore-row">
+              <div class="grow">
+                <div>${esc(it.summary)}</div>
+                <div class="meta">${esc(freqLabel(parseWW(it.description)))}</div>
+              </div>
+              <button class="tiny" data-act="chore-edit" data-entity="${esc(c.entity)}" data-uid="${esc(it.uid || it.summary)}">Edit</button>
+              <button class="tiny danger" data-act="chore-del" data-entity="${esc(c.entity)}" data-uid="${esc(it.uid || it.summary)}">Remove</button>
+            </div>`).join("")}
+          <button class="add-chore" data-act="chore-new" data-entity="${esc(c.entity)}">+ Add a chore</button>
+        </div>`;
+      }).join("")}</div>
+      <div class="actions">
+        <button class="ghost" data-act="close">Done</button>
+      </div>
+    </div></div>`;
+  }
+
+  _renderChoreForm() {
+    const s = this._sheet;
+    const chores = this._chores();
+    return `<div class="overlay" data-act="close"><form class="dlg" data-form="chore" onclick="event.stopPropagation()">
+      <h3>${s.uid ? "Edit chore" : "New chore"}</h3>
+      <div class="sub">Assign it, then pick how often it repeats.</div>
+      <input name="chore-title" placeholder="Take out trash, feed the cat…" value="${esc(s.title || "")}" required autofocus/>
+      <div class="who">${chores.map((c) => `
+        <button type="button" class="${s.entity === c.entity ? "on" : ""}" data-act="chore-who" data-entity="${esc(c.entity)}" style="background:${esc(c.color)}">${esc(c.name)}</button>`).join("")}</div>
+      <div class="freq">
+        <button type="button" class="${s.freq === "weekly" ? "on" : ""}" data-act="chore-freq" data-freq="weekly">Days of the week</button>
+        <button type="button" class="${s.freq === "every2" ? "on" : ""}" data-act="chore-freq" data-freq="every2">Every other day</button>
+        <button type="button" class="${s.freq === "every" ? "on" : ""}" data-act="chore-freq" data-freq="every">Every few days</button>
+        <button type="button" class="${s.freq === "once" ? "on" : ""}" data-act="chore-freq" data-freq="once">Once</button>
+      </div>
+      ${s.freq === "weekly" ? `<div class="daysel">${DAY_LETTERS.map((letter, i) => `
+        <button type="button" class="${(s.days || []).map(Number).includes(i) ? "on" : ""}" data-act="chore-day" data-day="${i}">${letter}</button>`).join("")}</div>` : ""}
+      ${s.freq === "every" ? `<div class="n-row">Every <input name="chore-n" type="number" min="2" max="30" value="${esc(s.n || 3)}"/> days</div>` : ""}
+      <div class="actions">
+        <button type="button" class="ghost" data-act="settings">Back</button>
+        ${s.uid ? `<button type="button" class="ghost" data-act="chore-del" data-entity="${esc(s.entity)}" data-uid="${esc(s.uid)}">Remove</button>` : ""}
+        <button class="save" type="submit">Save</button>
+      </div>
+    </form></div>`;
+  }
+
   _renderSheet() {
     if (!this._sheet) return "";
+    if (this._sheet.type === "settings") return this._renderSettings();
+    if (this._sheet.type === "chore") return this._renderChoreForm();
     if (this._sheet.type === "day") {
       const d = this._sheet.date;
       const key = isoDay(d);
@@ -1158,29 +1585,30 @@ class WrightWayCalendarCard extends HTMLElement {
   }
 
   _render() {
+    if (this._view === "tasks") this._view = "calendar";
     const view = this._view;
+    const home = view === "calendar";
     const body =
       view === "lists" ? this._renderShop()
-        : view === "tasks" ? this._renderTasks()
-          : view === "meals" ? this._renderMeals()
-            : this._renderMonth();
+        : view === "meals" ? this._renderMeals()
+          : this._renderMonth();
     const n = this._now;
     let hh = n.getHours();
     const ap = hh >= 12 ? "PM" : "AM";
     hh = hh % 12 || 12;
     this.shadowRoot.innerHTML = `
       <style>${CSS}</style>
-      <div class="app">
+      <div class="app ${home ? "home" : ""}">
         <nav class="rail">
           <div class="logo">W</div>
           <button class="rail-btn ${view === "calendar" ? "active" : ""}" data-act="view" data-view="calendar">${ICONS.calendar}Calendar</button>
           <button class="rail-btn ${view === "lists" ? "active" : ""}" data-act="view" data-view="lists">${ICONS.shop}Shop</button>
-          <button class="rail-btn ${view === "tasks" ? "active" : ""}" data-act="view" data-view="tasks">${ICONS.tasks}Tasks</button>
           <button class="rail-btn ${view === "meals" ? "active" : ""}" data-act="view" data-view="meals">${ICONS.meals}Meals</button>
         </nav>
         <div class="main">
           ${this._renderHeader()}
           ${body}
+          ${home ? this._renderChoreBar() : ""}
           <button class="fab" data-act="add" title="Add">+</button>
           ${this._renderSheet()}
           <div class="show" id="slideshow" hidden>
