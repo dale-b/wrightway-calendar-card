@@ -359,6 +359,99 @@ const CSS = `
   from { opacity: 0; transform: translateY(8px); }
   to { opacity: 1; transform: none; }
 }
+.lamp-list { display: flex; flex-direction: column; gap: 12px; max-width: 820px; }
+.lamp {
+  --glow: #ffd7a8;
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 28px;
+  padding: 16px 18px 12px;
+  display: grid;
+  grid-template-columns: 72px 1fr 52px;
+  gap: 8px 14px;
+  align-items: center;
+  animation: rise .35s ease both;
+  transition: background .25s ease, border-color .25s ease;
+}
+.lamp.on {
+  background: #fffaf3;
+  border-color: #fed7aa;
+}
+.lamp-orb {
+  width: 64px; height: 64px; border-radius: 50%;
+  border: 0; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  background: #e7e5e4; color: #78716c;
+  transition: background .3s ease, box-shadow .3s ease, color .3s ease, transform .15s ease;
+}
+.lamp-orb svg { width: 30px; height: 30px; }
+.lamp.on .lamp-orb {
+  background: var(--glow);
+  color: #1c1917;
+  box-shadow: 0 0 22px var(--glow), 0 10px 28px rgba(0,0,0,.12);
+}
+.lamp-orb:active { transform: scale(0.94); }
+.lamp-meta { min-width: 0; }
+.lamp-name { font-weight: 800; font-size: 18px; letter-spacing: -0.02em; }
+.lamp-pct { color: var(--muted); font-size: 13px; font-weight: 600; margin-top: 2px; }
+.lamp-pwr {
+  width: 48px; height: 48px; border-radius: 50%;
+  border: 1px solid var(--line); background: #fff; cursor: pointer;
+  display: flex; align-items: center; justify-content: center; color: var(--muted);
+}
+.lamp.on .lamp-pwr { background: #1c1917; color: #fff; border-color: #1c1917; }
+.lamp-pwr svg { width: 22px; height: 22px; }
+.lamp-sliders {
+  grid-column: 1 / -1;
+  display: grid; gap: 10px;
+  max-height: 0; opacity: 0; overflow: hidden;
+  transition: max-height .28s ease, opacity .28s ease, margin .28s ease;
+  margin: 0;
+}
+.lamp.on .lamp-sliders { max-height: 140px; opacity: 1; margin-top: 4px; }
+.slide {
+  display: grid; grid-template-columns: 28px 1fr; gap: 10px; align-items: center;
+}
+.slide span { font-size: 16px; }
+.slide input[type=range] {
+  width: 100%; height: 28px; appearance: none; background: transparent;
+}
+.slide input[type=range]::-webkit-slider-runnable-track {
+  height: 10px; border-radius: 99px; background: var(--track, #e7e5e4);
+}
+.slide input[type=range]::-webkit-slider-thumb {
+  appearance: none; width: 22px; height: 22px; border-radius: 50%;
+  background: #fff; border: 2px solid #1c1917; margin-top: -6px;
+  box-shadow: 0 2px 8px rgba(0,0,0,.15);
+}
+.dots { display: flex; gap: 8px; flex-wrap: wrap; padding: 2px 0 4px 38px; }
+.dotc {
+  width: 28px; height: 28px; border-radius: 50%; border: 2px solid #fff;
+  box-shadow: 0 0 0 1px #d6d3d1; cursor: pointer; padding: 0;
+}
+.dotc:active { transform: scale(0.92); }
+.moods { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 14px; }
+.mood {
+  border: 0; border-radius: 999px; padding: 10px 16px;
+  font: inherit; font-weight: 800; font-size: 14px; cursor: pointer;
+}
+.room-hero {
+  display: flex; align-items: center; gap: 12px; margin-bottom: 14px;
+}
+.room-hero .lamp-orb { width: 56px; height: 56px; flex-shrink: 0; }
+.room-hero h2 { margin: 0; font-size: 28px; font-weight: 650; letter-spacing: -0.03em; }
+.room-hero .acts { margin-left: auto; display: flex; gap: 8px; }
+.sun-btn, .pwr-btn {
+  width: 48px; height: 48px; border-radius: 50%;
+  border: 1px solid var(--line); background: #fff; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+}
+.sun-btn.on, .pwr-btn.on { background: #1c1917; color: #fff; border-color: #1c1917; }
+.sun-btn svg, .pwr-btn svg { width: 22px; height: 22px; }
+.room-tile .lamp-orb {
+  width: 44px; height: 44px; margin-bottom: 10px; pointer-events: none;
+}
+.room-tile .lamp-orb svg { width: 22px; height: 22px; }
 .chip {
   border: 0;
   background: transparent;
@@ -967,7 +1060,39 @@ const ICONS = {
   shop: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 7h15l-1.5 9h-12L5 4H2"/><circle cx="9" cy="20" r="1.5"/><circle cx="18" cy="20" r="1.5"/></svg>',
   gear: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M12 2v2.5M12 19.5V22M4.93 4.93l1.77 1.77M17.3 17.3l1.77 1.77M2 12h2.5M19.5 12H22M4.93 19.07l1.77-1.77M17.3 6.7l1.77-1.77"/></svg>',
   home: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 10.5L12 4l8 6.5V20a1 1 0 01-1 1h-5v-6H10v6H5a1 1 0 01-1-1v-9.5z"/></svg>',
+  bulb: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M9 21h6v.5a1.5 1.5 0 01-1.5 1.5h-3A1.5 1.5 0 019 21.5V21zm.5-2h5l.5-1.2A7 7 0 0012 3a7 7 0 00-3 13.8L9.5 19z"/></svg>',
+  power: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v9"/><path d="M7.5 6.2a7 7 0 109 0"/></svg>',
+  sun: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="4"/><path d="M12 3v2M12 19v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M3 12h2M19 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>',
 };
+
+const LIGHT_DOTS = [
+  [255, 244, 229],
+  [255, 214, 170],
+  [255, 186, 120],
+  [255, 147, 41],
+  [255, 255, 255],
+  [186, 214, 255],
+];
+
+const ADAPTIVE = {
+  mudroom: "switch.adaptive_lighting_mudroom",
+  pantry: "switch.adaptive_lighting_pantry",
+};
+
+function kelvinRgb(k) {
+  const kelvin = Math.max(1000, Math.min(40000, Number(k) || 3000)) / 100;
+  let r; let g; let b;
+  if (kelvin <= 66) {
+    r = 255;
+    g = Math.min(255, Math.max(0, 99.47 * Math.log(kelvin) - 161.12));
+    b = kelvin <= 19 ? 0 : Math.min(255, Math.max(0, 138.52 * Math.log(kelvin - 10) - 305.04));
+  } else {
+    r = Math.min(255, Math.max(0, 329.7 * (kelvin - 60) ** -0.1332));
+    g = Math.min(255, Math.max(0, 288.12 * (kelvin - 60) ** -0.0755));
+    b = 255;
+  }
+  return [Math.round(r), Math.round(g), Math.round(b)];
+}
 
 const HOME_ROOMS = [
   { id: "kitchen", name: "Kitchen", entities: [
@@ -1501,6 +1626,68 @@ class WrightWayCalendarCard extends HTMLElement {
     await this._hass.callService("vacuum", cmd, { entity_id: "vacuum.roborock_qrevo_pro" });
   }
 
+  _lightLook(entity) {
+    const st = this._hass && this._hass.states[entity];
+    if (!st) return null;
+    const a = st.attributes || {};
+    const modes = a.supported_color_modes || [];
+    const on = st.state === "on";
+    const bright = a.brightness != null ? Number(a.brightness) : (on ? 255 : 0);
+    const pct = Math.round((bright / 255) * 100);
+    let rgb = Array.isArray(a.rgb_color) ? a.rgb_color : null;
+    const kelvin = a.color_temp_kelvin || null;
+    if (!rgb && kelvin) rgb = kelvinRgb(kelvin);
+    if (!rgb && on) rgb = [255, 214, 170];
+    if (!rgb) rgb = [168, 162, 158];
+    return {
+      st, on, bright, pct, rgb, kelvin, modes,
+      glow: `rgb(${rgb[0]}, ${rgb[1]}, ${rgb[2]})`,
+      minK: a.min_color_temp_kelvin || 2000,
+      maxK: a.max_color_temp_kelvin || 6500,
+      dimmable: modes.includes("brightness") || modes.includes("color_temp") || modes.includes("hs") || modes.includes("xy") || a.brightness != null,
+      color: modes.includes("hs") || modes.includes("xy") || modes.includes("rgb") || modes.includes("rgbw"),
+      temp: modes.includes("color_temp"),
+    };
+  }
+
+  _roomLightIds(room) {
+    return (room.entities || []).map((e) => e.entity).filter((id) => id.startsWith("light."));
+  }
+
+  async _roomPower(roomId, on) {
+    const room = HOME_ROOMS.find((r) => r.id === roomId);
+    if (!room || !this._hass) return;
+    const ids = this._roomLightIds(room).filter((id) => this._hass.states[id] && this._hass.states[id].state !== "unavailable");
+    if (!ids.length) return;
+    await this._hass.callService("light", on ? "turn_on" : "turn_off", { entity_id: ids });
+  }
+
+  async _roomMood(roomId, mood) {
+    const room = HOME_ROOMS.find((r) => r.id === roomId);
+    if (!room || !this._hass) return;
+    const ids = this._roomLightIds(room).filter((id) => {
+      const st = this._hass.states[id];
+      return st && st.state !== "unavailable";
+    });
+    if (!ids.length) return;
+    if (mood === "off") {
+      await this._hass.callService("light", "turn_off", { entity_id: ids });
+      return;
+    }
+    const presets = {
+      bright: { brightness: 255, color_temp_kelvin: 4200 },
+      relax: { brightness: 140, color_temp_kelvin: 2700 },
+      night: { brightness: 45, color_temp_kelvin: 2200 },
+    };
+    const data = presets[mood] || presets.relax;
+    for (const id of ids) {
+      const look = this._lightLook(id);
+      const payload = { entity_id: id, brightness: data.brightness };
+      if (look && look.temp) payload.color_temp_kelvin = data.color_temp_kelvin;
+      await this._hass.callService("light", "turn_on", payload);
+    }
+  }
+
   _sceneColor(scene) {
     if (scene && scene.color) return scene.color;
     const name = String((scene && scene.name) || "").toLowerCase();
@@ -1814,6 +2001,21 @@ class WrightWayCalendarCard extends HTMLElement {
       this._hass.callService("vacuum", "set_fan_speed", { entity_id: "vacuum.roborock_qrevo_pro", fan_speed: t.dataset.speed });
       return;
     }
+    if (act === "set-rgb") {
+      const rgb = (t.dataset.rgb || "").split(",").map(Number);
+      if (rgb.length === 3 && this._hass) {
+        this._hass.callService("light", "turn_on", { entity_id: t.dataset.entity, rgb_color: rgb, brightness: 200 });
+      }
+      return;
+    }
+    if (act === "room-all") {
+      this._roomPower(t.dataset.room, t.dataset.on === "1");
+      return;
+    }
+    if (act === "room-mood") {
+      this._roomMood(t.dataset.room, t.dataset.mood);
+      return;
+    }
     if (act === "prev") {
       this._cursor = new Date(this._cursor.getFullYear(), this._cursor.getMonth() - 1, 1);
       this._loadEvents();
@@ -2041,6 +2243,13 @@ class WrightWayCalendarCard extends HTMLElement {
         this._hass.callService("light", "turn_on", { entity_id: t.dataset.bright, brightness: val });
       }, 80);
     }
+    if (t.dataset.ct && this._hass) {
+      const val = Number(t.value);
+      clearTimeout(this._ctT);
+      this._ctT = setTimeout(() => {
+        this._hass.callService("light", "turn_on", { entity_id: t.dataset.ct, color_temp_kelvin: val });
+      }, 80);
+    }
   }
 
   _renderHeader() {
@@ -2136,17 +2345,37 @@ class WrightWayCalendarCard extends HTMLElement {
     const st = this._hass && this._hass.states[entity];
     if (!st || st.state === "unavailable") return "";
     const domain = entity.split(".")[0];
-    const on = this._entOn(entity);
-    let status = on ? "On" : "Off";
-    if (domain === "cover") status = (st.state === "open" || st.state === "opening") ? "Open" : "Closed";
-    const bright = domain === "light" && st.attributes && st.attributes.brightness != null
-      ? Number(st.attributes.brightness) : null;
-    return `<div class="device ${on ? "on" : ""}">
-      <button type="button" class="device-hit" data-act="ent-toggle" data-entity="${esc(entity)}">
-        <span>${esc(name)}</span>
-        <span class="st">${esc(status)}${bright != null && on ? ` · ${Math.round(bright / 2.55)}%` : ""}</span>
-      </button>
-      ${bright != null ? `<input type="range" min="1" max="255" value="${bright}" data-bright="${esc(entity)}"/>` : ""}
+    if (domain !== "light") {
+      const on = this._entOn(entity);
+      let status = on ? "On" : "Off";
+      if (domain === "cover") status = (st.state === "open" || st.state === "opening") ? "Open" : "Closed";
+      if (domain === "fan") status = on ? "Spinning" : "Off";
+      return `<div class="lamp ${on ? "on" : ""}" style="--glow:#fdba74">
+        <button type="button" class="lamp-orb" data-act="ent-toggle" data-entity="${esc(entity)}">${ICONS.bulb}</button>
+        <div class="lamp-meta">
+          <div class="lamp-name">${esc(name)}</div>
+          <div class="lamp-pct">${esc(status)}</div>
+        </div>
+        <button type="button" class="lamp-pwr" data-act="ent-toggle" data-entity="${esc(entity)}">${ICONS.power}</button>
+      </div>`;
+    }
+    const look = this._lightLook(entity);
+    if (!look) return "";
+    const track = `linear-gradient(90deg, #1c1917, ${look.glow})`;
+    const ctTrack = "linear-gradient(90deg, #ffb347, #fff6e8, #cde7ff)";
+    return `<div class="lamp ${look.on ? "on" : ""}" style="--glow:${esc(look.glow)}">
+      <button type="button" class="lamp-orb" data-act="ent-toggle" data-entity="${esc(entity)}">${ICONS.bulb}</button>
+      <div class="lamp-meta">
+        <div class="lamp-name">${esc(name)}</div>
+        <div class="lamp-pct">${look.on ? `${look.pct}%` : "Off"}</div>
+      </div>
+      <button type="button" class="lamp-pwr" data-act="ent-toggle" data-entity="${esc(entity)}">${ICONS.power}</button>
+      <div class="lamp-sliders">
+        ${look.dimmable ? `<label class="slide"><span>☀</span><input type="range" min="1" max="255" value="${look.bright || 1}" data-bright="${esc(entity)}" style="--track:${esc(track)}"/></label>` : ""}
+        ${look.temp ? `<label class="slide"><span>🌡</span><input type="range" min="${look.minK}" max="${look.maxK}" value="${look.kelvin || 3000}" data-ct="${esc(entity)}" style="--track:${ctTrack}"/></label>` : ""}
+        ${look.color ? `<div class="dots">${LIGHT_DOTS.map((rgb) => `
+          <button type="button" class="dotc" data-act="set-rgb" data-entity="${esc(entity)}" data-rgb="${rgb.join(",")}" style="background:rgb(${rgb.join(",")})"></button>`).join("")}</div>` : ""}
+      </div>
     </div>`;
   }
 
@@ -2247,18 +2476,38 @@ class WrightWayCalendarCard extends HTMLElement {
     } else if (this._homeRoom) {
       const room = HOME_ROOMS.find((r) => r.id === this._homeRoom);
       const scenes = this._homeRoom === "kitchen" ? (this._cfg.scenes || []) : [];
-      body = `<div class="home-head">
-          <button type="button" class="back" data-act="home-back">‹ Rooms</button>
+      const ids = room ? this._roomLightIds(room) : [];
+      const anyOn = ids.some((id) => this._entOn(id));
+      const adapt = ADAPTIVE[this._homeRoom];
+      const adaptOn = adapt && this._entOn(adapt);
+      const glow = anyOn ? "#ffd7a8" : "#e7e5e4";
+      body = `<div class="room-hero">
+          <button type="button" class="back" data-act="home-back">‹</button>
+          <div class="lamp-orb" style="background:${glow};color:#1c1917;box-shadow:${anyOn ? "0 0 18px #ffd7a8" : "none"}">${ICONS.bulb}</div>
           <h2>${esc(room ? room.name : "Room")}</h2>
+          <div class="acts">
+            ${adapt ? `<button type="button" class="sun-btn ${adaptOn ? "on" : ""}" data-act="ent-toggle" data-entity="${esc(adapt)}" title="Adaptive lighting">${ICONS.sun}</button>` : ""}
+            <button type="button" class="pwr-btn ${anyOn ? "on" : ""}" data-act="room-all" data-room="${esc(this._homeRoom)}" data-on="${anyOn ? "0" : "1"}" title="All lights">${ICONS.power}</button>
+          </div>
         </div>
-        <div class="ctl-grid">
+        <div class="moods">
+          <button type="button" class="mood" style="background:#fff7ed" data-act="room-mood" data-room="${esc(this._homeRoom)}" data-mood="bright">Bright</button>
+          <button type="button" class="mood" style="background:#fed7aa" data-act="room-mood" data-room="${esc(this._homeRoom)}" data-mood="relax">Relax</button>
+          <button type="button" class="mood" style="background:#fdba74" data-act="room-mood" data-room="${esc(this._homeRoom)}" data-mood="night">Night</button>
+          ${scenes.map((s) => `<button type="button" class="mood" style="background:${esc(this._sceneColor(s))}" data-act="scene" data-entity="${esc(s.entity)}">${esc(s.name)}</button>`).join("")}
+        </div>
+        <div class="lamp-list">
           ${(room ? room.entities : []).map((e) => this._deviceRow(e.entity, e.name)).join("")}
-          ${scenes.map((s) => `<button type="button" class="ctl" data-act="scene" data-entity="${esc(s.entity)}" style="background:${esc(this._sceneColor(s))}"><span>${esc(s.name)}</span><span class="st">Scene</span></button>`).join("")}
         </div>`;
     } else {
       body = `<div class="room-grid">${HOME_ROOMS.map((r, i) => {
-        const onCount = r.entities.filter((e) => this._entOn(e.entity)).length;
+        const lights = this._roomLightIds(r);
+        const onCount = lights.filter((id) => this._entOn(id)).length;
+        const firstOn = lights.find((id) => this._entOn(id));
+        const look = firstOn ? this._lightLook(firstOn) : null;
+        const glow = look && look.on ? look.glow : "#e7e5e4";
         return `<button type="button" class="room-tile ${onCount ? "on" : ""}" style="animation-delay:${i * 30}ms" data-act="home-room" data-room="${esc(r.id)}">
+          <span class="lamp-orb" style="background:${esc(glow)};color:#1c1917;box-shadow:${onCount ? `0 0 16px ${glow}` : "none"}">${ICONS.bulb}</span>
           <span>${esc(r.name)}</span>
           <span class="st">${onCount ? `${onCount} on` : "All off"}</span>
         </button>`;
