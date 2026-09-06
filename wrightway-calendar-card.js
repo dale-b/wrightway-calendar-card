@@ -116,6 +116,89 @@ const CSS = `
 }
 .tools button:hover { background: var(--wash); }
 .legend { display: flex; gap: 8px; flex-wrap: wrap; padding: 0 16px 6px; flex-shrink: 0; }
+.today-box {
+  margin: 0 16px 8px;
+  background: var(--wash);
+  border-radius: 16px;
+  padding: 10px 14px 8px;
+  flex-shrink: 0;
+  max-height: 148px;
+  overflow: auto;
+}
+.today-box h4 {
+  margin: 0 0 6px;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.today-row {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  padding: 4px 0;
+  font-size: 15px;
+}
+.today-row .tm {
+  flex: 0 0 72px;
+  font-weight: 700;
+  font-size: 13px;
+  color: var(--muted);
+}
+.today-row .sum { font-weight: 650; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.today-row .who-tag {
+  margin-left: auto;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--muted);
+  flex-shrink: 0;
+}
+.today-empty { color: var(--muted); font-size: 14px; padding: 4px 0; }
+.tabs { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0 12px; }
+.tabs button {
+  border: 1px solid var(--line);
+  background: #fff;
+  border-radius: 999px;
+  padding: 8px 14px;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.tabs button.on { background: #1c1917; color: #fff; border-color: #1c1917; }
+.people-row {
+  display: grid;
+  grid-template-columns: 36px 36px 40px minmax(80px, 1fr) minmax(140px, 1.4fr);
+  gap: 8px;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--line);
+}
+.people-row input[type=color] {
+  width: 36px; height: 36px; border: 0; padding: 0; background: none; cursor: pointer;
+}
+.switch {
+  display: flex; align-items: center; gap: 10px;
+  font-weight: 700; padding: 10px 0;
+}
+.cam-full {
+  position: absolute; inset: 0; z-index: 35;
+  background: #000;
+}
+.cam-full #live-cam-full,
+.cam-full ha-camera-stream,
+.cam-full video,
+.cam-full img {
+  width: 100%; height: 100%; object-fit: contain; display: block;
+}
+.cam-full .hint {
+  position: absolute; top: 16px; right: 16px;
+  background: rgba(0,0,0,.55); color: #fff;
+  font-weight: 700; font-size: 14px;
+  padding: 8px 14px; border-radius: 999px;
+  pointer-events: none;
+}
 .chip {
   border: 0;
   background: transparent;
@@ -691,6 +774,8 @@ function freqLabel(meta) {
 }
 
 const DAY_LETTERS = ["S", "M", "T", "W", "T", "F", "S"];
+const PREFS_KEY = "wrightway-wall-prefs";
+const DEFAULT_ORDER = ["Dale", "Laura", "David", "Ben", "Family", "House"];
 
 const DEFAULT_HOUSE_CHORES = [
   { helper: "input_boolean.cat_litter_has_been_done", name: "Cat litter", who: "Dale", mode: "done" },
@@ -746,6 +831,9 @@ class WrightWayCalendarCard extends HTMLElement {
     this._liveCam = null;
     this._helperSnap = "";
     this._helperOverride = {};
+    this._camFull = false;
+    this._prefs = { muted: true, order: DEFAULT_ORDER.slice(), colors: {}, calEntities: {} };
+    this._loadPrefs();
   }
 
   setConfig(config) {
@@ -764,6 +852,7 @@ class WrightWayCalendarCard extends HTMLElement {
         this._tickIdle();
         this._tickAlert();
         this._tickHelpers();
+        this._applyMute();
       }, 1000);
       this._loadEvents();
       this._loadTodos();
@@ -819,20 +908,56 @@ class WrightWayCalendarCard extends HTMLElement {
     if (this._slideTimer) clearInterval(this._slideTimer);
   }
 
+  _loadPrefs() {
+    try {
+      const raw = JSON.parse(localStorage.getItem(PREFS_KEY) || "{}") || {};
+      this._prefs = {
+        muted: raw.muted !== false,
+        order: Array.isArray(raw.order) && raw.order.length ? raw.order : DEFAULT_ORDER.slice(),
+        colors: raw.colors || {},
+        calEntities: raw.calEntities || {},
+      };
+    } catch (e) {
+      this._prefs = { muted: true, order: DEFAULT_ORDER.slice(), colors: {}, calEntities: {} };
+    }
+  }
+
+  _savePrefs() {
+    try { localStorage.setItem(PREFS_KEY, JSON.stringify(this._prefs)); } catch (e) { /* kiosk may block */ }
+  }
+
+  _sortByOrder(items, nameOf) {
+    const order = (this._prefs && this._prefs.order) || DEFAULT_ORDER;
+    return items.slice().sort((a, b) => {
+      const ia = order.indexOf(nameOf(a));
+      const ib = order.indexOf(nameOf(b));
+      return (ia < 0 ? 500 : ia) - (ib < 0 ? 500 : ib);
+    });
+  }
+
   _cals() {
     const raw = this._cfg.calendars || this._cfg.entities || [];
-    return raw.map((c) => {
-      if (typeof c === "string") return { entity: c, name: c, color: "#94a3b8" };
+    const colors = (this._prefs && this._prefs.colors) || {};
+    const entities = (this._prefs && this._prefs.calEntities) || {};
+    const list = raw.map((c) => {
+      if (typeof c === "string") return { entity: entities[c] || c, name: c, color: colors[c] || "#94a3b8" };
+      const name = c.name || c.entity;
       return {
-        entity: c.entity,
-        name: c.name || c.entity,
-        color: c.color || "#94a3b8",
+        entity: entities[name] || c.entity,
+        name,
+        color: colors[name] || c.color || "#94a3b8",
       };
     }).filter((c) => c.entity);
+    return this._sortByOrder(list, (c) => c.name);
   }
 
   _chores() {
-    return (this._cfg.chores || []).filter((c) => c && c.entity);
+    const colors = (this._prefs && this._prefs.colors) || {};
+    const list = (this._cfg.chores || []).filter((c) => c && c.entity).map((c) => ({
+      ...c,
+      color: colors[c.name] || c.color,
+    }));
+    return this._sortByOrder(list, (c) => c.name);
   }
 
   _houseChores() {
@@ -864,7 +989,9 @@ class WrightWayCalendarCard extends HTMLElement {
     };
     this._chores().forEach((c) => add(c.name, c.color, c.entity));
     this._houseChores().forEach((c) => add(c.who || "House", c.color, null));
-    return people;
+    const colors = (this._prefs && this._prefs.colors) || {};
+    people.forEach((p) => { if (colors[p.name]) p.color = colors[p.name]; });
+    return this._sortByOrder(people, (p) => p.name);
   }
 
   _helperSig() {
@@ -952,6 +1079,7 @@ class WrightWayCalendarCard extends HTMLElement {
   }
 
   _tickIdle() {
+    if (this._camFull) return;
     const sec = Number(this._cfg.idle_seconds);
     const wait = Number.isFinite(sec) ? sec : 90;
     if (wait <= 0) return;
@@ -983,11 +1111,29 @@ class WrightWayCalendarCard extends HTMLElement {
     img.src = photos[this._slideIdx];
   }
 
+  _muted() {
+    return !this._prefs || this._prefs.muted !== false;
+  }
+
+  _applyMute() {
+    const muted = this._muted();
+    this.shadowRoot.querySelectorAll("ha-camera-stream, ha-web-rtc-player, ha-hls-player, video, audio").forEach((el) => {
+      try {
+        el.muted = muted;
+        if ("volume" in el) el.volume = muted ? 0 : 1;
+      } catch (e) { /* ignore */ }
+    });
+  }
+
   _mountCamera() {
-    const host = this.shadowRoot.getElementById("live-cam");
+    const hostId = this._camFull ? "live-cam-full" : "live-cam";
+    const host = this.shadowRoot.getElementById(hostId);
     const id = this._liveCam || this._homeCam || this._cfg.camera;
     if (!host || !this._hass || !id) return;
-    if (host.dataset.mounted === id && host.firstElementChild) return;
+    if (host.dataset.mounted === id && host.firstElementChild) {
+      this._applyMute();
+      return;
+    }
     const st = this._hass.states[id];
     if (!st) return;
     host.innerHTML = "";
@@ -996,9 +1142,10 @@ class WrightWayCalendarCard extends HTMLElement {
       const el = document.createElement("ha-camera-stream");
       el.hass = this._hass;
       el.stateObj = st;
+      el.muted = this._muted();
       el.style.width = "100%";
       el.style.height = "100%";
-      el.style.objectFit = "cover";
+      el.style.objectFit = this._camFull ? "contain" : "cover";
       host.appendChild(el);
     } else if (st.attributes.entity_picture) {
       const img = document.createElement("img");
@@ -1013,6 +1160,7 @@ class WrightWayCalendarCard extends HTMLElement {
       this._snapTimer = setInterval(tick, 2500);
       host.appendChild(img);
     }
+    this._applyMute();
   }
 
   _switchCamera(entity) {
@@ -1325,7 +1473,32 @@ class WrightWayCalendarCard extends HTMLElement {
     if (act === "day") this._openDay(new Date(t.dataset.date + "T12:00:00"));
     if (act === "add") this._openAdd(this._sheet && this._sheet.date ? this._sheet.date : new Date());
     if (act === "close") this._sheet = null;
-    if (act === "settings") this._sheet = { type: "settings" };
+    if (act === "settings") this._sheet = { type: "settings", tab: (this._sheet && this._sheet.tab) || "chores" };
+    if (act === "settings-tab") this._sheet = { type: "settings", tab: t.dataset.tab };
+    if (act === "person-up" || act === "person-down") {
+      const names = this._cals().map((c) => c.name);
+      const i = names.indexOf(t.dataset.name);
+      const j = act === "person-up" ? i - 1 : i + 1;
+      if (i >= 0 && j >= 0 && j < names.length) {
+        const swap = names[i];
+        names[i] = names[j];
+        names[j] = swap;
+        this._prefs.order = names.concat(DEFAULT_ORDER.filter((n) => !names.includes(n)));
+        this._savePrefs();
+      }
+    }
+    if (act === "cam-full") {
+      this._camFull = true;
+      this._idleAt = Date.now();
+    }
+    if (act === "cam-close") {
+      this._camFull = false;
+    }
+    if (act === "mute-toggle") {
+      this._prefs.muted = !this._muted();
+      this._savePrefs();
+      this._applyMute();
+    }
     if (act === "chore-new") {
       this._sheet = {
         type: "chore",
@@ -1484,6 +1657,22 @@ class WrightWayCalendarCard extends HTMLElement {
     if (t.name === "chore-title" && this._sheet && this._sheet.type === "chore") {
       this._sheet.title = t.value;
     }
+    if (t.dataset.prefColor) {
+      this._prefs.colors[t.dataset.prefColor] = t.value;
+      this._savePrefs();
+      this._render();
+    }
+    if (t.dataset.prefCal) {
+      this._prefs.calEntities[t.dataset.prefCal] = t.value;
+      this._savePrefs();
+      this._loadEvents();
+      this._render();
+    }
+    if (t.dataset.prefMute) {
+      this._prefs.muted = t.checked;
+      this._savePrefs();
+      this._applyMute();
+    }
   }
 
   _renderHeader() {
@@ -1509,9 +1698,46 @@ class WrightWayCalendarCard extends HTMLElement {
           <button data-act="prev" title="Previous">‹</button>
           <button data-act="today">Today</button>
           <button data-act="next" title="Next">›</button>
-          <button class="gear" data-act="settings" title="Chore settings">${ICONS.gear}</button>
+          <button class="gear" data-act="settings" title="Settings">${ICONS.gear}</button>
         </div>
       </div>`;
+  }
+
+  _todayEvents() {
+    const key = isoDay(this._now);
+    return this._eventsOn(key).slice().sort((a, b) => {
+      const ta = eventTimeLabel(a);
+      const tb = eventTimeLabel(b);
+      if (ta === "All day" && tb !== "All day") return -1;
+      if (tb === "All day" && ta !== "All day") return 1;
+      const sa = a.start && a.start.dateTime ? a.start.dateTime : ta;
+      const sb = b.start && b.start.dateTime ? b.start.dateTime : tb;
+      return String(sa).localeCompare(String(sb));
+    });
+  }
+
+  _renderToday() {
+    const evs = this._todayEvents();
+    return `<div class="today-box">
+      <h4>Today</h4>
+      ${evs.length ? evs.map((ev) => `
+        <div class="today-row">
+          <span class="tm">${esc(eventTimeLabel(ev))}</span>
+          <span class="sum" style="color:${esc(ev._color)}">${esc(ev.summary || "Event")}</span>
+          <span class="who-tag">${esc(ev._name || "")}</span>
+        </div>`).join("") : `<div class="today-empty">Nothing on the calendar today</div>`}
+    </div>`;
+  }
+
+  _calendarOptions() {
+    if (!this._hass) return [];
+    return Object.keys(this._hass.states)
+      .filter((id) => id.startsWith("calendar."))
+      .map((id) => ({
+        entity: id,
+        name: (this._hass.states[id].attributes && this._hass.states[id].attributes.friendly_name) || id,
+      }))
+      .sort((a, b) => a.name.localeCompare(b.name));
   }
 
   _renderLegend() {
@@ -1554,6 +1780,7 @@ class WrightWayCalendarCard extends HTMLElement {
       <div class="stage">
         <div class="cal-col">
           ${this._renderLegend()}
+          ${this._renderToday()}
           <div class="grid-wrap">
             <div class="dow">${WEEKDAYS.map((w) => `<div>${w}</div>`).join("")}</div>
             <div class="days">${cells.join("")}</div>
@@ -1569,7 +1796,7 @@ class WrightWayCalendarCard extends HTMLElement {
     const live = this._liveCam || this._homeCam || this._cfg.camera;
     return `
       <aside class="dock">
-        <div class="cam-box" data-act="cam-home" title="Back to driveway">
+        <div class="cam-box" data-act="cam-full" title="Open camera full screen">
           <div id="live-cam"></div>
           <div class="cam-tag">${esc(this._cameraLabel(live))}</div>
           <div class="cam-alert ${this._alertOn() ? "on" : ""}"><span>Car in the driveway</span></div>
@@ -1699,26 +1926,58 @@ class WrightWayCalendarCard extends HTMLElement {
   }
 
   _renderSettings() {
-    const chores = this._chores();
+    const tab = (this._sheet && this._sheet.tab) || "chores";
+    const tabs = `
+      <div class="tabs">
+        <button type="button" class="${tab === "chores" ? "on" : ""}" data-act="settings-tab" data-tab="chores">Chores</button>
+        <button type="button" class="${tab === "people" ? "on" : ""}" data-act="settings-tab" data-tab="people">People & calendars</button>
+        <button type="button" class="${tab === "camera" ? "on" : ""}" data-act="settings-tab" data-tab="camera">Camera</button>
+      </div>`;
+    let body = "";
+    if (tab === "people") {
+      const opts = this._calendarOptions();
+      body = `<div class="sub">Order, color, and which Home Assistant calendar each person uses. Saved on this tablet.</div>
+        ${this._cals().map((c) => `
+          <div class="people-row">
+            <button type="button" class="tiny" data-act="person-up" data-name="${esc(c.name)}">↑</button>
+            <button type="button" class="tiny" data-act="person-down" data-name="${esc(c.name)}">↓</button>
+            <input type="color" data-pref-color="${esc(c.name)}" value="${esc(c.color)}"/>
+            <strong>${esc(c.name)}</strong>
+            <select data-pref-cal="${esc(c.name)}">
+              ${opts.map((o) => `<option value="${esc(o.entity)}" ${o.entity === c.entity ? "selected" : ""}>${esc(o.name)}</option>`).join("")}
+            </select>
+          </div>`).join("")}`;
+    } else if (tab === "camera") {
+      body = `<div class="sub">Kitchen panel camera. Tap the live picture on Home for full screen.</div>
+        <label class="switch">
+          <input type="checkbox" data-pref-mute="1" ${this._muted() ? "checked" : ""}/>
+          Mute camera audio
+        </label>
+        <p class="shop-note">On by default so the kitchen stays quiet. Uncheck if you want doorbell or driveway sound.</p>`;
+    } else {
+      const chores = this._chores();
+      body = `<div class="sub">Who does what, and how often it comes back. Checking one off the home screen marks it done until the next time.</div>
+        <div class="setup">${chores.map((c) => {
+          const items = this._setupItems(c.entity);
+          return `<div class="person-block">
+            <h4><span class="dot" style="background:${esc(c.color || "#aaa")}"></span>${esc(c.name)}</h4>
+            ${items.map((it) => `
+              <div class="chore-row">
+                <div class="grow">
+                  <div>${esc(it.summary)}</div>
+                  <div class="meta">${esc(freqLabel(parseWW(it.description)))}</div>
+                </div>
+                <button class="tiny" data-act="chore-edit" data-entity="${esc(c.entity)}" data-uid="${esc(it.uid || it.summary)}">Edit</button>
+                <button class="tiny danger" data-act="chore-del" data-entity="${esc(c.entity)}" data-uid="${esc(it.uid || it.summary)}">Remove</button>
+              </div>`).join("")}
+            <button type="button" class="add-chore" data-act="chore-new" data-entity="${esc(c.entity)}">+ Add a chore</button>
+          </div>`;
+        }).join("")}</div>`;
+    }
     return `<div class="overlay" data-act="close"><div class="dlg wide">
-      <h3>Family chores</h3>
-      <div class="sub">Who does what, and how often it comes back. Checking one off the home screen marks it done until the next time.</div>
-      <div class="setup">${chores.map((c) => {
-        const items = this._setupItems(c.entity);
-        return `<div class="person-block">
-          <h4><span class="dot" style="background:${esc(c.color || "#aaa")}"></span>${esc(c.name)}</h4>
-          ${items.map((it) => `
-            <div class="chore-row">
-              <div class="grow">
-                <div>${esc(it.summary)}</div>
-                <div class="meta">${esc(freqLabel(parseWW(it.description)))}</div>
-              </div>
-              <button class="tiny" data-act="chore-edit" data-entity="${esc(c.entity)}" data-uid="${esc(it.uid || it.summary)}">Edit</button>
-              <button class="tiny danger" data-act="chore-del" data-entity="${esc(c.entity)}" data-uid="${esc(it.uid || it.summary)}">Remove</button>
-            </div>`).join("")}
-          <button type="button" class="add-chore" data-act="chore-new" data-entity="${esc(c.entity)}">+ Add a chore</button>
-        </div>`;
-      }).join("")}</div>
+      <h3>Settings</h3>
+      ${tabs}
+      ${body}
       <div class="actions">
         <button class="ghost" data-act="close">Done</button>
       </div>
@@ -1817,6 +2076,10 @@ class WrightWayCalendarCard extends HTMLElement {
           ${home ? this._renderChoreBar() : ""}
           <button class="fab" data-act="add" title="Add">+</button>
           ${this._renderSheet()}
+          ${this._camFull ? `<div class="cam-full" data-act="cam-close">
+            <div id="live-cam-full"></div>
+            <div class="hint">Tap to close</div>
+          </div>` : ""}
           <div class="show" id="slideshow" hidden>
             <img id="slide-img" alt="">
             <div class="show-meta">${esc(n.toLocaleDateString("en-US", { weekday: "long" }))}  ${hh}:${pad(n.getMinutes())} ${ap}</div>
