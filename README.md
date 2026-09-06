@@ -26,7 +26,7 @@ Or load from jsDelivr after publishing.
 
 ## Configuration
 
-On a 21" landscape panel the month sits left with the live camera and scenes on the right. Today's chores run along the bottom. The gear opens chore setup for each person, with repeats on days of the week, every other day, or every few days. Shop opens Walmart beside the grocery list. After idle, a photo slideshow fills the screen (person pictures, or `photos:` URLs).
+On a 21" landscape panel the month sits left with the live camera and scenes on the right. Today's chores take the bottom of the screen — tap a row to check it off. The gear opens chore setup for each person, with repeats on days of the week, every other day, or every few days. Shop keeps the family grocery list here and can open the Walmart app on the tablet. After idle, a photo slideshow fills the screen (person pictures, or `photos:` URLs).
 
 ```yaml
 type: custom:wrightway-calendar-card
