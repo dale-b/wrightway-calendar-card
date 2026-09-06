@@ -15,6 +15,9 @@ const CSS = `
   display: block;
   height: 100%;
   min-height: 100vh;
+  overflow: hidden;
+  overscroll-behavior: none;
+  touch-action: manipulation;
   font-family: "Avenir Next", "Segoe UI", "Nunito", ui-sans-serif, system-ui, sans-serif;
   color: #1c1917;
   --ink: #1c1917;
@@ -33,6 +36,8 @@ const CSS = `
   min-height: 100vh;
   background: var(--paper);
   overflow: hidden;
+  overscroll-behavior: none;
+  touch-action: manipulation;
 }
 .rail {
   width: 88px;
@@ -221,10 +226,32 @@ const CSS = `
   pointer-events: none;
 }
 .home {
-  flex: 1; min-height: 0; overflow: auto;
-  padding: 0 16px 20px;
+  flex: 1; min-height: 0; overflow: hidden;
+  padding: 0 16px 12px;
+  display: flex; flex-direction: column;
 }
-.home > .tabs { margin: 0 0 14px; }
+.home > .tabs { margin: 0 0 10px; flex-shrink: 0; }
+.home-split {
+  flex: 1; min-height: 0;
+  display: grid;
+  grid-template-columns: 200px minmax(0, 1fr);
+  gap: 16px;
+}
+.room-nav {
+  display: flex; flex-direction: column; gap: 2px;
+  min-height: 0; overflow: hidden;
+}
+.room-nav button {
+  display: flex; align-items: center; gap: 8px;
+  border: 0; background: transparent;
+  border-radius: 12px; padding: 7px 8px;
+  font: inherit; font-weight: 700; font-size: 13px;
+  text-align: left; cursor: pointer; color: var(--ink);
+}
+.room-nav button.on { background: #ffedd5; }
+.room-nav .lamp-orb { width: 26px; height: 26px; margin: 0; flex-shrink: 0; }
+.room-nav .lamp-orb svg { width: 14px; height: 14px; }
+.room-detail { min-width: 0; min-height: 0; overflow: hidden; display: flex; flex-direction: column; }
 .home-head {
   display: flex; align-items: center; gap: 10px;
   margin: 0 0 14px;
@@ -236,13 +263,13 @@ const CSS = `
 }
 .room-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-  gap: 12px;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 8px;
 }
 .ctl-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  gap: 12px;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 8px;
 }
 .room-tile, .ctl, .device {
   border: 0;
@@ -253,11 +280,11 @@ const CSS = `
   animation: rise .35s ease both;
 }
 .room-tile {
-  min-height: 110px;
-  padding: 18px 16px 14px;
+  min-height: 72px;
+  padding: 10px 12px;
   font: inherit;
   font-weight: 800;
-  font-size: 17px;
+  font-size: 14px;
   text-align: left;
   cursor: pointer;
   display: flex;
@@ -274,8 +301,8 @@ const CSS = `
 .room-tile.on, .ctl.on, .device.on { background: #ffedd5; }
 .ctl.busy, .device.busy { background: #ffedd5; }
 .ctl {
-  min-height: 96px; padding: 16px;
-  font: inherit; font-weight: 800; font-size: 16px;
+  min-height: 64px; padding: 10px 12px;
+  font: inherit; font-weight: 800; font-size: 14px;
   text-align: left; cursor: pointer;
   display: flex; flex-direction: column; justify-content: space-between;
 }
@@ -305,19 +332,21 @@ const CSS = `
 .opt.on { background: #1c1917; color: #fff; border-color: #1c1917; }
 .vac-layout, .gar-layout {
   display: grid;
-  grid-template-columns: 1.15fr 0.85fr;
-  gap: 14px;
-  margin-bottom: 16px;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 10px;
   align-items: stretch;
+  flex: 0 0 auto;
+  max-height: 240px;
 }
 .map-card, .gar-cam {
-  background: #111; border-radius: 20px; overflow: hidden; min-height: 280px;
+  background: #111; border-radius: 16px; overflow: hidden; min-height: 200px; max-height: 240px;
   position: relative;
 }
 .map-card img, .gar-cam img {
   width: 100%; height: 100%; object-fit: contain; display: block; background: #111;
 }
-.gar-cam img { object-fit: cover; min-height: 280px; }
+.gar-cam img { object-fit: cover; min-height: 200px; max-height: 240px; }
 .map-card .cap, .gar-cam .cap {
   position: absolute; left: 12px; bottom: 12px;
   background: rgba(0,0,0,.5); color: #fff; font-size: 12px; font-weight: 700;
@@ -333,14 +362,14 @@ const CSS = `
   height: 8px; border-radius: 99px; background: #e7e5e4; overflow: hidden; margin-top: 10px;
 }
 .batt span { display: block; height: 100%; background: #16a34a; border-radius: 99px; }
-.gdoors { display: grid; grid-template-columns: 1fr; gap: 10px; }
+.gdoors { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
 .gdoor {
-  background: var(--wash); border-radius: 20px; padding: 12px 14px 14px;
+  background: var(--wash); border-radius: 16px; padding: 8px 10px 10px;
   cursor: pointer; border: 0; font: inherit; text-align: left; color: inherit;
 }
-.gdoor .name { font-weight: 800; font-size: 16px; display: flex; justify-content: space-between; }
+.gdoor .name { font-weight: 800; font-size: 14px; display: flex; justify-content: space-between; }
 .gvis {
-  margin-top: 10px; height: 72px; border-radius: 12px; background: #d6d3d1;
+  margin-top: 8px; height: 44px; border-radius: 10px; background: #d6d3d1;
   position: relative; overflow: hidden;
 }
 .gvis .panel {
@@ -359,99 +388,103 @@ const CSS = `
   from { opacity: 0; transform: translateY(8px); }
   to { opacity: 1; transform: none; }
 }
-.lamp-list { display: flex; flex-direction: column; gap: 12px; max-width: 820px; }
+.lamp-list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  align-content: start;
+}
 .lamp {
   --glow: #ffd7a8;
   background: #fff;
   border: 1px solid var(--line);
-  border-radius: 28px;
-  padding: 16px 18px 12px;
+  border-radius: 16px;
+  padding: 8px 10px 8px;
   display: grid;
-  grid-template-columns: 72px 1fr 52px;
-  gap: 8px 14px;
+  grid-template-columns: 40px minmax(0, 1fr) 34px;
+  grid-template-areas: "orb name pwr" "orb slide pwr" "dots dots dots";
+  gap: 2px 8px;
   align-items: center;
-  animation: rise .35s ease both;
-  transition: background .25s ease, border-color .25s ease;
+  transition: background .2s ease, border-color .2s ease;
 }
 .lamp.on {
   background: #fffaf3;
   border-color: #fed7aa;
 }
 .lamp-orb {
-  width: 64px; height: 64px; border-radius: 50%;
+  grid-area: orb;
+  width: 36px; height: 36px; border-radius: 50%;
   border: 0; cursor: pointer;
   display: flex; align-items: center; justify-content: center;
   background: #e7e5e4; color: #78716c;
-  transition: background .3s ease, box-shadow .3s ease, color .3s ease, transform .15s ease;
+  transition: background .25s ease, box-shadow .25s ease, color .25s ease;
 }
-.lamp-orb svg { width: 30px; height: 30px; }
+.lamp-orb svg { width: 18px; height: 18px; }
 .lamp.on .lamp-orb {
   background: var(--glow);
   color: #1c1917;
-  box-shadow: 0 0 22px var(--glow), 0 10px 28px rgba(0,0,0,.12);
+  box-shadow: 0 0 14px var(--glow);
 }
 .lamp-orb:active { transform: scale(0.94); }
-.lamp-meta { min-width: 0; }
-.lamp-name { font-weight: 800; font-size: 18px; letter-spacing: -0.02em; }
-.lamp-pct { color: var(--muted); font-size: 13px; font-weight: 600; margin-top: 2px; }
+.lamp-meta { grid-area: name; min-width: 0; }
+.lamp-name { font-weight: 800; font-size: 14px; letter-spacing: -0.02em; }
+.lamp-pct { color: var(--muted); font-size: 11px; font-weight: 600; }
 .lamp-pwr {
-  width: 48px; height: 48px; border-radius: 50%;
+  grid-area: pwr;
+  width: 32px; height: 32px; border-radius: 50%;
   border: 1px solid var(--line); background: #fff; cursor: pointer;
   display: flex; align-items: center; justify-content: center; color: var(--muted);
 }
 .lamp.on .lamp-pwr { background: #1c1917; color: #fff; border-color: #1c1917; }
-.lamp-pwr svg { width: 22px; height: 22px; }
+.lamp-pwr svg { width: 16px; height: 16px; }
 .lamp-sliders {
-  grid-column: 1 / -1;
-  display: grid; gap: 10px;
-  max-height: 0; opacity: 0; overflow: hidden;
-  transition: max-height .28s ease, opacity .28s ease, margin .28s ease;
-  margin: 0;
+  grid-area: slide;
+  display: flex; flex-direction: column; gap: 4px;
+  min-width: 0; max-width: 280px;
 }
-.lamp.on .lamp-sliders { max-height: 140px; opacity: 1; margin-top: 4px; }
 .slide {
-  display: grid; grid-template-columns: 28px 1fr; gap: 10px; align-items: center;
+  display: grid; grid-template-columns: 16px 1fr; gap: 6px; align-items: center;
 }
-.slide span { font-size: 16px; }
+.slide span { font-size: 11px; }
 .slide input[type=range] {
-  width: 100%; height: 28px; appearance: none; background: transparent;
+  width: 100%; max-width: 260px; height: 18px; appearance: none; background: transparent;
+  touch-action: pan-x;
 }
 .slide input[type=range]::-webkit-slider-runnable-track {
-  height: 10px; border-radius: 99px; background: var(--track, #e7e5e4);
+  height: 6px; border-radius: 99px; background: var(--track, #e7e5e4);
 }
 .slide input[type=range]::-webkit-slider-thumb {
-  appearance: none; width: 22px; height: 22px; border-radius: 50%;
-  background: #fff; border: 2px solid #1c1917; margin-top: -6px;
-  box-shadow: 0 2px 8px rgba(0,0,0,.15);
+  appearance: none; width: 16px; height: 16px; border-radius: 50%;
+  background: #fff; border: 2px solid #1c1917; margin-top: -5px;
 }
-.dots { display: flex; gap: 8px; flex-wrap: wrap; padding: 2px 0 4px 38px; }
+.dots { grid-area: dots; display: flex; gap: 6px; flex-wrap: wrap; padding: 2px 0 0 0; }
 .dotc {
-  width: 28px; height: 28px; border-radius: 50%; border: 2px solid #fff;
+  width: 18px; height: 18px; border-radius: 50%; border: 2px solid #fff;
   box-shadow: 0 0 0 1px #d6d3d1; cursor: pointer; padding: 0;
 }
 .dotc:active { transform: scale(0.92); }
-.moods { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 14px; }
+.moods { display: flex; flex-wrap: wrap; gap: 6px; margin: 0 0 10px; flex-shrink: 0; }
 .mood {
-  border: 0; border-radius: 999px; padding: 10px 16px;
-  font: inherit; font-weight: 800; font-size: 14px; cursor: pointer;
+  border: 0; border-radius: 999px; padding: 6px 12px;
+  font: inherit; font-weight: 800; font-size: 12px; cursor: pointer;
 }
 .room-hero {
-  display: flex; align-items: center; gap: 12px; margin-bottom: 14px;
+  display: flex; align-items: center; gap: 10px; margin-bottom: 8px; flex-shrink: 0;
 }
-.room-hero .lamp-orb { width: 56px; height: 56px; flex-shrink: 0; }
-.room-hero h2 { margin: 0; font-size: 28px; font-weight: 650; letter-spacing: -0.03em; }
-.room-hero .acts { margin-left: auto; display: flex; gap: 8px; }
+.room-hero .lamp-orb { width: 36px; height: 36px; flex-shrink: 0; }
+.room-hero h2 { margin: 0; font-size: 22px; font-weight: 650; letter-spacing: -0.03em; }
+.room-hero .acts { margin-left: auto; display: flex; gap: 6px; }
 .sun-btn, .pwr-btn {
-  width: 48px; height: 48px; border-radius: 50%;
+  width: 36px; height: 36px; border-radius: 50%;
   border: 1px solid var(--line); background: #fff; cursor: pointer;
   display: flex; align-items: center; justify-content: center;
 }
 .sun-btn.on, .pwr-btn.on { background: #1c1917; color: #fff; border-color: #1c1917; }
-.sun-btn svg, .pwr-btn svg { width: 22px; height: 22px; }
+.sun-btn svg, .pwr-btn svg { width: 18px; height: 18px; }
 .room-tile .lamp-orb {
-  width: 44px; height: 44px; margin-bottom: 10px; pointer-events: none;
+  width: 28px; height: 28px; margin-bottom: 6px; pointer-events: none;
 }
-.room-tile .lamp-orb svg { width: 22px; height: 22px; }
+.room-tile .lamp-orb svg { width: 16px; height: 16px; }
 .chip {
   border: 0;
   background: transparent;
@@ -1255,6 +1288,14 @@ class WrightWayCalendarCard extends HTMLElement {
   connectedCallback() {
     if (!this._bound) {
       this._bound = true;
+      this.shadowRoot.addEventListener("touchmove", (e) => {
+        if (e.target.closest("input[type=range], .today-box, .dlg, .shop, .pane")) return;
+        e.preventDefault();
+      }, { passive: false });
+      this.shadowRoot.addEventListener("wheel", (e) => {
+        if (e.target.closest(".today-box, .dlg, .shop, .pane")) return;
+        e.preventDefault();
+      }, { passive: false });
       this.shadowRoot.addEventListener("click", (e) => {
         this._idleAt = Date.now();
         if (this._slideOn) {
@@ -1976,15 +2017,15 @@ class WrightWayCalendarCard extends HTMLElement {
       this._view = t.dataset.view;
       if (this._view === "home") {
         this._homeTab = "rooms";
-        this._homeRoom = null;
+        this._homeRoom = "kitchen";
       }
     }
     if (act === "home-tab") {
       this._homeTab = t.dataset.tab;
-      this._homeRoom = null;
+      if (this._homeTab === "rooms" && !this._homeRoom) this._homeRoom = "kitchen";
     }
     if (act === "home-room") this._homeRoom = t.dataset.room;
-    if (act === "home-back") this._homeRoom = null;
+    if (act === "home-back") this._homeRoom = "kitchen";
     if (act === "ent-toggle") {
       this._toggleEntity(t.dataset.entity);
       return;
@@ -2429,7 +2470,10 @@ class WrightWayCalendarCard extends HTMLElement {
           <button type="button" class="opt ${speed === s ? "on" : ""}" data-act="set-fan" data-speed="${esc(s)}">${esc(s.replace(/_/g, " "))}</button>`).join("")}
       </div>
       <div class="sec-title">Send to a room</div>
-      <div class="ctl-grid">${HOME_VACUUM_ROOMS.map((r, i) => this._ctlTile(r.entity, r.name, "Clean")).join("")}</div>`;
+      <div class="chip-row">${HOME_VACUUM_ROOMS.map((r) => {
+        const on = this._entOn(r.entity);
+        return `<button type="button" class="opt ${on ? "on" : ""}" data-act="ent-toggle" data-entity="${esc(r.entity)}">${esc(r.name)}</button>`;
+      }).join("")}</div>`;
   }
 
   _renderGarage() {
@@ -2443,20 +2487,18 @@ class WrightWayCalendarCard extends HTMLElement {
           <div class="cap">Garage</div>
         </div>
         <div class="gar-side">
-          <div class="gdoors">${GARAGE_DOORS.map((d) => {
-            const open = this._entOn(d.entity);
-            return `<button type="button" class="gdoor ${open ? "open" : ""}" data-act="ent-toggle" data-entity="${esc(d.entity)}">
-              <div class="name"><span>${esc(d.name)}</span><span class="st">${open ? "Open" : "Closed"}</span></div>
-              <div class="gvis"><div class="panel"></div></div>
-            </button>`;
-          }).join("")}</div>
+          <div class="ctl ${tesla ? "on" : ""}"><span>Tesla</span><span class="st">${tesla ? "Plugged in" : "Not connected"}</span></div>
+          <div class="ctl"><span>Garage</span><span class="st">${temp ? `${temp}°` : "—"}</span></div>
+          ${this._ctlTile("switch.air_exchanger", "Air exchanger")}
         </div>
       </div>
-      <div class="ctl-grid">
-        <div class="ctl ${tesla ? "on" : ""}"><span>Tesla</span><span class="st">${tesla ? "Plugged in" : "Not connected"}</span></div>
-        <div class="ctl"><span>Garage</span><span class="st">${temp ? `${temp}°` : "—"}</span></div>
-        ${this._ctlTile("switch.air_exchanger", "Air exchanger")}
-      </div>`;
+      <div class="gdoors">${GARAGE_DOORS.map((d) => {
+        const open = this._entOn(d.entity);
+        return `<button type="button" class="gdoor ${open ? "open" : ""}" data-act="ent-toggle" data-entity="${esc(d.entity)}">
+          <div class="name"><span>${esc(d.name)}</span><span class="st">${open ? "Open" : "Closed"}</span></div>
+          <div class="gvis"><div class="panel"></div></div>
+        </button>`;
+      }).join("")}</div>`;
   }
 
   _renderHome() {
@@ -2473,45 +2515,47 @@ class WrightWayCalendarCard extends HTMLElement {
     else if (tab === "garage") body = this._renderGarage();
     else if (tab === "outside") {
       body = `<div class="ctl-grid">${HOME_OUTSIDE.map((e) => this._ctlTile(e.entity, e.name)).join("")}</div>`;
-    } else if (this._homeRoom) {
-      const room = HOME_ROOMS.find((r) => r.id === this._homeRoom);
-      const scenes = this._homeRoom === "kitchen" ? (this._cfg.scenes || []) : [];
-      const ids = room ? this._roomLightIds(room) : [];
+    } else {
+      if (!this._homeRoom) this._homeRoom = "kitchen";
+      const room = HOME_ROOMS.find((r) => r.id === this._homeRoom) || HOME_ROOMS[0];
+      const scenes = room.id === "kitchen" ? (this._cfg.scenes || []) : [];
+      const ids = this._roomLightIds(room);
       const anyOn = ids.some((id) => this._entOn(id));
-      const adapt = ADAPTIVE[this._homeRoom];
+      const adapt = ADAPTIVE[room.id];
       const adaptOn = adapt && this._entOn(adapt);
       const glow = anyOn ? "#ffd7a8" : "#e7e5e4";
-      body = `<div class="room-hero">
-          <button type="button" class="back" data-act="home-back">‹</button>
-          <div class="lamp-orb" style="background:${glow};color:#1c1917;box-shadow:${anyOn ? "0 0 18px #ffd7a8" : "none"}">${ICONS.bulb}</div>
-          <h2>${esc(room ? room.name : "Room")}</h2>
-          <div class="acts">
-            ${adapt ? `<button type="button" class="sun-btn ${adaptOn ? "on" : ""}" data-act="ent-toggle" data-entity="${esc(adapt)}" title="Adaptive lighting">${ICONS.sun}</button>` : ""}
-            <button type="button" class="pwr-btn ${anyOn ? "on" : ""}" data-act="room-all" data-room="${esc(this._homeRoom)}" data-on="${anyOn ? "0" : "1"}" title="All lights">${ICONS.power}</button>
+      body = `<div class="home-split">
+        <nav class="room-nav">${HOME_ROOMS.map((r) => {
+          const n = this._roomLightIds(r).filter((id) => this._entOn(id)).length;
+          const on = r.id === room.id;
+          const firstOn = this._roomLightIds(r).find((id) => this._entOn(id));
+          const look = firstOn ? this._lightLook(firstOn) : null;
+          const g = look && look.on ? look.glow : "#e7e5e4";
+          return `<button type="button" class="${on ? "on" : ""}" data-act="home-room" data-room="${esc(r.id)}">
+            <span class="lamp-orb" style="background:${esc(g)};color:#1c1917">${ICONS.bulb}</span>
+            <span>${esc(r.name)}${n ? ` · ${n}` : ""}</span>
+          </button>`;
+        }).join("")}</nav>
+        <div class="room-detail">
+          <div class="room-hero">
+            <div class="lamp-orb" style="background:${glow};color:#1c1917;box-shadow:${anyOn ? "0 0 14px #ffd7a8" : "none"}">${ICONS.bulb}</div>
+            <h2>${esc(room.name)}</h2>
+            <div class="acts">
+              ${adapt ? `<button type="button" class="sun-btn ${adaptOn ? "on" : ""}" data-act="ent-toggle" data-entity="${esc(adapt)}" title="Adaptive lighting">${ICONS.sun}</button>` : ""}
+              <button type="button" class="pwr-btn ${anyOn ? "on" : ""}" data-act="room-all" data-room="${esc(room.id)}" data-on="${anyOn ? "0" : "1"}" title="All lights">${ICONS.power}</button>
+            </div>
+          </div>
+          <div class="moods">
+            <button type="button" class="mood" style="background:#fff7ed" data-act="room-mood" data-room="${esc(room.id)}" data-mood="bright">Bright</button>
+            <button type="button" class="mood" style="background:#fed7aa" data-act="room-mood" data-room="${esc(room.id)}" data-mood="relax">Relax</button>
+            <button type="button" class="mood" style="background:#fdba74" data-act="room-mood" data-room="${esc(room.id)}" data-mood="night">Night</button>
+            ${scenes.map((s) => `<button type="button" class="mood" style="background:${esc(this._sceneColor(s))}" data-act="scene" data-entity="${esc(s.entity)}">${esc(s.name)}</button>`).join("")}
+          </div>
+          <div class="lamp-list">
+            ${room.entities.map((e) => this._deviceRow(e.entity, e.name)).join("")}
           </div>
         </div>
-        <div class="moods">
-          <button type="button" class="mood" style="background:#fff7ed" data-act="room-mood" data-room="${esc(this._homeRoom)}" data-mood="bright">Bright</button>
-          <button type="button" class="mood" style="background:#fed7aa" data-act="room-mood" data-room="${esc(this._homeRoom)}" data-mood="relax">Relax</button>
-          <button type="button" class="mood" style="background:#fdba74" data-act="room-mood" data-room="${esc(this._homeRoom)}" data-mood="night">Night</button>
-          ${scenes.map((s) => `<button type="button" class="mood" style="background:${esc(this._sceneColor(s))}" data-act="scene" data-entity="${esc(s.entity)}">${esc(s.name)}</button>`).join("")}
-        </div>
-        <div class="lamp-list">
-          ${(room ? room.entities : []).map((e) => this._deviceRow(e.entity, e.name)).join("")}
-        </div>`;
-    } else {
-      body = `<div class="room-grid">${HOME_ROOMS.map((r, i) => {
-        const lights = this._roomLightIds(r);
-        const onCount = lights.filter((id) => this._entOn(id)).length;
-        const firstOn = lights.find((id) => this._entOn(id));
-        const look = firstOn ? this._lightLook(firstOn) : null;
-        const glow = look && look.on ? look.glow : "#e7e5e4";
-        return `<button type="button" class="room-tile ${onCount ? "on" : ""}" style="animation-delay:${i * 30}ms" data-act="home-room" data-room="${esc(r.id)}">
-          <span class="lamp-orb" style="background:${esc(glow)};color:#1c1917;box-shadow:${onCount ? `0 0 16px ${glow}` : "none"}">${ICONS.bulb}</span>
-          <span>${esc(r.name)}</span>
-          <span class="st">${onCount ? `${onCount} on` : "All off"}</span>
-        </button>`;
-      }).join("")}</div>`;
+      </div>`;
     }
     return `<div class="home">${tab === "rooms" && this._homeRoom ? "" : tabs}${body}</div>`;
   }
