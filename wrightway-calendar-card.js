@@ -13,8 +13,11 @@ const MEAL_LABELS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 const CSS = `
 :host {
   display: block;
-  height: 100%;
-  min-height: 100vh;
+  width: 100%;
+  height: 100vh;
+  height: 100dvh;
+  max-height: 100vh;
+  max-height: 100dvh;
   overflow: hidden;
   overscroll-behavior: none;
   touch-action: manipulation;
@@ -32,8 +35,8 @@ const CSS = `
 * { box-sizing: border-box; }
 .app {
   display: flex;
+  width: 100%;
   height: 100%;
-  min-height: 100vh;
   background: var(--paper);
   overflow: hidden;
   overscroll-behavior: none;
@@ -42,11 +45,12 @@ const CSS = `
 .rail {
   width: 88px;
   flex-shrink: 0;
+  height: 100%;
   background: #f4f4f5;
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 18px 0 16px;
+  padding: 12px 0 12px;
   gap: 4px;
   border-right: 1px solid var(--line);
 }
@@ -86,6 +90,7 @@ const CSS = `
   display: flex;
   flex-direction: column;
   position: relative;
+  overflow: hidden;
 }
 .top {
   display: flex;
@@ -147,8 +152,8 @@ const CSS = `
   margin: 0;
   background: var(--wash);
   border-radius: 16px;
-  padding: 10px 14px 8px;
-  max-height: 132px;
+  padding: 8px 12px 6px;
+  max-height: 96px;
   overflow: auto;
 }
 .today-box h4 {
@@ -702,7 +707,7 @@ h2 { font-size: 22px; margin: 8px 0 14px; }
   display: flex; align-items: center; justify-content: center;
 }
 .gear svg { width: 20px; height: 20px; }
-.stage { flex: 1; min-height: 0; display: flex; }
+.stage { flex: 1; min-height: 0; display: flex; overflow: hidden; }
 .cal-col { flex: 1.15; min-width: 0; min-height: 0; display: flex; flex-direction: column; }
 .chore-wrap {
   flex: 0 0 auto;
@@ -1330,7 +1335,36 @@ class WrightWayCalendarCard extends HTMLElement {
         }
       });
     }
+    this._lockFrame();
     this._render();
+  }
+
+  _lockFrame() {
+    const fill = (el) => {
+      if (!el || !el.style) return;
+      el.style.padding = "0";
+      el.style.margin = "0";
+      el.style.border = "none";
+      el.style.boxShadow = "none";
+      el.style.background = "transparent";
+      el.style.width = "100%";
+      el.style.maxWidth = "100%";
+      el.style.height = "100%";
+      el.style.maxHeight = "100%";
+      el.style.overflow = "hidden";
+    };
+    this.style.height = "100vh";
+    this.style.maxHeight = "100dvh";
+    this.style.width = "100%";
+    this.style.overflow = "hidden";
+    let el = this.parentElement;
+    for (let i = 0; i < 14 && el; i += 1) {
+      const tag = (el.tagName || "").toLowerCase();
+      fill(el);
+      if (tag === "hui-view" || tag === "hui-panel-view" || tag === "ha-panel-lovelace") break;
+      const root = el.getRootNode && el.getRootNode();
+      el = el.parentElement || (root && root.host) || null;
+    }
   }
 
   disconnectedCallback() {
@@ -2923,6 +2957,7 @@ class WrightWayCalendarCard extends HTMLElement {
     this._mountCamera();
     this._helperSnap = this._helperSig();
     this._homeSnap = this._homeSig();
+    this._lockFrame();
   }
 }
 
