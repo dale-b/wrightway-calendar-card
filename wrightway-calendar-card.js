@@ -13,14 +13,19 @@ const MEAL_LABELS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 const CSS = `
 :host {
   display: block;
-  width: 100%;
+  position: fixed;
+  inset: 0;
+  width: 100vw;
   height: 100vh;
   height: 100dvh;
-  max-height: 100vh;
-  max-height: 100dvh;
+  max-width: none;
+  max-height: none;
+  margin: 0;
+  padding: 0;
   overflow: hidden;
   overscroll-behavior: none;
   touch-action: manipulation;
+  z-index: 1;
   font-family: "Avenir Next", "Segoe UI", "Nunito", ui-sans-serif, system-ui, sans-serif;
   color: #1c1917;
   --ink: #1c1917;
@@ -35,8 +40,11 @@ const CSS = `
 * { box-sizing: border-box; }
 .app {
   display: flex;
+  flex-direction: row;
+  align-items: stretch;
   width: 100%;
   height: 100%;
+  min-height: 0;
   background: var(--paper);
   overflow: hidden;
   overscroll-behavior: none;
@@ -44,8 +52,10 @@ const CSS = `
 }
 .rail {
   width: 88px;
-  flex-shrink: 0;
-  height: 100%;
+  flex: 0 0 88px;
+  align-self: stretch;
+  height: auto;
+  min-height: 0;
   background: #f4f4f5;
   display: flex;
   flex-direction: column;
@@ -663,7 +673,7 @@ h2 { font-size: 22px; margin: 8px 0 14px; }
   cursor: pointer;
   box-shadow: 0 8px 24px rgba(37,99,235,.35);
 }
-.app.home .fab, .app.controls .fab { display: none; }
+.app.cal .fab, .app.controls .fab { display: none; }
 .overlay {
   position: absolute; inset: 0;
   background: rgba(28,25,23,.28);
@@ -1284,10 +1294,10 @@ class WrightWayCalendarCard extends HTMLElement {
 
   get hass() { return this._hass; }
 
-  getCardSize() { return 16; }
+  getCardSize() { return 24; }
 
   getGridOptions() {
-    return { columns: "full", rows: 8, min_rows: 6 };
+    return { columns: "full", rows: 18, min_rows: 12 };
   }
 
   connectedCallback() {
@@ -1342,26 +1352,50 @@ class WrightWayCalendarCard extends HTMLElement {
   _lockFrame() {
     const fill = (el) => {
       if (!el || !el.style) return;
-      el.style.padding = "0";
-      el.style.margin = "0";
-      el.style.border = "none";
-      el.style.boxShadow = "none";
-      el.style.background = "transparent";
-      el.style.width = "100%";
-      el.style.maxWidth = "100%";
-      el.style.height = "100%";
-      el.style.maxHeight = "100%";
-      el.style.overflow = "hidden";
+      el.style.setProperty("padding", "0", "important");
+      el.style.setProperty("margin", "0", "important");
+      el.style.setProperty("border", "none", "important");
+      el.style.setProperty("box-shadow", "none", "important");
+      el.style.setProperty("background", "transparent", "important");
+      el.style.setProperty("width", "100%", "important");
+      el.style.setProperty("max-width", "none", "important");
+      el.style.setProperty("height", "100%", "important");
+      el.style.setProperty("max-height", "none", "important");
+      el.style.setProperty("overflow", "hidden", "important");
+      el.style.setProperty("--ha-view-sections-padding", "0px");
+      el.style.setProperty("--ha-view-sections-max-width", "100vw");
+      el.style.setProperty("--view-padding", "0px");
     };
-    this.style.height = "100vh";
-    this.style.maxHeight = "100dvh";
-    this.style.width = "100%";
-    this.style.overflow = "hidden";
+    this.style.cssText = "position:fixed;inset:0;width:100vw;height:100dvh;max-width:none;max-height:none;margin:0;padding:0;overflow:hidden;z-index:1;display:block;";
+    const doc = this.ownerDocument;
+    if (doc && !doc.getElementById("ww-wall-lock")) {
+      const s = doc.createElement("style");
+      s.id = "ww-wall-lock";
+      s.textContent = `
+        html, body { overflow: hidden !important; }
+        :root {
+          --ha-view-sections-padding: 0px;
+          --ha-view-sections-max-width: 100vw;
+          --view-padding: 0px;
+        }
+        hui-view, hui-panel-view, hui-sections-view, hui-masonry-view, hui-card, ha-card {
+          padding: 0 !important;
+          margin: 0 !important;
+          max-width: none !important;
+        }
+      `;
+      (doc.head || doc.documentElement).appendChild(s);
+    }
+    const seen = new Set();
     let el = this.parentElement;
-    for (let i = 0; i < 14 && el; i += 1) {
-      const tag = (el.tagName || "").toLowerCase();
+    for (let i = 0; i < 20 && el && !seen.has(el); i += 1) {
+      seen.add(el);
       fill(el);
-      if (tag === "hui-view" || tag === "hui-panel-view" || tag === "ha-panel-lovelace") break;
+      if (el.shadowRoot) {
+        el.shadowRoot.querySelectorAll(".container, #view, .content").forEach(fill);
+      }
+      const tag = (el.tagName || "").toLowerCase();
+      if (tag === "home-assistant" || tag === "html") break;
       const root = el.getRootNode && el.getRootNode();
       el = el.parentElement || (root && root.host) || null;
     }
@@ -2917,7 +2951,7 @@ class WrightWayCalendarCard extends HTMLElement {
   _render() {
     if (this._view === "tasks") this._view = "calendar";
     const view = this._view;
-    const home = view === "calendar";
+    const isCal = view === "calendar";
     const body =
       view === "lists" ? this._renderShop()
         : view === "meals" ? this._renderMeals()
@@ -2929,7 +2963,7 @@ class WrightWayCalendarCard extends HTMLElement {
     hh = hh % 12 || 12;
     this.shadowRoot.innerHTML = `
       <style>${CSS}</style>
-      <div class="app ${home ? "home" : ""} ${view === "home" ? "controls" : ""}">
+      <div class="app ${isCal ? "cal" : ""} ${view === "home" ? "controls" : ""}">
         <nav class="rail">
           <div class="logo">W</div>
           <button class="rail-btn ${view === "calendar" ? "active" : ""}" data-act="view" data-view="calendar">${ICONS.calendar}Calendar</button>
@@ -2941,7 +2975,7 @@ class WrightWayCalendarCard extends HTMLElement {
         <div class="main">
           ${this._renderHeader()}
           ${body}
-          ${home ? this._renderChoreBar() : ""}
+          ${isCal ? this._renderChoreBar() : ""}
           <button class="fab" data-act="add" title="Add">+</button>
           ${this._renderSheet()}
           ${this._camFull ? `<div class="cam-full" data-act="cam-close">
