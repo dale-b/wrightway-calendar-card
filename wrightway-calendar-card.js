@@ -170,6 +170,30 @@ const CSS = `
   cursor: pointer;
 }
 .theme-btn svg { width: 18px; height: 18px; }
+.tip {
+  margin: 0 16px 8px;
+  background: #fff7ed;
+  border: 1px solid #fed7aa;
+  color: #9a3412;
+  border-radius: 12px;
+  padding: 8px 12px;
+  font-size: 14px;
+  font-weight: 650;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+.app.night .tip { background: #3d2a14; border-color: #7c2d12; color: #fdba74; }
+.tip span { flex: 1; }
+.tip button {
+  border: 0; background: transparent; color: inherit;
+  font: inherit; font-weight: 800; cursor: pointer; padding: 4px 8px;
+}
+.help-list { margin: 0; padding: 0; list-style: none; }
+.help-list li { padding: 10px 0; border-bottom: 1px solid var(--line); }
+.help-list strong { display: block; font-size: 16px; margin-bottom: 2px; }
+.help-list p { margin: 0; color: var(--muted); font-size: 14px; line-height: 1.4; }
 .tools button:hover { background: var(--wash); }
 .month-bar {
   display: flex;
@@ -1168,6 +1192,7 @@ const ICONS = {
   dine: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 4v7a3 3 0 006 0V4M8 4v16M16 8v12M16 8s3-1 3-4-3-3-3-3"/></svg>',
   cover: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 6h16M6 6v12h12V6"/></svg>',
   plug: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 7v5M15 7v5M7 12h10v3a5 5 0 01-10 0v-3zM12 20v2"/></svg>',
+  help: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.5 2.5 0 115 1c0 1.5-2.5 2-2.5 3.5"/><path d="M12 17h.01"/></svg>',
   drop: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3s6 7 6 11a6 6 0 11-12 0c0-4 6-11 6-11z"/></svg>',
   thermo: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M10 5a2 2 0 114 0v8.1a4 4 0 11-4 0V5z"/><path d="M12 13v4"/></svg>',
 };
@@ -1354,7 +1379,7 @@ class WrightWayCalendarCard extends HTMLElement {
     this._icloudNote = "";
     this._slideOnAt = 0;
     this._sleepSent = false;
-    this._prefs = { muted: true, order: DEFAULT_ORDER.slice(), colors: {}, calEntities: {}, theme: "auto", idle_seconds: 90, photo_seconds: 12, sleep_minutes: 0, icloud_album: "" };
+    this._prefs = { muted: true, order: DEFAULT_ORDER.slice(), colors: {}, calEntities: {}, theme: "auto", idle_seconds: 90, photo_seconds: 12, sleep_minutes: 0, icloud_album: "", tips: true };
     this._loadPrefs();
   }
 
@@ -1514,9 +1539,10 @@ class WrightWayCalendarCard extends HTMLElement {
         photo_seconds: Number.isFinite(Number(raw.photo_seconds)) ? Number(raw.photo_seconds) : 12,
         sleep_minutes: Number.isFinite(Number(raw.sleep_minutes)) ? Number(raw.sleep_minutes) : 0,
         icloud_album: raw.icloud_album || "",
+        tips: raw.tips !== false,
       };
     } catch (e) {
-      this._prefs = { muted: true, order: DEFAULT_ORDER.slice(), colors: {}, calEntities: {}, theme: "auto", idle_seconds: 90, photo_seconds: 12, sleep_minutes: 0, icloud_album: "" };
+      this._prefs = { muted: true, order: DEFAULT_ORDER.slice(), colors: {}, calEntities: {}, theme: "auto", idle_seconds: 90, photo_seconds: 12, sleep_minutes: 0, icloud_album: "", tips: true };
     }
   }
 
@@ -2577,6 +2603,11 @@ class WrightWayCalendarCard extends HTMLElement {
     if (act === "add") this._openAdd(this._sheet && this._sheet.date ? this._sheet.date : new Date());
     if (act === "close") this._sheet = null;
     if (act === "settings") this._sheet = { type: "settings", tab: (this._sheet && this._sheet.tab) || "chores" };
+    if (act === "help") this._sheet = { type: "settings", tab: "help" };
+    if (act === "tips-off") {
+      this._prefs.tips = false;
+      this._savePrefs();
+    }
     if (act === "settings-tab") this._sheet = { type: "settings", tab: t.dataset.tab };
     if (act === "person-up" || act === "person-down") {
       const names = this._cals().map((c) => c.name);
@@ -2853,6 +2884,7 @@ class WrightWayCalendarCard extends HTMLElement {
         </div>
         <div class="wx">
           <span class="temp">${esc(temp)}</span><span>${esc(cond)}</span>
+          <button type="button" class="theme-btn" data-act="help" title="How to use">${ICONS.help}</button>
           <button type="button" class="theme-btn" data-act="theme-cycle" title="Day / evening">${this._theme() === "night" ? ICONS.moon : ICONS.sun}</button>
         </div>
       </div>`;
@@ -3250,6 +3282,7 @@ class WrightWayCalendarCard extends HTMLElement {
       <div class="stage">
         <div class="cal-col">
           ${this._renderMonthBar()}
+          ${this._prefs && this._prefs.tips !== false ? `<div class="tip"><span>Tap a day to add something. Tap a colored name to hide that person. Tap a chore at the bottom to check it off.</span><button type="button" data-act="tips-off">Got it</button></div>` : ""}
           ${this._renderLegend()}
           ${this._renderToday()}
           <div class="grid-wrap">
@@ -3335,6 +3368,7 @@ class WrightWayCalendarCard extends HTMLElement {
     return `<div class="shop">
       <div class="shop-side">
         <h2>Groceries</h2>
+        <p class="shop-note">Type an item and press Add. Tap a row to check it off.</p>
         ${shop ? this._renderTodos(shop) : "<p>No shopping list.</p>"}
         <div class="add-row">
           <input data-shop-search inputmode="text" enterkeyhint="done" autocomplete="off" autocorrect="off" placeholder="Milk, bananas…"/>
@@ -3343,7 +3377,7 @@ class WrightWayCalendarCard extends HTMLElement {
           <button class="primary" data-act="shop-add">Add to list</button>
           <button data-act="shop-type">Type an item</button>
         </div>
-        <p class="shop-note">Type on this list — that’s the family grocery list. Walmart’s website on the tablet often needs a long-press to type, so shopping happens in the Walmart app or site on the right.</p>
+        <p class="shop-note">This is the family grocery list. Use Walmart on the right when you are ready to shop.</p>
       </div>
       <div class="shop-main">
         <button class="shop-tile" data-act="shop-app">Walmart app<span>Opens the app on this tablet if it’s installed</span></button>
@@ -3377,7 +3411,8 @@ class WrightWayCalendarCard extends HTMLElement {
     const meals = this._cfg.meals || {};
     const today = this._now.getDay();
     const mondayFirst = (today + 6) % 7;
-    return `<div class="pane"><h2>This week's dinners</h2>
+    return `<div class="pane"><h2>This week’s dinners</h2>
+      <p class="shop-note">Tap a day and type what’s for dinner. Everyone sees it here.</p>
       <div class="meals">${MEAL_KEYS.map((k, i) => {
         const ent = meals[k];
         const val = ent && this._hass && this._hass.states[ent] ? this._hass.states[ent].state : "";
@@ -3397,13 +3432,24 @@ class WrightWayCalendarCard extends HTMLElement {
     const tab = (this._sheet && this._sheet.tab) || "chores";
     const tabs = `
       <div class="tabs">
+        <button type="button" class="${tab === "help" ? "on" : ""}" data-act="settings-tab" data-tab="help">How to use</button>
         <button type="button" class="${tab === "chores" ? "on" : ""}" data-act="settings-tab" data-tab="chores">Chores</button>
-        <button type="button" class="${tab === "people" ? "on" : ""}" data-act="settings-tab" data-tab="people">People & calendars</button>
-        <button type="button" class="${tab === "camera" ? "on" : ""}" data-act="settings-tab" data-tab="camera">Camera</button>
+        <button type="button" class="${tab === "people" ? "on" : ""}" data-act="settings-tab" data-tab="people">People</button>
         <button type="button" class="${tab === "display" ? "on" : ""}" data-act="settings-tab" data-tab="display">Display</button>
+        <button type="button" class="${tab === "camera" ? "on" : ""}" data-act="settings-tab" data-tab="camera">Setup</button>
       </div>`;
     let body = "";
-    if (tab === "display") {
+    if (tab === "help") {
+      body = `<ul class="help-list">
+          <li><strong>Calendar</strong><p>Tap a day. Pick who it’s for, type what’s happening, Save. Phone calendars (Dale, Laura, the kids, Family) show up here by themselves.</p></li>
+          <li><strong>Chores</strong><p>Today’s chores sit along the bottom. Tap a row to check it off. Add or change repeats under Chores in Settings.</p></li>
+          <li><strong>Shop</strong><p>Type milk, bananas, whatever. Tap to check off. Walmart opens the store when you’re ready to shop.</p></li>
+          <li><strong>Meals</strong><p>Tap a day and type dinner so everyone can see the plan.</p></li>
+          <li><strong>Home</strong><p>Lights, garage, fans, vacuum. Tap the round icon to turn something on or off. Drag the bar for brightness.</p></li>
+          <li><strong>Pictures</strong><p>After nobody taps for a bit, family photos fill the screen. Tap anywhere to come back. Add an iCloud shared album under Display.</p></li>
+          <li><strong>Colors</strong><p>Dale is blue, Laura green, David purple, Ben amber, Family teal. Tap a name on the calendar to hide that person.</p></li>
+        </ul>`;
+    } else if (tab === "display") {
       const theme = (this._prefs && this._prefs.theme) || "auto";
       const idle = this._idleWait();
       const photo = this._photoWait();
@@ -3439,7 +3485,7 @@ class WrightWayCalendarCard extends HTMLElement {
         <p class="shop-note">${esc(this._icloudNote || "In Photos: album → Share → Shared Album → add the family → Public Website → copy link. Apple does not let the wall read your private library. If this tablet cannot reach iCloud, drop the same JPEGs in Home Assistant Media → family.")}</p>`;
     } else if (tab === "people") {
       const opts = this._calendarOptions();
-      body = `<div class="sub">Order, color, and which Home Assistant calendar each person uses. Saved on this tablet.</div>
+      body = `<div class="sub">Drag order, pick a color, and choose whose calendar. Saved on this tablet.</div>
         ${this._cals().map((c) => `
           <div class="people-row">
             <button type="button" class="tiny" data-act="person-up" data-name="${esc(c.name)}">↑</button>
@@ -3451,7 +3497,7 @@ class WrightWayCalendarCard extends HTMLElement {
             </select>
           </div>`).join("")}`;
     } else if (tab === "camera") {
-      body = `<div class="sub">Kitchen panel camera. Tap the live picture on Home for full screen.</div>
+      body = `<div class="sub">Kitchen camera and photo album. Most people can skip this.</div>
         <label class="switch">
           <input type="checkbox" data-pref-mute="1" ${this._muted() ? "checked" : ""}/>
           Mute camera audio
@@ -3524,7 +3570,7 @@ class WrightWayCalendarCard extends HTMLElement {
       const label = `${MONTHS[d.getMonth()]} ${d.getDate()}`;
       return `<div class="overlay" data-act="close"><div class="dlg">
         <h3>${esc(label)}</h3>
-        <div class="sub">${evs.length} event${evs.length === 1 ? "" : "s"}</div>
+        <div class="sub">${evs.length ? `${evs.length} on this day` : "Nothing yet — add something."}</div>
         ${evs.map((ev) => `
           <div class="dlg-ev" style="background:${esc(ev._color)}33">
             <div class="t">${esc(ev.summary || "")}</div>
@@ -3532,16 +3578,17 @@ class WrightWayCalendarCard extends HTMLElement {
           </div>`).join("")}
         <div class="actions">
           <button class="ghost" data-act="close">Close</button>
-          <button class="save" data-act="add">Add event</button>
+          <button class="save" data-act="add">Add</button>
         </div>
       </div></div>`;
     }
     const s = this._sheet;
     const cals = this._cals();
     return `<div class="overlay" data-act="close"><form class="dlg" data-form="add">
-      <h3>New event</h3>
+      <h3>Add to the calendar</h3>
       <div class="sub">${esc(MONTHS[s.date.getMonth()])} ${s.date.getDate()}</div>
-      <input name="title" placeholder="What's happening?" required autofocus/>
+      <input name="title" placeholder="What’s happening?" required autofocus/>
+      <div class="sub">Who is this for?</div>
       <div class="who">${cals.map((c) => `
         <button type="button" class="${s.cal === c.entity ? "on" : ""}" data-act="who" data-entity="${esc(c.entity)}" style="background:${esc(c.color)}">${esc(c.name)}</button>`).join("")}</div>
       <label><input type="checkbox" name="allday" checked/> All day</label>
