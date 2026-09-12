@@ -333,67 +333,63 @@ const CSS = `
   align-content: start;
 }
 .wcard {
-  --glow: #93c5fd;
+  --rgb: 255, 145, 0;
+  --pct: 0%;
   background: var(--card);
   border: 1px solid var(--line);
   border-radius: 12px;
-  padding: 12px 14px 10px;
-  box-shadow: var(--shadow);
+  padding: 12px;
   color: var(--ink);
-  animation: rise .28s ease both;
 }
-.wcard.on { box-shadow: 0 0 0 1px var(--glow), var(--shadow); }
-.wrow { display: flex; align-items: center; gap: 12px; }
+.wrow {
+  display: flex; align-items: center; gap: 12px;
+  width: 100%; border: 0; background: transparent; padding: 0;
+  font: inherit; color: inherit; text-align: left; cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
 .wico {
-  width: 40px; height: 40px; border-radius: 10px; flex-shrink: 0;
+  width: 42px; height: 42px; border-radius: 50%; flex-shrink: 0;
   display: flex; align-items: center; justify-content: center;
-  background: var(--wash); color: var(--muted); border: 0; cursor: pointer;
+  background: rgba(120, 113, 108, .16); color: #a8a29e;
+  pointer-events: none;
 }
 .wcard.on .wico {
-  background: var(--glow); color: #1c1917;
-  box-shadow: 0 0 16px var(--glow);
+  background: rgba(var(--rgb), 0.25);
+  color: rgb(var(--rgb));
 }
-.wico svg { width: 20px; height: 20px; }
+.wico svg { width: 22px; height: 22px; }
 .wmeta { flex: 1; min-width: 0; }
-.wname { font-weight: 650; font-size: 15px; letter-spacing: -0.02em; }
-.wst { font-size: 12px; font-weight: 600; color: var(--muted); margin-top: 1px; }
-.wtoggle {
-  width: 44px; height: 22px; border-radius: 11px;
-  border: 0; padding: 0; cursor: pointer; flex-shrink: 0;
-  background: var(--toggle-off); position: relative;
+.wname { font-weight: 650; font-size: 15px; letter-spacing: -0.01em; }
+.wst { font-size: 13px; font-weight: 500; color: var(--muted); margin-top: 1px; }
+.wsliders { display: flex; flex-direction: column; gap: 8px; margin-top: 10px; }
+.m-slider {
+  -webkit-appearance: none; appearance: none;
+  width: 100%; height: 36px; border-radius: 18px;
+  background: linear-gradient(90deg, rgb(var(--rgb)) 0%, rgb(var(--rgb)) var(--pct), rgba(var(--rgb), .2) var(--pct), rgba(var(--rgb), .2) 100%);
+  touch-action: pan-x; cursor: pointer; margin: 0;
 }
-.wtoggle::after {
-  content: "";
-  position: absolute; top: 3px; left: 3px;
-  width: 16px; height: 16px; border-radius: 50%;
-  background: #fff; box-shadow: 0 1px 4px rgba(0,0,0,.28);
+.wcard:not(.on) .m-slider {
+  background: var(--wash);
 }
-.wtoggle.on { background: var(--accent-ui); }
-.wtoggle.on::after { left: 25px; }
-.wsliders { display: flex; flex-direction: column; gap: 6px; margin-top: 8px; }
-.slide {
-  display: grid; grid-template-columns: 16px 1fr; gap: 8px; align-items: center;
+.m-slider.ct {
+  background: linear-gradient(90deg, #ffb347, #fff6e8, #cde7ff);
 }
-.slide span { font-size: 12px; }
-.slide input[type=range] {
-  width: 100%; height: 22px; appearance: none; background: transparent;
-  touch-action: pan-x;
-}
-.slide input[type=range]::-webkit-slider-runnable-track {
-  height: 4px; border-radius: 99px; background: var(--track, #d6d3d1);
-}
-.slide input[type=range]::-webkit-slider-thumb {
-  appearance: none; width: 20px; height: 20px; border-radius: 50%;
-  background: #fff; border: 0; margin-top: -8px;
+.m-slider::-webkit-slider-thumb {
+  -webkit-appearance: none; appearance: none;
+  width: 28px; height: 28px; border-radius: 50%;
+  background: #fff; border: 0;
   box-shadow: 0 1px 4px rgba(0,0,0,.28);
 }
-.app.night .slide input[type=range]::-webkit-slider-runnable-track { background: var(--track, #52525b); }
-.dots { display: flex; gap: 6px; flex-wrap: wrap; padding: 6px 0 0 0; }
+.m-slider::-moz-range-thumb {
+  width: 28px; height: 28px; border-radius: 50%;
+  background: #fff; border: 0;
+  box-shadow: 0 1px 4px rgba(0,0,0,.28);
+}
+.dots { display: flex; gap: 8px; flex-wrap: wrap; min-height: 22px; }
 .dotc {
-  width: 20px; height: 20px; border-radius: 50%; border: 2px solid var(--card);
+  width: 22px; height: 22px; border-radius: 50%; border: 2px solid var(--card);
   box-shadow: 0 0 0 1px var(--line); cursor: pointer; padding: 0;
 }
-.dotc:active { transform: scale(0.92); }
 .moods { display: flex; flex-wrap: wrap; gap: 6px; }
 .mood {
   border: 1px solid var(--line); background: var(--card); color: var(--ink);
@@ -401,7 +397,6 @@ const CSS = `
   font: inherit; font-weight: 650; font-size: 12px; cursor: pointer;
   box-shadow: 0 1px 0 rgba(255,255,255,.4) inset;
 }
-.mood:active { transform: scale(0.97); }
 .sun-btn, .pwr-btn {
   width: 32px; height: 32px; border-radius: 8px;
   border: 1px solid var(--line); background: var(--card); cursor: pointer;
@@ -428,7 +423,6 @@ const CSS = `
 }
 .ctl .st { font-size: 12px; font-weight: 600; color: var(--muted); margin-top: 6px; }
 .ctl.on, .ctl.busy { box-shadow: 0 0 0 1px var(--accent-ui), var(--shadow); }
-.ctl:active { transform: scale(0.98); }
 .chip-row { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 12px; }
 .opt {
   border: 1px solid var(--line); background: var(--card); border-radius: 8px;
@@ -487,10 +481,6 @@ const CSS = `
 .gdoor.open .gvis .panel { transform: translateY(-78%); }
 .gdoor.open { box-shadow: 0 0 0 1px #fb923c, var(--shadow); }
 .home-note { color: var(--muted); font-size: 14px; margin: 0 0 12px; }
-@keyframes rise {
-  from { opacity: 0; transform: translateY(8px); }
-  to { opacity: 1; transform: none; }
-}
 .chip {
   border: 0;
   background: transparent;
@@ -1846,7 +1836,20 @@ class WrightWayCalendarCard extends HTMLElement {
     const sig = this._homeSig();
     if (sig === this._homeSnap) return;
     this._homeSnap = sig;
-    this._render();
+    const home = this.shadowRoot && this.shadowRoot.querySelector(".home");
+    const pane = this.shadowRoot && this.shadowRoot.querySelector(".area-body");
+    if (!home || !pane) {
+      this._render();
+      return;
+    }
+    const scroll = pane.scrollTop;
+    const wrap = document.createElement("div");
+    wrap.innerHTML = this._renderHome();
+    const next = wrap.firstElementChild;
+    if (!next) return;
+    home.replaceWith(next);
+    const fresh = this.shadowRoot.querySelector(".area-body");
+    if (fresh) fresh.scrollTop = scroll;
   }
 
   async _toggleEntity(entity) {
@@ -2255,6 +2258,11 @@ class WrightWayCalendarCard extends HTMLElement {
     if (act === "home-room") this._homeRoom = t.dataset.room;
     if (act === "home-back") this._homeRoom = "kitchen";
     if (act === "ent-toggle") {
+      const card = t.closest(".wcard");
+      if (card) {
+        const on = card.classList.toggle("on");
+        card.style.setProperty("--pct", on ? (card.style.getPropertyValue("--pct") === "0%" ? "100%" : card.style.getPropertyValue("--pct")) : "0%");
+      }
       this._toggleEntity(t.dataset.entity);
       return;
     }
@@ -2505,8 +2513,13 @@ class WrightWayCalendarCard extends HTMLElement {
 
   _onInput(e) {
     const t = e.target;
+    const card = t.closest && t.closest(".wcard");
     if (t.dataset.bright && this._hass) {
       const val = Math.max(1, Math.min(255, Number(t.value) || 1));
+      if (card) {
+        card.classList.add("on");
+        card.style.setProperty("--pct", `${Math.round((val / 255) * 100)}%`);
+      }
       clearTimeout(this._brightT);
       this._brightT = setTimeout(() => {
         this._hass.callService("light", "turn_on", { entity_id: t.dataset.bright, brightness: val });
@@ -2514,6 +2527,7 @@ class WrightWayCalendarCard extends HTMLElement {
     }
     if (t.dataset.ct && this._hass) {
       const val = Number(t.value);
+      if (card) card.classList.add("on");
       clearTimeout(this._ctT);
       this._ctT = setTimeout(() => {
         this._hass.callService("light", "turn_on", { entity_id: t.dataset.ct, color_temp_kelvin: val });
@@ -2521,6 +2535,10 @@ class WrightWayCalendarCard extends HTMLElement {
     }
     if (t.dataset.fanPct && this._hass) {
       const val = Math.max(0, Math.min(100, Number(t.value) || 0));
+      if (card) {
+        card.classList.toggle("on", val > 0);
+        card.style.setProperty("--pct", `${val}%`);
+      }
       clearTimeout(this._fanT);
       this._fanT = setTimeout(() => {
         this._hass.callService("fan", "set_percentage", { entity_id: t.dataset.fanPct, percentage: val });
@@ -2636,41 +2654,39 @@ class WrightWayCalendarCard extends HTMLElement {
       const on = this._entOn(entity);
       let status = on ? "On" : "Off";
       if (domain === "cover") status = (st.state === "open" || st.state === "opening") ? "Open" : "Closed";
-      if (domain === "fan") status = on ? "On" : "Off";
       const pct = domain === "fan" && st.attributes && st.attributes.percentage != null
         ? Number(st.attributes.percentage) : null;
-      if (on && pct != null) status = `${Math.round(pct)}%`;
-      const glow = on ? "#fdba74" : "#d6d3d1";
-      return `<div class="wcard ${on ? "on" : ""}" style="--glow:${glow}">
-        <div class="wrow">
-          <button type="button" class="wico" data-act="ent-toggle" data-entity="${esc(entity)}">${this._deviceIcon(domain)}</button>
-          <div class="wmeta">
-            <div class="wname">${esc(name)}</div>
-            <div class="wst">${esc(status)}</div>
-          </div>
-          <button type="button" class="wtoggle ${on ? "on" : ""}" data-act="ent-toggle" data-entity="${esc(entity)}" title="Toggle"></button>
-        </div>
-        ${domain === "fan" && pct != null ? `<div class="wsliders"><label class="slide"><span>🌀</span><input type="range" min="0" max="100" value="${pct}" data-fan-pct="${esc(entity)}"/></label></div>` : ""}
+      if (domain === "fan") status = on ? (pct != null ? `${Math.round(pct)}%` : "On") : "Off";
+      const rgb = on ? "255, 145, 0" : "168, 162, 158";
+      const fill = on && pct != null ? Math.round(pct) : (on ? 100 : 0);
+      return `<div class="wcard ${on ? "on" : ""}" style="--rgb:${rgb};--pct:${fill}%">
+        <button type="button" class="wrow" data-act="ent-toggle" data-entity="${esc(entity)}">
+          <span class="wico">${this._deviceIcon(domain)}</span>
+          <span class="wmeta">
+            <span class="wname">${esc(name)}</span>
+            <span class="wst">${esc(status)}</span>
+          </span>
+        </button>
+        ${domain === "fan" ? `<div class="wsliders"><input class="m-slider" type="range" min="0" max="100" value="${pct != null ? pct : fill}" data-fan-pct="${esc(entity)}"/></div>` : ""}
       </div>`;
     }
     const look = this._lightLook(entity);
     if (!look) return "";
-    const track = `linear-gradient(90deg, #57534e, ${look.glow})`;
-    const ctTrack = "linear-gradient(90deg, #ffb347, #fff6e8, #cde7ff)";
-    return `<div class="wcard ${look.on ? "on" : ""}" style="--glow:${esc(look.glow)}">
-      <div class="wrow">
-        <button type="button" class="wico" data-act="ent-toggle" data-entity="${esc(entity)}">${ICONS.bulb}</button>
-        <div class="wmeta">
-          <div class="wname">${esc(name)}</div>
-          <div class="wst">${look.on ? `${look.pct}%` : "Off"}</div>
-        </div>
-        <button type="button" class="wtoggle ${look.on ? "on" : ""}" data-act="ent-toggle" data-entity="${esc(entity)}" title="Toggle"></button>
-      </div>
-      ${look.on && (look.dimmable || look.temp || look.color) ? `<div class="wsliders">
-        ${look.dimmable ? `<label class="slide"><span>☀</span><input type="range" min="1" max="255" value="${look.bright || 1}" data-bright="${esc(entity)}" style="--track:${esc(track)}"/></label>` : ""}
-        ${look.temp ? `<label class="slide"><span>🌡</span><input type="range" min="${look.minK}" max="${look.maxK}" value="${look.kelvin || 3000}" data-ct="${esc(entity)}" style="--track:${ctTrack}"/></label>` : ""}
-        ${look.color ? `<div class="dots">${LIGHT_DOTS.map((rgb) => `
-          <button type="button" class="dotc" data-act="set-rgb" data-entity="${esc(entity)}" data-rgb="${rgb.join(",")}" style="background:rgb(${rgb.join(",")})"></button>`).join("")}</div>` : ""}
+    const rgb = (look.rgb || [255, 145, 0]).join(", ");
+    const pct = look.on ? look.pct : 0;
+    return `<div class="wcard ${look.on ? "on" : ""}" style="--rgb:${esc(rgb)};--pct:${pct}%">
+      <button type="button" class="wrow" data-act="ent-toggle" data-entity="${esc(entity)}">
+        <span class="wico">${ICONS.bulb}</span>
+        <span class="wmeta">
+          <span class="wname">${esc(name)}</span>
+          <span class="wst">${look.on ? `${look.pct}%` : "Off"}</span>
+        </span>
+      </button>
+      ${look.dimmable || look.temp || look.color ? `<div class="wsliders">
+        ${look.dimmable ? `<input class="m-slider" type="range" min="1" max="255" value="${look.bright || 1}" data-bright="${esc(entity)}"/>` : ""}
+        ${look.temp ? `<input class="m-slider ct" type="range" min="${look.minK}" max="${look.maxK}" value="${look.kelvin || 3000}" data-ct="${esc(entity)}"/>` : ""}
+        ${look.color ? `<div class="dots">${LIGHT_DOTS.map((c) => `
+          <button type="button" class="dotc" data-act="set-rgb" data-entity="${esc(entity)}" data-rgb="${c.join(",")}" style="background:rgb(${c.join(",")})"></button>`).join("")}</div>` : ""}
       </div>` : ""}
     </div>`;
   }
@@ -3138,6 +3154,8 @@ class WrightWayCalendarCard extends HTMLElement {
 
   _render() {
     if (this._view === "tasks") this._view = "calendar";
+    const pane = this.shadowRoot && this.shadowRoot.querySelector(".area-body");
+    const homeScroll = pane ? pane.scrollTop : 0;
     const view = this._view;
     const isCal = view === "calendar";
     const theme = this._theme();
@@ -3182,6 +3200,8 @@ class WrightWayCalendarCard extends HTMLElement {
     this._helperSnap = this._helperSig();
     this._homeSnap = this._homeSig();
     this._lockFrame();
+    const fresh = this.shadowRoot.querySelector(".area-body");
+    if (fresh) fresh.scrollTop = homeScroll;
   }
 }
 
