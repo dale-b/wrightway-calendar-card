@@ -953,12 +953,19 @@ h2 { font-size: 22px; margin: 8px 0 14px; }
   position: absolute; inset: 0; z-index: 40;
   background: #111;
 }
-.show img { width: 100%; height: 100%; object-fit: cover; }
+.show img {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%; object-fit: cover;
+  opacity: 0;
+  transition: opacity 1.6s ease;
+}
+.show img.on { opacity: 1; }
 .show-meta {
   position: absolute; left: 28px; bottom: 28px; color: #fff;
   text-shadow: 0 2px 12px rgba(0,0,0,.5);
   font-family: Palatino, Georgia, serif;
   font-size: 42px;
+  z-index: 1;
 }
 .app.night .logo { background: #fafafa; color: #18181b; }
 .app.night .freq button, .app.night .daysel button { background: var(--card); color: var(--ink); }
@@ -1342,7 +1349,10 @@ class WrightWayCalendarCard extends HTMLElement {
     this._homeSnap = "";
     this._slideLock = false;
     this._themeSnap = "";
-    this._prefs = { muted: true, order: DEFAULT_ORDER.slice(), colors: {}, calEntities: {}, theme: "auto" };
+    this._photoUrls = null;
+    this._slideOnAt = 0;
+    this._sleepSent = false;
+    this._prefs = { muted: true, order: DEFAULT_ORDER.slice(), colors: {}, calEntities: {}, theme: "auto", idle_seconds: 90, photo_seconds: 12, sleep_minutes: 0 };
     this._loadPrefs();
   }
 
@@ -1367,6 +1377,7 @@ class WrightWayCalendarCard extends HTMLElement {
       }, 1000);
       this._loadEvents();
       this._loadTodos();
+      this._loadPhotos();
       this._render();
     }
   }
@@ -1393,7 +1404,9 @@ class WrightWayCalendarCard extends HTMLElement {
       this.shadowRoot.addEventListener("click", (e) => {
         this._idleAt = Date.now();
         if (this._slideOn) {
+          this._wakeScreen();
           this._slideOn = false;
+          this._sleepSent = false;
           this._tickIdle();
           if (!e.target.closest("[data-act]")) return;
         }
@@ -1494,9 +1507,12 @@ class WrightWayCalendarCard extends HTMLElement {
         colors: raw.colors || {},
         calEntities: raw.calEntities || {},
         theme: raw.theme === "light" || raw.theme === "night" ? raw.theme : "auto",
+        idle_seconds: Number.isFinite(Number(raw.idle_seconds)) ? Number(raw.idle_seconds) : 90,
+        photo_seconds: Number.isFinite(Number(raw.photo_seconds)) ? Number(raw.photo_seconds) : 12,
+        sleep_minutes: Number.isFinite(Number(raw.sleep_minutes)) ? Number(raw.sleep_minutes) : 0,
       };
     } catch (e) {
-      this._prefs = { muted: true, order: DEFAULT_ORDER.slice(), colors: {}, calEntities: {}, theme: "auto" };
+      this._prefs = { muted: true, order: DEFAULT_ORDER.slice(), colors: {}, calEntities: {}, theme: "auto", idle_seconds: 90, photo_seconds: 12, sleep_minutes: 0 };
     }
   }
 
@@ -1616,9 +1632,85 @@ class WrightWayCalendarCard extends HTMLElement {
   }
 
   _photos() {
+    if (Array.isArray(this._photoUrls) && this._photoUrls.length) return this._photoUrls;
     const listed = this._cfg.photos;
-    if (Array.isArray(listed) && listed.length) return listed;
+    if (Array.isArray(listed) && listed.length) {
+      return listed.map((p) => (typeof p === "string" ? p : p && p.url)).filter(Boolean);
+    }
     return PLACEHOLDER_PHOTOS;
+  }
+
+  async _loadPhotos() {
+    const urls = [];
+    const listed = this._cfg.photos;
+    if (Array.isArray(listed)) {
+      listed.forEach((p) => {
+        const u = typeof p === "string" ? p : p && p.url;
+        if (u) urls.push(u);
+      });
+    }
+    if (this._hass && this._hass.connection) {
+      const folder = this._cfg.photo_folder || "family";
+      try {
+        const browse = await this._hass.connection.sendMessagePromise({
+          type: "media_source/browse_media",
+          media_content_id: `media-source://media_source/local/${folder}`,
+        });
+        const kids = browse && browse.children ? browse.children : [];
+        for (const child of kids) {
+          const id = child.media_content_id || "";
+          const title = child.title || id;
+          const kind = String(child.media_content_type || "");
+          const isImg = kind.startsWith("image") || /\.(jpe?g|png|webp|gif)$/i.test(title);
+          if (!isImg || child.can_expand) continue;
+          try {
+            const resolved = await this._hass.connection.sendMessagePromise({
+              type: "media_source/resolve_media",
+              media_content_id: id,
+            });
+            if (resolved && resolved.url) {
+              urls.push(this._hass.hassUrl(resolved.url));
+            }
+          } catch (e) { /* skip one file */ }
+        }
+      } catch (e) { /* no family folder yet */ }
+    }
+    this._photoUrls = urls.length ? urls : PLACEHOLDER_PHOTOS.slice();
+  }
+
+  _fully() {
+    try {
+      return window.fully || (window.top && window.top.fully) || null;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  _wakeScreen() {
+    const f = this._fully();
+    if (f && typeof f.turnScreenOn === "function") {
+      try { f.turnScreenOn(); } catch (e) { /* not Fully */ }
+    }
+  }
+
+  _sleepScreen() {
+    const f = this._fully();
+    if (f && typeof f.turnScreenOff === "function") {
+      try { f.turnScreenOff(false); } catch (e) { /* not Fully */ }
+    }
+  }
+
+  _idleWait() {
+    if (this._prefs && Number.isFinite(Number(this._prefs.idle_seconds))) {
+      return Number(this._prefs.idle_seconds);
+    }
+    const sec = Number(this._cfg.idle_seconds);
+    return Number.isFinite(sec) ? sec : 90;
+  }
+
+  _photoWait() {
+    const sec = this._prefs && Number(this._prefs.photo_seconds);
+    return Number.isFinite(sec) && sec > 0 ? sec : 12;
   }
 
   _cameraLabel(entity) {
@@ -1671,35 +1763,62 @@ class WrightWayCalendarCard extends HTMLElement {
 
   _tickIdle() {
     if (this._camFull) return;
-    const sec = Number(this._cfg.idle_seconds);
-    const wait = Number.isFinite(sec) ? sec : 90;
-    if (wait <= 0) return;
-    const due = Date.now() - this._idleAt > wait * 1000;
+    const wait = this._idleWait();
     const overlay = this.shadowRoot.getElementById("slideshow");
     if (!overlay) return;
+    if (wait <= 0) {
+      if (this._slideOn) {
+        this._slideOn = false;
+        this._sleepSent = false;
+        if (this._slideTimer) clearInterval(this._slideTimer);
+      }
+      overlay.hidden = true;
+      return;
+    }
+    const due = Date.now() - this._idleAt > wait * 1000;
     if (due && !this._slideOn) {
       this._slideOn = true;
+      this._slideOnAt = Date.now();
+      this._sleepSent = false;
       this._advanceSlide();
       if (this._slideTimer) clearInterval(this._slideTimer);
-      this._slideTimer = setInterval(() => this._advanceSlide(), 12000);
+      this._slideTimer = setInterval(() => this._advanceSlide(), this._photoWait() * 1000);
     }
     if (!due && this._slideOn) {
       this._slideOn = false;
+      this._sleepSent = false;
       if (this._slideTimer) clearInterval(this._slideTimer);
     }
     overlay.hidden = !this._slideOn;
+    if (this._slideOn && !this._sleepSent) {
+      const mins = this._prefs && Number(this._prefs.sleep_minutes);
+      let sleepMs = 0;
+      if (mins > 0) sleepMs = mins * 60 * 1000;
+      else if (mins < 0 && this._theme() === "night") sleepMs = 5 * 60 * 1000;
+      if (sleepMs && Date.now() - this._slideOnAt > sleepMs) {
+        this._sleepSent = true;
+        this._sleepScreen();
+      }
+    }
   }
 
   _advanceSlide() {
     const photos = this._photos();
-    const img = this.shadowRoot.getElementById("slide-img");
-    if (!img) return;
-    if (!photos.length) {
-      img.src = PLACEHOLDER_PHOTOS[0];
-      return;
-    }
+    if (!photos.length) return;
+    const url = photos[this._slideIdx % photos.length];
     this._slideIdx = (this._slideIdx + 1) % photos.length;
-    img.src = photos[this._slideIdx];
+    const a = this.shadowRoot.getElementById("slide-a");
+    const b = this.shadowRoot.getElementById("slide-b");
+    if (!a || !b) return;
+    const incoming = a.classList.contains("on") ? b : a;
+    const outgoing = incoming === a ? b : a;
+    const show = () => {
+      incoming.classList.add("on");
+      outgoing.classList.remove("on");
+    };
+    incoming.onload = show;
+    incoming.src = url;
+    if (incoming.complete && incoming.naturalWidth) show();
   }
 
   _muted() {
@@ -2282,6 +2401,22 @@ class WrightWayCalendarCard extends HTMLElement {
     }
     if (act === "theme") {
       this._prefs.theme = t.dataset.theme || "auto";
+      this._savePrefs();
+    }
+    if (act === "idle-sec") {
+      this._prefs.idle_seconds = Number(t.dataset.sec);
+      this._savePrefs();
+    }
+    if (act === "photo-sec") {
+      this._prefs.photo_seconds = Number(t.dataset.sec);
+      this._savePrefs();
+      if (this._slideOn) {
+        if (this._slideTimer) clearInterval(this._slideTimer);
+        this._slideTimer = setInterval(() => this._advanceSlide(), this._photoWait() * 1000);
+      }
+    }
+    if (act === "sleep-min") {
+      this._prefs.sleep_minutes = Number(t.dataset.min);
       this._savePrefs();
     }
     if (act === "home-room") this._homeRoom = t.dataset.room;
@@ -3180,13 +3315,35 @@ class WrightWayCalendarCard extends HTMLElement {
     let body = "";
     if (tab === "display") {
       const theme = (this._prefs && this._prefs.theme) || "auto";
+      const idle = this._idleWait();
+      const photo = this._photoWait();
+      const sleep = this._prefs && Number(this._prefs.sleep_minutes);
       body = `<div class="sub">Light for daytime. Evening dark mode starts at 7:00 PM unless you lock it.</div>
         <div class="freq">
           <button type="button" class="${theme === "auto" ? "on" : ""}" data-act="theme" data-theme="auto">Auto</button>
           <button type="button" class="${theme === "light" ? "on" : ""}" data-act="theme" data-theme="light">Day</button>
           <button type="button" class="${theme === "night" ? "on" : ""}" data-act="theme" data-theme="night">Evening</button>
         </div>
-        <p class="shop-note">The sun/moon button next to the weather also cycles Auto → Evening → Day.</p>`;
+        <p class="shop-note">The sun/moon button next to the weather also cycles Auto → Evening → Day.</p>
+        <div class="sub">Screensaver after no taps</div>
+        <div class="freq">
+          ${[[30, "30s"], [60, "1 min"], [90, "90s"], [120, "2 min"], [300, "5 min"], [0, "Off"]].map(([sec, label]) =>
+            `<button type="button" class="${idle === sec ? "on" : ""}" data-act="idle-sec" data-sec="${sec}">${label}</button>`
+          ).join("")}
+        </div>
+        <div class="sub">Each photo stays</div>
+        <div class="freq">
+          ${[[8, "8s"], [12, "12s"], [20, "20s"], [45, "45s"], [60, "1 min"]].map(([sec, label]) =>
+            `<button type="button" class="${photo === sec ? "on" : ""}" data-act="photo-sec" data-sec="${sec}">${label}</button>`
+          ).join("")}
+        </div>
+        <div class="sub">Sleep the screen after screensaver</div>
+        <div class="freq">
+          ${[[0, "Never"], [5, "5 min"], [15, "15 min"], [30, "30 min"], [-1, "In evening"]].map(([min, label]) =>
+            `<button type="button" class="${sleep === min ? "on" : ""}" data-act="sleep-min" data-min="${min}">${label}</button>`
+          ).join("")}
+        </div>
+        <p class="shop-note">On: dashboard. Screensaver: family photos. Sleep: backlight off on Fully Kiosk. Put JPEGs in Home Assistant Media → local/family, or list them under photos: in the card. Landscape 1920×1080, JPEG (not HEIC).</p>`;
     } else if (tab === "people") {
       const opts = this._calendarOptions();
       body = `<div class="sub">Order, color, and which Home Assistant calendar each person uses. Saved on this tablet.</div>
@@ -3341,7 +3498,8 @@ class WrightWayCalendarCard extends HTMLElement {
             <div class="hint">Tap to close</div>
           </div>` : ""}
           <div class="show" id="slideshow" hidden>
-            <img id="slide-img" alt="">
+            <img id="slide-a" alt="">
+            <img id="slide-b" alt="">
             <div class="show-meta">${esc(n.toLocaleDateString("en-US", { weekday: "long" }))}  ${hh}:${pad(n.getMinutes())} ${ap}</div>
           </div>
         </div>

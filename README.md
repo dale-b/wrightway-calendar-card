@@ -71,3 +71,25 @@ house_chores:
 ```
 
 Use a **Panel** view with this as the only card so the month grid can use the full 1920×1080 kitchen display.
+
+## Screensaver photos
+
+After the panel sits idle, family photos fill the screen. Tap to come back to the dashboard.
+
+**Best way to add pictures**
+
+1. Export from your phone as **JPEG**, landscape if you can, around **1920×1080**. Avoid HEIC (Android WebView often will not show it).
+2. In Home Assistant: **Media → My media**. Create a folder named **`family`**.
+3. Upload the JPEGs there. The wall panel picks them up automatically (`photo_folder: family` is the default).
+
+You can also list URLs, including files in `/config/www/`:
+
+```yaml
+photos:
+  - /local/family/beach.jpg
+  - /local/family/kitchen.jpg
+photo_folder: family
+idle_seconds: 90
+```
+
+On the tablet: **Settings → Display** sets how long until the screensaver, how long each photo stays, and whether Fully Kiosk should sleep the backlight after that (never, 5/15/30 minutes, or only in the evening). Photos crossfade. Keep Fully Kiosk’s own screensaver **off** so these two do not fight.
