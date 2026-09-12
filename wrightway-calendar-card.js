@@ -26,7 +26,7 @@ const CSS = `
   overscroll-behavior: none;
   touch-action: manipulation;
   z-index: 1;
-  font-family: "Avenir Next", "Segoe UI", "Nunito", ui-sans-serif, system-ui, sans-serif;
+  font-family: "Segoe UI Variable", "Segoe UI", "Avenir Next", "Nunito", ui-sans-serif, system-ui, sans-serif;
   color: #1c1917;
   --ink: #1c1917;
   --muted: #78716c;
@@ -36,6 +36,29 @@ const CSS = `
   --weekend: #f5f5f4;
   --accent: #ea580c;
   --fab: #2563eb;
+  --card: #ffffff;
+  --rail: #f3f3f3;
+  --mica: #f3f3f3;
+  --shadow: 0 2px 8px rgba(0,0,0,.06);
+  --toggle-off: #929292;
+  --accent-ui: #0067c0;
+}
+.app.night {
+  color: var(--ink);
+  --ink: #f5f5f4;
+  --muted: #a8a29e;
+  --line: #3f3f46;
+  --paper: #1c1c1c;
+  --wash: #27272a;
+  --weekend: #18181b;
+  --accent: #fb923c;
+  --fab: #60a5fa;
+  --card: #2c2c2e;
+  --rail: #18181b;
+  --mica: #111113;
+  --shadow: 0 8px 28px rgba(0,0,0,.45);
+  --toggle-off: #52525b;
+  --accent-ui: #60a5fa;
 }
 * { box-sizing: border-box; }
 .app {
@@ -46,6 +69,7 @@ const CSS = `
   height: 100%;
   min-height: 0;
   background: var(--paper);
+  color: var(--ink);
   overflow: hidden;
   overscroll-behavior: none;
   touch-action: manipulation;
@@ -56,7 +80,7 @@ const CSS = `
   align-self: stretch;
   height: auto;
   min-height: 0;
-  background: #f4f4f5;
+  background: var(--rail);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -91,7 +115,7 @@ const CSS = `
   gap: 4px;
 }
 .rail-btn svg { width: 22px; height: 22px; }
-.rail-btn.active { background: #fff; color: var(--ink); box-shadow: 0 1px 4px rgba(0,0,0,.06); }
+.rail-btn.active { background: var(--card); color: var(--ink); box-shadow: var(--shadow); }
 .rail-btn.settings { margin-top: auto; }
 .main {
   flex: 1;
@@ -122,12 +146,13 @@ const CSS = `
 }
 .when .time { font-size: 0.72em; font-weight: 500; color: #44403c; }
 .wx { display: flex; align-items: center; gap: 8px; color: var(--muted); font-size: 15px; }
+.wx .theme-btn { margin-left: 4px; }
 .wx .temp { color: var(--ink); font-weight: 600; }
 .tools { display: flex; align-items: center; gap: 8px; }
 .tools button, .pill {
   border: 1px solid var(--line);
-  background: #fff;
-  border-radius: 999px;
+  background: var(--card);
+  border-radius: 8px;
   padding: 8px 14px;
   font: inherit;
   font-size: 14px;
@@ -135,6 +160,16 @@ const CSS = `
   cursor: pointer;
   color: var(--ink);
 }
+.theme-btn {
+  width: 36px; height: 36px; padding: 0 !important;
+  display: flex; align-items: center; justify-content: center;
+  border: 1px solid var(--line);
+  background: var(--card);
+  color: var(--ink);
+  border-radius: 8px;
+  cursor: pointer;
+}
+.theme-btn svg { width: 18px; height: 18px; }
 .tools button:hover { background: var(--wash); }
 .month-bar {
   display: flex;
@@ -199,15 +234,16 @@ const CSS = `
 .tabs { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0 12px; }
 .tabs button {
   border: 1px solid var(--line);
-  background: #fff;
-  border-radius: 999px;
+  background: var(--card);
+  border-radius: 8px;
   padding: 8px 14px;
   font: inherit;
   font-size: 13px;
   font-weight: 700;
   cursor: pointer;
+  color: var(--ink);
 }
-.tabs button.on { background: #1c1917; color: #fff; border-color: #1c1917; }
+.tabs button.on { background: var(--ink); color: var(--paper); border-color: var(--ink); }
 .people-row {
   display: grid;
   grid-template-columns: 36px 36px 40px minmax(80px, 1fr) minmax(140px, 1.4fr);
@@ -242,264 +278,219 @@ const CSS = `
 }
 .home {
   flex: 1; min-height: 0; overflow: hidden;
-  padding: 0 16px 12px;
-  display: flex; flex-direction: column;
+  padding: 0;
+  display: flex; flex-direction: row;
+  background: var(--mica);
 }
-.home > .tabs { margin: 0 0 10px; flex-shrink: 0; }
-.home-split {
-  flex: 1; min-height: 0;
-  display: grid;
-  grid-template-columns: 200px minmax(0, 1fr);
-  gap: 16px;
-}
-.room-nav {
+.area-nav {
+  width: 228px; flex-shrink: 0;
+  padding: 12px 10px;
   display: flex; flex-direction: column; gap: 2px;
-  min-height: 0; overflow: hidden;
+  background: var(--rail);
+  border-right: 1px solid var(--line);
 }
-.room-nav button {
-  display: flex; align-items: center; gap: 8px;
+.area-nav button {
+  display: flex; align-items: center; gap: 12px;
   border: 0; background: transparent;
-  border-radius: 12px; padding: 7px 8px;
-  font: inherit; font-weight: 700; font-size: 13px;
+  border-radius: 8px; padding: 9px 10px;
+  font: inherit; font-weight: 600; font-size: 14px;
   text-align: left; cursor: pointer; color: var(--ink);
+  -webkit-tap-highlight-color: transparent;
 }
-.room-nav button.on { background: #ffedd5; }
-.room-nav .lamp-orb { width: 26px; height: 26px; margin: 0; flex-shrink: 0; }
-.room-nav .lamp-orb svg { width: 14px; height: 14px; }
-.room-detail { min-width: 0; min-height: 0; overflow: hidden; display: flex; flex-direction: column; }
-.home-head {
-  display: flex; align-items: center; gap: 10px;
-  margin: 0 0 14px;
+.area-nav button.on { background: rgba(0,0,0,.08); }
+.app.night .area-nav button.on { background: rgba(255,255,255,.10); }
+.area-nav .aico {
+  width: 32px; height: 32px; border-radius: 8px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center; color: #fff;
+  box-shadow: 0 1px 0 rgba(255,255,255,.25) inset, 0 4px 10px rgba(0,0,0,.12);
 }
-.home-head h2 { margin: 0; font-size: 26px; font-weight: 650; }
-.home-head .back {
-  border: 1px solid var(--line); background: #fff; border-radius: 999px;
-  padding: 8px 14px; font: inherit; font-weight: 700; cursor: pointer;
+.area-nav .aico svg { width: 17px; height: 17px; }
+.area-nav .alabel { flex: 1; min-width: 0; }
+.area-nav .acount {
+  font-size: 11px; font-weight: 700; color: var(--muted);
+  background: var(--card); border-radius: 999px; padding: 2px 7px;
 }
-.room-grid {
+.area-body {
+  flex: 1; min-width: 0; min-height: 0;
+  overflow: auto; padding: 14px 20px 18px;
+}
+.area-title {
+  margin: 2px 0 12px; font-size: 28px; font-weight: 650; letter-spacing: -0.04em;
+}
+.sec-head {
+  display: flex; align-items: center; gap: 8px;
+  margin: 14px 0 8px;
+}
+.sec-head .sec-title { margin: 0; flex: 1; }
+.sec-title {
+  font-size: 12px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase;
+  color: var(--muted);
+}
+.wgrid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-  gap: 8px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  align-content: start;
 }
+.wcard {
+  --glow: #93c5fd;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 12px 14px 10px;
+  box-shadow: var(--shadow);
+  color: var(--ink);
+  animation: rise .28s ease both;
+}
+.wcard.on { box-shadow: 0 0 0 1px var(--glow), var(--shadow); }
+.wrow { display: flex; align-items: center; gap: 12px; }
+.wico {
+  width: 40px; height: 40px; border-radius: 10px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  background: var(--wash); color: var(--muted); border: 0; cursor: pointer;
+}
+.wcard.on .wico {
+  background: var(--glow); color: #1c1917;
+  box-shadow: 0 0 16px var(--glow);
+}
+.wico svg { width: 20px; height: 20px; }
+.wmeta { flex: 1; min-width: 0; }
+.wname { font-weight: 650; font-size: 15px; letter-spacing: -0.02em; }
+.wst { font-size: 12px; font-weight: 600; color: var(--muted); margin-top: 1px; }
+.wtoggle {
+  width: 44px; height: 22px; border-radius: 11px;
+  border: 0; padding: 0; cursor: pointer; flex-shrink: 0;
+  background: var(--toggle-off); position: relative;
+}
+.wtoggle::after {
+  content: "";
+  position: absolute; top: 3px; left: 3px;
+  width: 16px; height: 16px; border-radius: 50%;
+  background: #fff; box-shadow: 0 1px 4px rgba(0,0,0,.28);
+}
+.wtoggle.on { background: var(--accent-ui); }
+.wtoggle.on::after { left: 25px; }
+.wsliders { display: flex; flex-direction: column; gap: 6px; margin-top: 8px; }
+.slide {
+  display: grid; grid-template-columns: 16px 1fr; gap: 8px; align-items: center;
+}
+.slide span { font-size: 12px; }
+.slide input[type=range] {
+  width: 100%; height: 22px; appearance: none; background: transparent;
+  touch-action: pan-x;
+}
+.slide input[type=range]::-webkit-slider-runnable-track {
+  height: 4px; border-radius: 99px; background: var(--track, #d6d3d1);
+}
+.slide input[type=range]::-webkit-slider-thumb {
+  appearance: none; width: 20px; height: 20px; border-radius: 50%;
+  background: #fff; border: 0; margin-top: -8px;
+  box-shadow: 0 1px 4px rgba(0,0,0,.28);
+}
+.app.night .slide input[type=range]::-webkit-slider-runnable-track { background: var(--track, #52525b); }
+.dots { display: flex; gap: 6px; flex-wrap: wrap; padding: 6px 0 0 0; }
+.dotc {
+  width: 20px; height: 20px; border-radius: 50%; border: 2px solid var(--card);
+  box-shadow: 0 0 0 1px var(--line); cursor: pointer; padding: 0;
+}
+.dotc:active { transform: scale(0.92); }
+.moods { display: flex; flex-wrap: wrap; gap: 6px; }
+.mood {
+  border: 1px solid var(--line); background: var(--card); color: var(--ink);
+  border-radius: 8px; padding: 6px 12px;
+  font: inherit; font-weight: 650; font-size: 12px; cursor: pointer;
+  box-shadow: 0 1px 0 rgba(255,255,255,.4) inset;
+}
+.mood:active { transform: scale(0.97); }
+.sun-btn, .pwr-btn {
+  width: 32px; height: 32px; border-radius: 8px;
+  border: 1px solid var(--line); background: var(--card); cursor: pointer;
+  display: flex; align-items: center; justify-content: center; color: var(--ink);
+}
+.sun-btn.on, .pwr-btn.on { background: var(--accent-ui); color: #fff; border-color: var(--accent-ui); }
+.sun-btn svg, .pwr-btn svg { width: 16px; height: 16px; }
 .ctl-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-  gap: 8px;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 10px;
 }
-.room-tile, .ctl, .device {
-  border: 0;
-  border-radius: 20px;
-  background: var(--wash);
-  color: var(--ink);
-  -webkit-tap-highlight-color: transparent;
-  animation: rise .35s ease both;
-}
-.room-tile {
-  min-height: 72px;
-  padding: 10px 12px;
-  font: inherit;
-  font-weight: 800;
-  font-size: 14px;
-  text-align: left;
-  cursor: pointer;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-}
-.room-tile .ico {
-  width: 36px; height: 36px; border-radius: 12px;
-  background: #fff; display: flex; align-items: center; justify-content: center;
-  margin-bottom: 10px;
-}
-.room-tile .ico svg { width: 20px; height: 20px; }
-.room-tile:active, .ctl:active, .device-hit:active { transform: scale(0.98); }
-.room-tile.on, .ctl.on, .device.on { background: #ffedd5; }
-.ctl.busy, .device.busy { background: #ffedd5; }
 .ctl {
-  min-height: 64px; padding: 10px 12px;
-  font: inherit; font-weight: 800; font-size: 14px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--card);
+  color: var(--ink);
+  min-height: 72px; padding: 12px 14px;
+  font: inherit; font-weight: 650; font-size: 14px;
   text-align: left; cursor: pointer;
   display: flex; flex-direction: column; justify-content: space-between;
+  box-shadow: var(--shadow);
+  -webkit-tap-highlight-color: transparent;
 }
-.ctl .st, .device .st, .room-tile .st {
-  font-size: 13px; font-weight: 600; color: var(--muted); margin-top: 6px;
-}
-.device {
-  padding: 14px 16px 12px;
-  display: flex; flex-direction: column; gap: 8px;
-}
-.device-hit {
-  border: 0; background: transparent; padding: 0;
-  font: inherit; font-weight: 800; font-size: 16px;
-  text-align: left; cursor: pointer; color: inherit;
-  display: flex; justify-content: space-between; align-items: center; gap: 8px;
-  width: 100%;
-}
-.device input[type=range] {
-  width: 100%; accent-color: var(--accent); height: 22px;
-}
-.chip-row { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 14px; }
+.ctl .st { font-size: 12px; font-weight: 600; color: var(--muted); margin-top: 6px; }
+.ctl.on, .ctl.busy { box-shadow: 0 0 0 1px var(--accent-ui), var(--shadow); }
+.ctl:active { transform: scale(0.98); }
+.chip-row { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 12px; }
 .opt {
-  border: 1px solid var(--line); background: #fff; border-radius: 999px;
-  padding: 10px 16px; font: inherit; font-weight: 700; font-size: 14px;
+  border: 1px solid var(--line); background: var(--card); border-radius: 8px;
+  padding: 8px 14px; font: inherit; font-weight: 650; font-size: 13px;
   cursor: pointer; color: var(--ink);
 }
-.opt.on { background: #1c1917; color: #fff; border-color: #1c1917; }
+.opt.on { background: var(--accent-ui); color: #fff; border-color: var(--accent-ui); }
 .vac-layout, .gar-layout {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1.15fr 1fr;
   gap: 12px;
-  margin-bottom: 10px;
+  margin-bottom: 12px;
   align-items: stretch;
-  flex: 0 0 auto;
-  max-height: 240px;
 }
 .map-card, .gar-cam {
-  background: #111; border-radius: 16px; overflow: hidden; min-height: 200px; max-height: 240px;
-  position: relative;
+  background: #111; border-radius: 12px; overflow: hidden; min-height: 220px; height: 240px;
+  position: relative; box-shadow: var(--shadow);
 }
 .map-card img, .gar-cam img {
   width: 100%; height: 100%; object-fit: contain; display: block; background: #111;
 }
-.gar-cam img { object-fit: cover; min-height: 200px; max-height: 240px; }
+.gar-cam img { object-fit: cover; }
 .map-card .cap, .gar-cam .cap {
   position: absolute; left: 12px; bottom: 12px;
   background: rgba(0,0,0,.5); color: #fff; font-size: 12px; font-weight: 700;
-  padding: 4px 8px; border-radius: 999px;
+  padding: 4px 8px; border-radius: 8px;
 }
 .vac-side, .gar-side { display: flex; flex-direction: column; gap: 10px; }
 .stat {
-  background: var(--wash); border-radius: 20px; padding: 16px 18px;
+  background: var(--card); border: 1px solid var(--line);
+  border-radius: 12px; padding: 16px 18px; box-shadow: var(--shadow);
 }
-.stat .big { font-size: 28px; font-weight: 700; letter-spacing: -0.03em; }
+.stat .big { font-size: 26px; font-weight: 650; letter-spacing: -0.03em; }
 .stat .sub { color: var(--muted); font-weight: 600; font-size: 13px; margin-top: 2px; }
 .batt {
-  height: 8px; border-radius: 99px; background: #e7e5e4; overflow: hidden; margin-top: 10px;
+  height: 6px; border-radius: 99px; background: var(--line); overflow: hidden; margin-top: 10px;
 }
 .batt span { display: block; height: 100%; background: #16a34a; border-radius: 99px; }
-.gdoors { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+.gdoors { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
 .gdoor {
-  background: var(--wash); border-radius: 16px; padding: 8px 10px 10px;
-  cursor: pointer; border: 0; font: inherit; text-align: left; color: inherit;
+  background: var(--card); border: 1px solid var(--line); border-radius: 12px;
+  padding: 10px 12px 12px; cursor: pointer; font: inherit; text-align: left;
+  color: inherit; box-shadow: var(--shadow);
 }
-.gdoor .name { font-weight: 800; font-size: 14px; display: flex; justify-content: space-between; }
+.gdoor .name { font-weight: 650; font-size: 14px; display: flex; justify-content: space-between; }
 .gvis {
-  margin-top: 8px; height: 44px; border-radius: 10px; background: #d6d3d1;
+  margin-top: 8px; height: 48px; border-radius: 8px; background: #d6d3d1;
   position: relative; overflow: hidden;
 }
+.app.night .gvis { background: #44403c; }
 .gvis .panel {
   position: absolute; left: 8%; right: 8%; top: 10%; height: 80%;
   background: repeating-linear-gradient(#78716c, #78716c 10px, #57534e 10px, #57534e 12px);
   border-radius: 4px; transition: transform .45s ease;
 }
 .gdoor.open .gvis .panel { transform: translateY(-78%); }
-.gdoor.open { background: #ffedd5; }
+.gdoor.open { box-shadow: 0 0 0 1px #fb923c, var(--shadow); }
 .home-note { color: var(--muted); font-size: 14px; margin: 0 0 12px; }
-.sec-title {
-  font-size: 13px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase;
-  color: var(--muted); margin: 16px 0 8px;
-}
 @keyframes rise {
   from { opacity: 0; transform: translateY(8px); }
   to { opacity: 1; transform: none; }
 }
-.lamp-list {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 8px;
-  align-content: start;
-}
-.lamp {
-  --glow: #ffd7a8;
-  background: #fff;
-  border: 1px solid var(--line);
-  border-radius: 16px;
-  padding: 8px 10px 8px;
-  display: grid;
-  grid-template-columns: 40px minmax(0, 1fr) 34px;
-  grid-template-areas: "orb name pwr" "orb slide pwr" "dots dots dots";
-  gap: 2px 8px;
-  align-items: center;
-  transition: background .2s ease, border-color .2s ease;
-}
-.lamp.on {
-  background: #fffaf3;
-  border-color: #fed7aa;
-}
-.lamp-orb {
-  grid-area: orb;
-  width: 36px; height: 36px; border-radius: 50%;
-  border: 0; cursor: pointer;
-  display: flex; align-items: center; justify-content: center;
-  background: #e7e5e4; color: #78716c;
-  transition: background .25s ease, box-shadow .25s ease, color .25s ease;
-}
-.lamp-orb svg { width: 18px; height: 18px; }
-.lamp.on .lamp-orb {
-  background: var(--glow);
-  color: #1c1917;
-  box-shadow: 0 0 14px var(--glow);
-}
-.lamp-orb:active { transform: scale(0.94); }
-.lamp-meta { grid-area: name; min-width: 0; }
-.lamp-name { font-weight: 800; font-size: 14px; letter-spacing: -0.02em; }
-.lamp-pct { color: var(--muted); font-size: 11px; font-weight: 600; }
-.lamp-pwr {
-  grid-area: pwr;
-  width: 32px; height: 32px; border-radius: 50%;
-  border: 1px solid var(--line); background: #fff; cursor: pointer;
-  display: flex; align-items: center; justify-content: center; color: var(--muted);
-}
-.lamp.on .lamp-pwr { background: #1c1917; color: #fff; border-color: #1c1917; }
-.lamp-pwr svg { width: 16px; height: 16px; }
-.lamp-sliders {
-  grid-area: slide;
-  display: flex; flex-direction: column; gap: 4px;
-  min-width: 0; max-width: 280px;
-}
-.slide {
-  display: grid; grid-template-columns: 16px 1fr; gap: 6px; align-items: center;
-}
-.slide span { font-size: 11px; }
-.slide input[type=range] {
-  width: 100%; max-width: 260px; height: 18px; appearance: none; background: transparent;
-  touch-action: pan-x;
-}
-.slide input[type=range]::-webkit-slider-runnable-track {
-  height: 6px; border-radius: 99px; background: var(--track, #e7e5e4);
-}
-.slide input[type=range]::-webkit-slider-thumb {
-  appearance: none; width: 16px; height: 16px; border-radius: 50%;
-  background: #fff; border: 2px solid #1c1917; margin-top: -5px;
-}
-.dots { grid-area: dots; display: flex; gap: 6px; flex-wrap: wrap; padding: 2px 0 0 0; }
-.dotc {
-  width: 18px; height: 18px; border-radius: 50%; border: 2px solid #fff;
-  box-shadow: 0 0 0 1px #d6d3d1; cursor: pointer; padding: 0;
-}
-.dotc:active { transform: scale(0.92); }
-.moods { display: flex; flex-wrap: wrap; gap: 6px; margin: 0 0 10px; flex-shrink: 0; }
-.mood {
-  border: 0; border-radius: 999px; padding: 6px 12px;
-  font: inherit; font-weight: 800; font-size: 12px; cursor: pointer;
-}
-.room-hero {
-  display: flex; align-items: center; gap: 10px; margin-bottom: 8px; flex-shrink: 0;
-}
-.room-hero .lamp-orb { width: 36px; height: 36px; flex-shrink: 0; }
-.room-hero h2 { margin: 0; font-size: 22px; font-weight: 650; letter-spacing: -0.03em; }
-.room-hero .acts { margin-left: auto; display: flex; gap: 6px; }
-.sun-btn, .pwr-btn {
-  width: 36px; height: 36px; border-radius: 50%;
-  border: 1px solid var(--line); background: #fff; cursor: pointer;
-  display: flex; align-items: center; justify-content: center;
-}
-.sun-btn.on, .pwr-btn.on { background: #1c1917; color: #fff; border-color: #1c1917; }
-.sun-btn svg, .pwr-btn svg { width: 18px; height: 18px; }
-.room-tile .lamp-orb {
-  width: 28px; height: 28px; margin-bottom: 6px; pointer-events: none;
-}
-.room-tile .lamp-orb svg { width: 16px; height: 16px; }
 .chip {
   border: 0;
   background: transparent;
@@ -564,11 +555,11 @@ const CSS = `
   display: flex;
   flex-direction: column;
   cursor: pointer;
-  background: #fff;
+  background: var(--paper);
 }
 .day:nth-child(7n+1) { border-left: 0; }
 .day.weekend { background: var(--weekend); }
-.day.other { background: #fcfcfb; }
+.day.other { background: var(--wash); }
 .day.other .num { color: #a8a29e; }
 .day-head {
   display: flex;
@@ -619,6 +610,8 @@ h2 { font-size: 22px; margin: 8px 0 14px; }
 .add-row input, .dlg input, .dlg select {
   flex: 1;
   border: 1px solid var(--line);
+  background: var(--paper);
+  color: var(--ink);
   border-radius: 12px;
   padding: 10px 12px;
   font: inherit;
@@ -657,6 +650,7 @@ h2 { font-size: 22px; margin: 8px 0 14px; }
   padding: 12px;
 }
 .meal.today { background: #ffedd5; }
+.app.night .meal.today { background: #3d2a14; }
 .meal label { display: block; font-size: 12px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--accent); margin-bottom: 8px; }
 .meal input { width: 100%; border: 0; background: transparent; font: inherit; font-size: 16px; font-weight: 600; }
 .fab {
@@ -682,11 +676,12 @@ h2 { font-size: 22px; margin: 8px 0 14px; }
   padding: 24px;
 }
 .dlg {
-  background: #fff;
+  background: var(--card);
+  color: var(--ink);
   width: min(420px, 92vw);
   max-height: 80vh;
   overflow: auto;
-  border-radius: 24px;
+  border-radius: 16px;
   padding: 22px 22px 18px;
   box-shadow: 0 24px 60px rgba(0,0,0,.18);
 }
@@ -698,7 +693,7 @@ h2 { font-size: 22px; margin: 8px 0 14px; }
   margin-bottom: 8px;
 }
 .dlg-ev .t { font-weight: 700; }
-.dlg-ev .m { font-size: 13px; color: #44403c; margin-top: 2px; }
+.dlg-ev .m { font-size: 13px; color: var(--muted); margin-top: 2px; }
 .who { display: flex; gap: 8px; flex-wrap: wrap; margin: 10px 0; }
 .who button {
   border: 2px solid transparent;
@@ -724,7 +719,7 @@ h2 { font-size: 22px; margin: 8px 0 14px; }
   display: flex;
   flex-direction: column;
   border-top: 1px solid var(--line);
-  background: #fafaf9;
+  background: var(--wash);
   max-height: min(32vh, calc(var(--chore-rows, 1) * 46px + 58px));
 }
 .chore-head {
@@ -762,7 +757,7 @@ h2 { font-size: 22px; margin: 8px 0 14px; }
   padding: 7px 10px;
   gap: 8px;
   border-bottom: 0;
-  background: #fff;
+  background: var(--card);
   border-radius: 10px;
   margin-bottom: 6px;
   min-height: 40px;
@@ -777,7 +772,8 @@ h2 { font-size: 22px; margin: 8px 0 14px; }
 .freq { display: flex; flex-wrap: wrap; gap: 8px; margin: 8px 0; }
 .freq button, .daysel button {
   border: 1px solid var(--line);
-  background: #fff;
+  background: var(--card);
+  color: var(--ink);
   border-radius: 999px;
   padding: 8px 12px;
   font: inherit;
@@ -871,22 +867,53 @@ h2 { font-size: 22px; margin: 8px 0 14px; }
 .scenes {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 8px;
+  gap: 10px;
 }
-.scenes button {
+.scene {
+  position: relative;
+  overflow: hidden;
   border: 0;
-  border-radius: 16px;
-  min-height: 64px;
-  padding: 10px 8px;
+  border-radius: 12px;
+  min-height: 78px;
+  padding: 12px;
   font: inherit;
   font-size: 15px;
-  font-weight: 800;
+  font-weight: 700;
   cursor: pointer;
-  color: #1c1917;
+  color: #fff;
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
   -webkit-tap-highlight-color: transparent;
+  box-shadow: 0 8px 18px rgba(0,0,0,.18), inset 0 1px 0 rgba(255,255,255,.38);
 }
-.scenes button:focus { outline: none; }
-.scenes button:active, .scenes button.flash { filter: brightness(0.92); transform: scale(0.98); }
+.scene::before {
+  content: "";
+  position: absolute; inset: 0;
+  background: var(--art);
+}
+.scene::after {
+  content: "";
+  position: absolute; inset: auto -20% -40% auto;
+  width: 90px; height: 90px; border-radius: 50%;
+  background: rgba(255,255,255,.16);
+}
+.scene .sico, .scene .slabel { position: relative; z-index: 1; }
+.scene .sico {
+  width: 32px; height: 32px; border-radius: 9px;
+  background: rgba(255,255,255,.22);
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.35);
+}
+.scene .sico svg { width: 18px; height: 18px; }
+.scene .slabel { letter-spacing: -0.02em; text-shadow: 0 1px 2px rgba(0,0,0,.25); }
+.scene:focus { outline: none; }
+.scene:active, .scene.flash { filter: brightness(0.92); transform: scale(0.98); }
+.scene.cooking { --art: radial-gradient(120% 90% at 90% 120%, #fdba74, transparent 55%), linear-gradient(160deg, #ea580c 0%, #9a3412 100%); }
+.scene.dining { --art: radial-gradient(90% 70% at 10% 0%, #fde68a, transparent 50%), linear-gradient(160deg, #d97706 0%, #78350f 100%); }
+.scene.evening { --art: radial-gradient(70% 60% at 85% 15%, #c4b5fd, transparent 50%), linear-gradient(160deg, #5b21b6 0%, #1e1b4b 100%); }
+.scene.off { --art: radial-gradient(80% 70% at 80% 120%, #a8a29e, transparent 50%), linear-gradient(160deg, #57534e 0%, #1c1917 100%); }
 .shop {
   flex: 1; min-height: 0; display: grid;
   grid-template-columns: minmax(340px, 1fr) minmax(280px, 1fr);
@@ -895,7 +922,7 @@ h2 { font-size: 22px; margin: 8px 0 14px; }
 .shop-side h2 { margin-top: 0; }
 .shop-actions { display: flex; flex-direction: column; gap: 8px; margin-top: 12px; }
 .shop-actions button {
-  border: 1px solid var(--line); background: #fff; border-radius: 12px;
+  border: 1px solid var(--line); background: var(--card); color: var(--ink); border-radius: 12px;
   padding: 14px 12px; font: inherit; font-weight: 700; cursor: pointer;
   font-size: 16px; min-height: 48px;
 }
@@ -927,6 +954,12 @@ h2 { font-size: 22px; margin: 8px 0 14px; }
   font-family: Palatino, Georgia, serif;
   font-size: 42px;
 }
+.app.night .logo { background: #fafafa; color: #18181b; }
+.app.night .freq button, .app.night .daysel button { background: var(--card); color: var(--ink); }
+.app.night .freq button.on, .app.night .daysel button.on { background: #fafafa; color: #18181b; }
+.app.night .setup .person-block { background: var(--wash); }
+.app.night .meal input { color: var(--ink); }
+.app.night .thumbs button { background: #3f3f46; }
 `;
 
 function esc(s) {
@@ -1111,6 +1144,17 @@ const ICONS = {
   bulb: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M9 21h6v.5a1.5 1.5 0 01-1.5 1.5h-3A1.5 1.5 0 019 21.5V21zm.5-2h5l.5-1.2A7 7 0 0012 3a7 7 0 00-3 13.8L9.5 19z"/></svg>',
   power: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v9"/><path d="M7.5 6.2a7 7 0 109 0"/></svg>',
   sun: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="4"/><path d="M12 3v2M12 19v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M3 12h2M19 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>',
+  moon: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M16.5 2.6A9.5 9.5 0 108.4 21.3 8 8 0 0016.5 2.6z"/></svg>',
+  garage: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 10.5L12 4l9 6.5V20H3V10.5z"/><path d="M7 20v-7h10v7"/></svg>',
+  main: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="8" width="16" height="12" rx="1.5"/><path d="M8 8V6a4 4 0 018 0v2"/></svg>',
+  bed: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 18V9h8a4 4 0 014 4v5M3 14h18v4H3z"/></svg>',
+  basement: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 10h16v10H4z"/><path d="M8 10V7l4-3 4 3v3"/><path d="M4 15h16"/></svg>',
+  fan: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="2.2"/><path d="M12 4c3 2 3 5 0 6M12 20c-3-2-3-5 0-6M4 12c2-3 5-3 6 0M20 12c-2 3-5 3-6 0"/></svg>',
+  vac: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="13" r="7"/><circle cx="12" cy="13" r="2"/><path d="M9 4h6M12 4v2"/></svg>',
+  cook: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 14h12l-1 6H7l-1-6z"/><path d="M8 10c0-2 1.5-4 4-4s4 2 4 4"/><path d="M12 6V3"/></svg>',
+  dine: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 4v7a3 3 0 006 0V4M8 4v16M16 8v12M16 8s3-1 3-4-3-3-3-3"/></svg>',
+  cover: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 6h16M6 6v12h12V6"/></svg>',
+  plug: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 7v5M15 7v5M7 12h10v3a5 5 0 01-10 0v-3zM12 20v2"/></svg>',
 };
 
 const LIGHT_DOTS = [
@@ -1123,6 +1167,7 @@ const LIGHT_DOTS = [
 ];
 
 const ADAPTIVE = {
+  kitchen: "switch.adaptive_lighting_pantry",
   mudroom: "switch.adaptive_lighting_mudroom",
   pantry: "switch.adaptive_lighting_pantry",
 };
@@ -1142,68 +1187,88 @@ function kelvinRgb(k) {
   return [Math.round(r), Math.round(g), Math.round(b)];
 }
 
-const HOME_ROOMS = [
-  { id: "kitchen", name: "Kitchen", entities: [
-    { entity: "light.kitchen_lights", name: "Kitchen lights" },
-    { entity: "light.kitchen_island_lights", name: "Island" },
-    { entity: "light.under_cabinet_lights_nanoleaf_light_strip", name: "Under cabinet" },
-    { entity: "light.above_cabinet_lights_nanoleaf_light_strip", name: "Above cabinet" },
-  ]},
-  { id: "living", name: "Living room", entities: [
-    { entity: "light.living_room_lights", name: "Living room lights" },
-    { entity: "light.bookshelf_lights", name: "Bookshelf" },
-    { entity: "fan.living_room_fan", name: "Ceiling fan" },
-    { entity: "cover.living_room_shade", name: "Shade" },
-    { entity: "switch.living_room_stairs", name: "Stairs" },
-  ]},
-  { id: "dining", name: "Dining", entities: [
-    { entity: "light.dining_room_lights", name: "Dining lights" },
-    { entity: "cover.dining_room_shade", name: "Shade" },
-  ]},
-  { id: "mudroom", name: "Mudroom", entities: [
-    { entity: "light.mudroom_lights", name: "Mudroom lights" },
-  ]},
-  { id: "pantry", name: "Pantry", entities: [
-    { entity: "light.pantry_lights", name: "Pantry lights" },
-  ]},
-  { id: "master", name: "Master bedroom", entities: [
-    { entity: "light.master_bedroom_lights", name: "Bedroom lights" },
-    { entity: "light.master_bedroom_dales_lamp", name: "Dale’s lamp" },
-    { entity: "fan.master_bedroom_fan", name: "Ceiling fan" },
-  ]},
-  { id: "master_bath", name: "Master bath", entities: [
-    { entity: "light.master_bathroom_lights", name: "Bath lights" },
-    { entity: "light.master_shower_fan", name: "Shower fan" },
-    { entity: "light.master_toilet_fan", name: "Toilet fan" },
-  ]},
-  { id: "ben", name: "Ben’s room", entities: [
-    { entity: "light.bens_room_lights", name: "Lights" },
-    { entity: "light.ben_s_nightlight", name: "Nightlight" },
-    { entity: "fan.bens_room_fan", name: "Ceiling fan" },
-    { entity: "fan.ben_s_noise_fan_switch", name: "Noise fan" },
-  ]},
-  { id: "david", name: "David’s room", entities: [
-    { entity: "light.davids_room_lights", name: "Lights" },
-    { entity: "light.david_s_nightlight", name: "Nightlight" },
-    { entity: "fan.davids_room_fan", name: "Ceiling fan" },
-  ]},
-  { id: "guest", name: "Guest room", entities: [
-    { entity: "fan.guest_room_fan", name: "Ceiling fan" },
-  ]},
-  { id: "office", name: "Office", entities: [
-    { entity: "fan.office_fan", name: "Ceiling fan" },
-  ]},
-  { id: "kids_bath", name: "Kids’ bath", entities: [
-    { entity: "light.kid_s_bathroom_fan", name: "Fan" },
-  ]},
-  { id: "half_bath", name: "Half bath", entities: [
-    { entity: "light.half_bath_fan", name: "Fan" },
-  ]},
-  { id: "basement", name: "Basement", entities: [
-    { entity: "light.basement_living_room", name: "Living room" },
-    { entity: "light.basement_play_area", name: "Play area" },
-    { entity: "light.bar_lights", name: "Bar lights" },
-  ]},
+const HOME_AREAS = [
+  { id: "garage", name: "Garage", accent: "#0ea5e9", icon: "garage" },
+  { id: "main", name: "Main Area", accent: "#2563eb", icon: "main" },
+  { id: "bedrooms", name: "Bedrooms", accent: "#7c3aed", icon: "bed" },
+  { id: "basement", name: "Basement", accent: "#16a34a", icon: "basement" },
+  { id: "fans", name: "Fans", accent: "#78716c", icon: "fan" },
+  { id: "vacuum", name: "Vacuum", accent: "#ea580c", icon: "vac" },
+];
+
+const HOME_SECTIONS = {
+  main: [
+    { id: "kitchen", name: "Kitchen", entities: [
+      { entity: "light.kitchen_lights", name: "Kitchen lights" },
+      { entity: "light.kitchen_island_lights", name: "Island" },
+      { entity: "light.under_cabinet_lights_nanoleaf_light_strip", name: "Under cabinet" },
+      { entity: "light.above_cabinet_lights_nanoleaf_light_strip", name: "Above cabinet" },
+      { entity: "light.pantry_lights", name: "Pantry" },
+    ]},
+    { id: "living", name: "Living room", entities: [
+      { entity: "light.living_room_lights", name: "Ceiling lights" },
+      { entity: "light.bookshelf_lights", name: "Bookshelf" },
+      { name: "Railing", candidates: ["light.railing_lights", "switch.railing_lights", "light.railing"], hints: ["railing"] },
+      { name: "Snow globe", candidates: ["light.snow_globe", "light.snow_globe_lights", "switch.snow_globe"], hints: ["globe"] },
+      { entity: "switch.living_room_stairs", name: "Stairs" },
+      { entity: "cover.living_room_shade", name: "Shade" },
+    ]},
+    { id: "dining", name: "Dining", entities: [
+      { entity: "light.dining_room_lights", name: "Dining lights" },
+      { entity: "cover.dining_room_shade", name: "Shade" },
+    ]},
+    { id: "mudroom", name: "Mudroom", entities: [
+      { entity: "light.mudroom_lights", name: "Mudroom lights" },
+    ]},
+  ],
+  bedrooms: [
+    { id: "master", name: "Master", entities: [
+      { entity: "light.master_bedroom_lights", name: "Bedroom lights" },
+      { entity: "light.master_bedroom_dales_lamp", name: "Dale’s lamp" },
+      { entity: "light.master_bathroom_lights", name: "Bath lights" },
+    ]},
+    { id: "david", name: "David’s room", entities: [
+      { entity: "light.davids_room_lights", name: "Lights" },
+      { entity: "light.david_s_nightlight", name: "Nightlight" },
+    ]},
+    { id: "ben", name: "Ben’s room", entities: [
+      { entity: "light.bens_room_lights", name: "Lights" },
+      { entity: "light.ben_s_nightlight", name: "Nightlight" },
+    ]},
+  ],
+  basement: [
+    { id: "basement", name: "Lights", entities: [
+      { entity: "light.basement_play_area", name: "Play area" },
+      { entity: "light.basement_living_room", name: "Living room" },
+      { entity: "light.smart_wi_fi_light_switch", name: "Utility" },
+      { entity: "light.bar_lights", name: "Bar lights" },
+    ]},
+  ],
+  fans: [
+    { id: "ceil_fans", name: "Ceiling fans", entities: [
+      { entity: "fan.living_room_fan", name: "Living room" },
+      { entity: "fan.master_bedroom_fan", name: "Master" },
+      { entity: "fan.bens_room_fan", name: "Ben’s room" },
+      { entity: "fan.davids_room_fan", name: "David’s room" },
+      { entity: "fan.guest_room_fan", name: "Guest room" },
+      { entity: "fan.office_fan", name: "Office" },
+    ]},
+    { id: "other_fans", name: "Other fans", entities: [
+      { entity: "fan.ben_s_noise_fan_switch", name: "Ben’s noise fan" },
+      { entity: "light.garage_south_fan", name: "Garage south" },
+      { entity: "light.north_fan", name: "Garage north" },
+      { entity: "light.half_bath_fan", name: "Half bath" },
+      { entity: "light.kid_s_bathroom_fan", name: "Kids’ bath" },
+      { entity: "light.master_shower_fan", name: "Master shower" },
+      { entity: "light.master_toilet_fan", name: "Master toilet" },
+    ]},
+  ],
+};
+
+const GARAGE_LIGHTS = [
+  { entity: "light.ratgdov25i_c849a9_light", name: "Door 1 light" },
+  { entity: "light.ratgdov25i_e4516b_light", name: "Door 2 light" },
+  { entity: "light.ratgdov25i_ca0b6e_light", name: "Door 3 light" },
 ];
 
 const GARAGE_DOORS = [
@@ -1259,11 +1324,12 @@ class WrightWayCalendarCard extends HTMLElement {
     this._helperSnap = "";
     this._helperOverride = {};
     this._camFull = false;
-    this._homeTab = "rooms";
+    this._homeTab = "main";
     this._homeRoom = null;
     this._homeSnap = "";
     this._slideLock = false;
-    this._prefs = { muted: true, order: DEFAULT_ORDER.slice(), colors: {}, calEntities: {} };
+    this._themeSnap = "";
+    this._prefs = { muted: true, order: DEFAULT_ORDER.slice(), colors: {}, calEntities: {}, theme: "auto" };
     this._loadPrefs();
   }
 
@@ -1304,11 +1370,11 @@ class WrightWayCalendarCard extends HTMLElement {
     if (!this._bound) {
       this._bound = true;
       this.shadowRoot.addEventListener("touchmove", (e) => {
-        if (e.target.closest("input[type=range], .today-box, .dlg, .shop, .pane")) return;
+        if (e.target.closest("input[type=range], .today-box, .dlg, .shop, .pane, .area-body")) return;
         e.preventDefault();
       }, { passive: false });
       this.shadowRoot.addEventListener("wheel", (e) => {
-        if (e.target.closest(".today-box, .dlg, .shop, .pane")) return;
+        if (e.target.closest(".today-box, .dlg, .shop, .pane, .area-body")) return;
         e.preventDefault();
       }, { passive: false });
       this.shadowRoot.addEventListener("click", (e) => {
@@ -1414,9 +1480,10 @@ class WrightWayCalendarCard extends HTMLElement {
         order: Array.isArray(raw.order) && raw.order.length ? raw.order : DEFAULT_ORDER.slice(),
         colors: raw.colors || {},
         calEntities: raw.calEntities || {},
+        theme: raw.theme === "light" || raw.theme === "night" ? raw.theme : "auto",
       };
     } catch (e) {
-      this._prefs = { muted: true, order: DEFAULT_ORDER.slice(), colors: {}, calEntities: {} };
+      this._prefs = { muted: true, order: DEFAULT_ORDER.slice(), colors: {}, calEntities: {}, theme: "auto" };
     }
   }
 
@@ -1557,6 +1624,13 @@ class WrightWayCalendarCard extends HTMLElement {
     return name;
   }
 
+  _theme() {
+    const pref = (this._prefs && this._prefs.theme) || "auto";
+    if (pref === "light" || pref === "night") return pref;
+    const h = this._now.getHours() + this._now.getMinutes() / 60;
+    return (h >= 19 || h < 6.5) ? "night" : "light";
+  }
+
   _tickClock() {
     const el = this.shadowRoot.querySelector(".time");
     if (!el) return;
@@ -1568,6 +1642,12 @@ class WrightWayCalendarCard extends HTMLElement {
     const show = this.shadowRoot.querySelector(".show-meta");
     if (show) {
       show.textContent = `${n.toLocaleDateString("en-US", { weekday: "long" })}  ${h}:${pad(n.getMinutes())} ${ap}`;
+    }
+    const night = this._theme() === "night";
+    const app = this.shadowRoot.querySelector(".app");
+    if (app) app.classList.toggle("night", night);
+    if (this._themeSnap !== (night ? "night" : "light")) {
+      this._themeSnap = night ? "night" : "light";
     }
   }
 
@@ -1688,11 +1768,64 @@ class WrightWayCalendarCard extends HTMLElement {
     return s === "on" || s === "open" || s === "opening" || s === "cleaning" || s === "returning";
   }
 
+  _resolveEnt(spec) {
+    if (!spec) return null;
+    if (spec.entity && this._hass && this._hass.states[spec.entity]) return spec.entity;
+    if (spec.candidates && this._hass) {
+      const hit = spec.candidates.find((id) => this._hass.states[id]);
+      if (hit) return hit;
+    }
+    const hints = (spec.hints || []).map((h) => String(h).toLowerCase()).filter(Boolean);
+    if (this._hass && hints.length) {
+      const domains = spec.domains || ["light", "switch", "fan", "cover"];
+      for (const [id, st] of Object.entries(this._hass.states)) {
+        const domain = id.split(".")[0];
+        if (!domains.includes(domain)) continue;
+        const fn = String((st.attributes && st.attributes.friendly_name) || "").toLowerCase();
+        const blob = `${id.replace(/_/g, " ")} ${fn}`;
+        if (hints.every((h) => blob.includes(h))) return id;
+      }
+    }
+    return spec.entity || null;
+  }
+
+  _allSections() {
+    return Object.keys(HOME_SECTIONS).flatMap((area) => HOME_SECTIONS[area] || []);
+  }
+
+  _sectionById(id) {
+    return this._allSections().find((s) => s.id === id) || null;
+  }
+
+  _sectionEntities(sec) {
+    return (sec.entities || []).map((e) => this._resolveEnt(e)).filter(Boolean);
+  }
+
+  _sectionLightIds(sec) {
+    return this._sectionEntities(sec).filter((id) => id.startsWith("light."));
+  }
+
+  _areaOnCount(areaId) {
+    if (areaId === "vacuum") return this._entOn("vacuum.roborock_qrevo_pro") ? 1 : 0;
+    if (areaId === "garage") {
+      return GARAGE_DOORS.filter((d) => this._entOn(d.entity)).length
+        + HOME_OUTSIDE.filter((e) => this._entOn(e.entity)).length
+        + GARAGE_LIGHTS.filter((e) => this._entOn(e.entity)).length;
+    }
+    const sections = HOME_SECTIONS[areaId] || [];
+    let n = 0;
+    sections.forEach((sec) => {
+      this._sectionEntities(sec).forEach((id) => { if (this._entOn(id)) n += 1; });
+    });
+    return n;
+  }
+
   _homeEntities() {
     const ids = [];
-    HOME_ROOMS.forEach((r) => r.entities.forEach((e) => ids.push(e.entity)));
+    this._allSections().forEach((sec) => this._sectionEntities(sec).forEach((id) => ids.push(id)));
     HOME_OUTSIDE.forEach((e) => ids.push(e.entity));
     HOME_VACUUM_ROOMS.forEach((e) => ids.push(e.entity));
+    GARAGE_LIGHTS.forEach((e) => ids.push(e.entity));
     ids.push("vacuum.roborock_qrevo_pro", "input_boolean.auto_vacuum_enabled");
     ids.push("input_boolean.vacuum_qp_twice", "input_boolean.vacuum_qp_mopping", "input_boolean.mop_when_gone_next");
     ids.push("select.kitchen_roborock_qrevo_pro_cleaning_mode", "sensor.roborock_qrevo_pro_battery");
@@ -1760,21 +1893,21 @@ class WrightWayCalendarCard extends HTMLElement {
   }
 
   _roomLightIds(room) {
-    return (room.entities || []).map((e) => e.entity).filter((id) => id.startsWith("light."));
+    return this._sectionLightIds(room);
   }
 
   async _roomPower(roomId, on) {
-    const room = HOME_ROOMS.find((r) => r.id === roomId);
+    const room = this._sectionById(roomId);
     if (!room || !this._hass) return;
-    const ids = this._roomLightIds(room).filter((id) => this._hass.states[id] && this._hass.states[id].state !== "unavailable");
+    const ids = this._sectionLightIds(room).filter((id) => this._hass.states[id] && this._hass.states[id].state !== "unavailable");
     if (!ids.length) return;
     await this._hass.callService("light", on ? "turn_on" : "turn_off", { entity_id: ids });
   }
 
   async _roomMood(roomId, mood) {
-    const room = HOME_ROOMS.find((r) => r.id === roomId);
+    const room = this._sectionById(roomId);
     if (!room || !this._hass) return;
-    const ids = this._roomLightIds(room).filter((id) => {
+    const ids = this._sectionLightIds(room).filter((id) => {
       const st = this._hass.states[id];
       return st && st.state !== "unavailable";
     });
@@ -1805,6 +1938,24 @@ class WrightWayCalendarCard extends HTMLElement {
     if (name.includes("even")) return "#c4b5fd";
     if (name.includes("off") || name.includes("light")) return "#e7e5e4";
     return "#e2e8f0";
+  }
+
+  _sceneKey(scene) {
+    const name = String((scene && scene.name) || scene.entity || "").toLowerCase();
+    if (name.includes("cook")) return "cooking";
+    if (name.includes("din")) return "dining";
+    if (name.includes("even")) return "evening";
+    if (name.includes("off") || name.includes("light")) return "off";
+    return "off";
+  }
+
+  _sceneTile(scene) {
+    const key = this._sceneKey(scene);
+    const ico = key === "cooking" ? ICONS.cook : key === "dining" ? ICONS.dine : key === "evening" ? ICONS.moon : ICONS.power;
+    return `<button type="button" class="scene ${key}" data-act="scene" data-entity="${esc(scene.entity)}">
+      <span class="sico">${ico}</span>
+      <span class="slabel">${esc(scene.name || "Scene")}</span>
+    </button>`;
   }
 
   _openWalmart({ app = false, query = "" } = {}) {
@@ -2084,13 +2235,22 @@ class WrightWayCalendarCard extends HTMLElement {
     if (act === "view") {
       this._view = t.dataset.view;
       if (this._view === "home") {
-        this._homeTab = "rooms";
-        this._homeRoom = "kitchen";
+        this._homeTab = "main";
+        this._homeRoom = null;
       }
     }
     if (act === "home-tab") {
       this._homeTab = t.dataset.tab;
-      if (this._homeTab === "rooms" && !this._homeRoom) this._homeRoom = "kitchen";
+    }
+    if (act === "theme-cycle") {
+      const cur = (this._prefs && this._prefs.theme) || "auto";
+      const next = cur === "auto" ? "night" : cur === "night" ? "light" : "auto";
+      this._prefs.theme = next;
+      this._savePrefs();
+    }
+    if (act === "theme") {
+      this._prefs.theme = t.dataset.theme || "auto";
+      this._savePrefs();
     }
     if (act === "home-room") this._homeRoom = t.dataset.room;
     if (act === "home-back") this._homeRoom = "kitchen";
@@ -2359,6 +2519,13 @@ class WrightWayCalendarCard extends HTMLElement {
         this._hass.callService("light", "turn_on", { entity_id: t.dataset.ct, color_temp_kelvin: val });
       }, 80);
     }
+    if (t.dataset.fanPct && this._hass) {
+      const val = Math.max(0, Math.min(100, Number(t.value) || 0));
+      clearTimeout(this._fanT);
+      this._fanT = setTimeout(() => {
+        this._hass.callService("fan", "set_percentage", { entity_id: t.dataset.fanPct, percentage: val });
+      }, 80);
+    }
   }
 
   _renderHeader() {
@@ -2379,7 +2546,10 @@ class WrightWayCalendarCard extends HTMLElement {
           <span>${esc(dateStr)}</span>
           <span class="time">${esc(time)}</span>
         </div>
-        <div class="wx"><span class="temp">${esc(temp)}</span><span>${esc(cond)}</span></div>
+        <div class="wx">
+          <span class="temp">${esc(temp)}</span><span>${esc(cond)}</span>
+          <button type="button" class="theme-btn" data-act="theme-cycle" title="Day / evening">${this._theme() === "night" ? ICONS.moon : ICONS.sun}</button>
+        </div>
       </div>`;
   }
 
@@ -2450,7 +2620,15 @@ class WrightWayCalendarCard extends HTMLElement {
     </button>`;
   }
 
+  _deviceIcon(domain) {
+    if (domain === "fan") return ICONS.fan;
+    if (domain === "cover") return ICONS.cover;
+    if (domain === "switch") return ICONS.power;
+    return ICONS.bulb;
+  }
+
   _deviceRow(entity, name) {
+    if (!entity) return "";
     const st = this._hass && this._hass.states[entity];
     if (!st || st.state === "unavailable") return "";
     const domain = entity.split(".")[0];
@@ -2458,33 +2636,42 @@ class WrightWayCalendarCard extends HTMLElement {
       const on = this._entOn(entity);
       let status = on ? "On" : "Off";
       if (domain === "cover") status = (st.state === "open" || st.state === "opening") ? "Open" : "Closed";
-      if (domain === "fan") status = on ? "Spinning" : "Off";
-      return `<div class="lamp ${on ? "on" : ""}" style="--glow:#fdba74">
-        <button type="button" class="lamp-orb" data-act="ent-toggle" data-entity="${esc(entity)}">${ICONS.bulb}</button>
-        <div class="lamp-meta">
-          <div class="lamp-name">${esc(name)}</div>
-          <div class="lamp-pct">${esc(status)}</div>
+      if (domain === "fan") status = on ? "On" : "Off";
+      const pct = domain === "fan" && st.attributes && st.attributes.percentage != null
+        ? Number(st.attributes.percentage) : null;
+      if (on && pct != null) status = `${Math.round(pct)}%`;
+      const glow = on ? "#fdba74" : "#d6d3d1";
+      return `<div class="wcard ${on ? "on" : ""}" style="--glow:${glow}">
+        <div class="wrow">
+          <button type="button" class="wico" data-act="ent-toggle" data-entity="${esc(entity)}">${this._deviceIcon(domain)}</button>
+          <div class="wmeta">
+            <div class="wname">${esc(name)}</div>
+            <div class="wst">${esc(status)}</div>
+          </div>
+          <button type="button" class="wtoggle ${on ? "on" : ""}" data-act="ent-toggle" data-entity="${esc(entity)}" title="Toggle"></button>
         </div>
-        <button type="button" class="lamp-pwr" data-act="ent-toggle" data-entity="${esc(entity)}">${ICONS.power}</button>
+        ${domain === "fan" && pct != null ? `<div class="wsliders"><label class="slide"><span>🌀</span><input type="range" min="0" max="100" value="${pct}" data-fan-pct="${esc(entity)}"/></label></div>` : ""}
       </div>`;
     }
     const look = this._lightLook(entity);
     if (!look) return "";
-    const track = `linear-gradient(90deg, #1c1917, ${look.glow})`;
+    const track = `linear-gradient(90deg, #57534e, ${look.glow})`;
     const ctTrack = "linear-gradient(90deg, #ffb347, #fff6e8, #cde7ff)";
-    return `<div class="lamp ${look.on ? "on" : ""}" style="--glow:${esc(look.glow)}">
-      <button type="button" class="lamp-orb" data-act="ent-toggle" data-entity="${esc(entity)}">${ICONS.bulb}</button>
-      <div class="lamp-meta">
-        <div class="lamp-name">${esc(name)}</div>
-        <div class="lamp-pct">${look.on ? `${look.pct}%` : "Off"}</div>
+    return `<div class="wcard ${look.on ? "on" : ""}" style="--glow:${esc(look.glow)}">
+      <div class="wrow">
+        <button type="button" class="wico" data-act="ent-toggle" data-entity="${esc(entity)}">${ICONS.bulb}</button>
+        <div class="wmeta">
+          <div class="wname">${esc(name)}</div>
+          <div class="wst">${look.on ? `${look.pct}%` : "Off"}</div>
+        </div>
+        <button type="button" class="wtoggle ${look.on ? "on" : ""}" data-act="ent-toggle" data-entity="${esc(entity)}" title="Toggle"></button>
       </div>
-      <button type="button" class="lamp-pwr" data-act="ent-toggle" data-entity="${esc(entity)}">${ICONS.power}</button>
-      <div class="lamp-sliders">
+      ${look.on && (look.dimmable || look.temp || look.color) ? `<div class="wsliders">
         ${look.dimmable ? `<label class="slide"><span>☀</span><input type="range" min="1" max="255" value="${look.bright || 1}" data-bright="${esc(entity)}" style="--track:${esc(track)}"/></label>` : ""}
         ${look.temp ? `<label class="slide"><span>🌡</span><input type="range" min="${look.minK}" max="${look.maxK}" value="${look.kelvin || 3000}" data-ct="${esc(entity)}" style="--track:${ctTrack}"/></label>` : ""}
         ${look.color ? `<div class="dots">${LIGHT_DOTS.map((rgb) => `
           <button type="button" class="dotc" data-act="set-rgb" data-entity="${esc(entity)}" data-rgb="${rgb.join(",")}" style="background:rgb(${rgb.join(",")})"></button>`).join("")}</div>` : ""}
-      </div>
+      </div>` : ""}
     </div>`;
   }
 
@@ -2560,72 +2747,65 @@ class WrightWayCalendarCard extends HTMLElement {
           ${this._ctlTile("switch.air_exchanger", "Air exchanger")}
         </div>
       </div>
+      <div class="sec-head"><div class="sec-title">Doors</div></div>
       <div class="gdoors">${GARAGE_DOORS.map((d) => {
         const open = this._entOn(d.entity);
         return `<button type="button" class="gdoor ${open ? "open" : ""}" data-act="ent-toggle" data-entity="${esc(d.entity)}">
           <div class="name"><span>${esc(d.name)}</span><span class="st">${open ? "Open" : "Closed"}</span></div>
           <div class="gvis"><div class="panel"></div></div>
         </button>`;
-      }).join("")}</div>`;
+      }).join("")}</div>
+      <div class="sec-head"><div class="sec-title">Lights</div></div>
+      <div class="wgrid">${GARAGE_LIGHTS.map((e) => this._deviceRow(e.entity, e.name)).join("")}</div>
+      <div class="sec-head"><div class="sec-title">Outside</div></div>
+      <div class="wgrid">${HOME_OUTSIDE.map((e) => this._deviceRow(e.entity, e.name)).join("")}</div>`;
+  }
+
+  _renderSection(sec) {
+    const ids = this._sectionLightIds(sec);
+    const anyOn = ids.some((id) => this._entOn(id));
+    const adapt = ADAPTIVE[sec.id];
+    const adaptOn = adapt && this._entOn(adapt);
+    const cards = (sec.entities || []).map((e) => this._deviceRow(this._resolveEnt(e), e.name)).join("");
+    if (!cards.replace(/\s/g, "")) return "";
+    return `<div class="sec-head">
+        <div class="sec-title">${esc(sec.name)}</div>
+        ${ids.length ? `<div class="moods">
+          <button type="button" class="mood" data-act="room-mood" data-room="${esc(sec.id)}" data-mood="bright">Bright</button>
+          <button type="button" class="mood" data-act="room-mood" data-room="${esc(sec.id)}" data-mood="relax">Relax</button>
+          <button type="button" class="mood" data-act="room-mood" data-room="${esc(sec.id)}" data-mood="night">Night</button>
+          ${sec.id === "kitchen" ? (this._cfg.scenes || []).map((s) =>
+            `<button type="button" class="mood" data-act="scene" data-entity="${esc(s.entity)}">${esc(s.name)}</button>`
+          ).join("") : ""}
+          ${adapt ? `<button type="button" class="sun-btn ${adaptOn ? "on" : ""}" data-act="ent-toggle" data-entity="${esc(adapt)}" title="Adaptive lighting">${ICONS.sun}</button>` : ""}
+          <button type="button" class="pwr-btn ${anyOn ? "on" : ""}" data-act="room-all" data-room="${esc(sec.id)}" data-on="${anyOn ? "0" : "1"}" title="All lights">${ICONS.power}</button>
+        </div>` : ""}
+      </div>
+      <div class="wgrid">${cards}</div>`;
   }
 
   _renderHome() {
-    const tab = this._homeTab || "rooms";
-    const tabs = `
-      <div class="tabs">
-        <button type="button" class="${tab === "rooms" ? "on" : ""}" data-act="home-tab" data-tab="rooms">Rooms</button>
-        <button type="button" class="${tab === "vacuum" ? "on" : ""}" data-act="home-tab" data-tab="vacuum">Vacuum</button>
-        <button type="button" class="${tab === "garage" ? "on" : ""}" data-act="home-tab" data-tab="garage">Garage</button>
-        <button type="button" class="${tab === "outside" ? "on" : ""}" data-act="home-tab" data-tab="outside">Outside</button>
-      </div>`;
+    const tab = this._homeTab || "main";
+    const nav = HOME_AREAS.map((a) => {
+      const n = this._areaOnCount(a.id);
+      return `<button type="button" class="${tab === a.id ? "on" : ""}" data-act="home-tab" data-tab="${esc(a.id)}">
+        <span class="aico" style="background:${esc(a.accent)}">${ICONS[a.icon] || ICONS.home}</span>
+        <span class="alabel">${esc(a.name)}</span>
+        ${n ? `<span class="acount">${n}</span>` : ""}
+      </button>`;
+    }).join("");
+    const area = HOME_AREAS.find((a) => a.id === tab) || HOME_AREAS[1];
     let body = "";
     if (tab === "vacuum") body = this._renderVacuum();
     else if (tab === "garage") body = this._renderGarage();
-    else if (tab === "outside") {
-      body = `<div class="ctl-grid">${HOME_OUTSIDE.map((e) => this._ctlTile(e.entity, e.name)).join("")}</div>`;
-    } else {
-      if (!this._homeRoom) this._homeRoom = "kitchen";
-      const room = HOME_ROOMS.find((r) => r.id === this._homeRoom) || HOME_ROOMS[0];
-      const scenes = room.id === "kitchen" ? (this._cfg.scenes || []) : [];
-      const ids = this._roomLightIds(room);
-      const anyOn = ids.some((id) => this._entOn(id));
-      const adapt = ADAPTIVE[room.id];
-      const adaptOn = adapt && this._entOn(adapt);
-      const glow = anyOn ? "#ffd7a8" : "#e7e5e4";
-      body = `<div class="home-split">
-        <nav class="room-nav">${HOME_ROOMS.map((r) => {
-          const n = this._roomLightIds(r).filter((id) => this._entOn(id)).length;
-          const on = r.id === room.id;
-          const firstOn = this._roomLightIds(r).find((id) => this._entOn(id));
-          const look = firstOn ? this._lightLook(firstOn) : null;
-          const g = look && look.on ? look.glow : "#e7e5e4";
-          return `<button type="button" class="${on ? "on" : ""}" data-act="home-room" data-room="${esc(r.id)}">
-            <span class="lamp-orb" style="background:${esc(g)};color:#1c1917">${ICONS.bulb}</span>
-            <span>${esc(r.name)}${n ? ` · ${n}` : ""}</span>
-          </button>`;
-        }).join("")}</nav>
-        <div class="room-detail">
-          <div class="room-hero">
-            <div class="lamp-orb" style="background:${glow};color:#1c1917;box-shadow:${anyOn ? "0 0 14px #ffd7a8" : "none"}">${ICONS.bulb}</div>
-            <h2>${esc(room.name)}</h2>
-            <div class="acts">
-              ${adapt ? `<button type="button" class="sun-btn ${adaptOn ? "on" : ""}" data-act="ent-toggle" data-entity="${esc(adapt)}" title="Adaptive lighting">${ICONS.sun}</button>` : ""}
-              <button type="button" class="pwr-btn ${anyOn ? "on" : ""}" data-act="room-all" data-room="${esc(room.id)}" data-on="${anyOn ? "0" : "1"}" title="All lights">${ICONS.power}</button>
-            </div>
-          </div>
-          <div class="moods">
-            <button type="button" class="mood" style="background:#fff7ed" data-act="room-mood" data-room="${esc(room.id)}" data-mood="bright">Bright</button>
-            <button type="button" class="mood" style="background:#fed7aa" data-act="room-mood" data-room="${esc(room.id)}" data-mood="relax">Relax</button>
-            <button type="button" class="mood" style="background:#fdba74" data-act="room-mood" data-room="${esc(room.id)}" data-mood="night">Night</button>
-            ${scenes.map((s) => `<button type="button" class="mood" style="background:${esc(this._sceneColor(s))}" data-act="scene" data-entity="${esc(s.entity)}">${esc(s.name)}</button>`).join("")}
-          </div>
-          <div class="lamp-list">
-            ${room.entities.map((e) => this._deviceRow(e.entity, e.name)).join("")}
-          </div>
-        </div>
-      </div>`;
-    }
-    return `<div class="home">${tab === "rooms" && this._homeRoom ? "" : tabs}${body}</div>`;
+    else body = (HOME_SECTIONS[tab] || []).map((sec) => this._renderSection(sec)).join("");
+    return `<div class="home">
+      <nav class="area-nav">${nav}</nav>
+      <div class="area-body">
+        <h2 class="area-title">${esc(area.name)}</h2>
+        ${body}
+      </div>
+    </div>`;
   }
 
   _calendarOptions() {
@@ -2711,9 +2891,7 @@ class WrightWayCalendarCard extends HTMLElement {
             <span class="lbl">${esc(c.name)}</span>
           </button>`;
         }).join("")}</div>` : ""}
-        ${scenes.length ? `<div class="scenes">${scenes.map((s) =>
-          `<button type="button" data-act="scene" data-entity="${esc(s.entity)}" style="background:${esc(this._sceneColor(s))}">${esc(s.name || "Scene")}</button>`
-        ).join("")}</div>` : ""}
+        ${scenes.length ? `<div class="scenes">${scenes.map((s) => this._sceneTile(s)).join("")}</div>` : ""}
       </aside>`;
   }
 
@@ -2831,9 +3009,19 @@ class WrightWayCalendarCard extends HTMLElement {
         <button type="button" class="${tab === "chores" ? "on" : ""}" data-act="settings-tab" data-tab="chores">Chores</button>
         <button type="button" class="${tab === "people" ? "on" : ""}" data-act="settings-tab" data-tab="people">People & calendars</button>
         <button type="button" class="${tab === "camera" ? "on" : ""}" data-act="settings-tab" data-tab="camera">Camera</button>
+        <button type="button" class="${tab === "display" ? "on" : ""}" data-act="settings-tab" data-tab="display">Display</button>
       </div>`;
     let body = "";
-    if (tab === "people") {
+    if (tab === "display") {
+      const theme = (this._prefs && this._prefs.theme) || "auto";
+      body = `<div class="sub">Light for daytime. Evening dark mode starts at 7:00 PM unless you lock it.</div>
+        <div class="freq">
+          <button type="button" class="${theme === "auto" ? "on" : ""}" data-act="theme" data-theme="auto">Auto</button>
+          <button type="button" class="${theme === "light" ? "on" : ""}" data-act="theme" data-theme="light">Day</button>
+          <button type="button" class="${theme === "night" ? "on" : ""}" data-act="theme" data-theme="night">Evening</button>
+        </div>
+        <p class="shop-note">The sun/moon button next to the weather also cycles Auto → Evening → Day.</p>`;
+    } else if (tab === "people") {
       const opts = this._calendarOptions();
       body = `<div class="sub">Order, color, and which Home Assistant calendar each person uses. Saved on this tablet.</div>
         ${this._cals().map((c) => `
@@ -2952,6 +3140,8 @@ class WrightWayCalendarCard extends HTMLElement {
     if (this._view === "tasks") this._view = "calendar";
     const view = this._view;
     const isCal = view === "calendar";
+    const theme = this._theme();
+    this._themeSnap = theme;
     const body =
       view === "lists" ? this._renderShop()
         : view === "meals" ? this._renderMeals()
@@ -2963,7 +3153,7 @@ class WrightWayCalendarCard extends HTMLElement {
     hh = hh % 12 || 12;
     this.shadowRoot.innerHTML = `
       <style>${CSS}</style>
-      <div class="app ${isCal ? "cal" : ""} ${view === "home" ? "controls" : ""}">
+      <div class="app ${isCal ? "cal" : ""} ${view === "home" ? "controls" : ""} ${theme === "night" ? "night" : ""}">
         <nav class="rail">
           <div class="logo">W</div>
           <button class="rail-btn ${view === "calendar" ? "active" : ""}" data-act="view" data-view="calendar">${ICONS.calendar}Calendar</button>
