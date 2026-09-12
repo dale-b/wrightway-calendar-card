@@ -397,6 +397,7 @@ const CSS = `
   font: inherit; font-weight: 650; font-size: 12px; cursor: pointer;
   box-shadow: 0 1px 0 rgba(255,255,255,.4) inset;
 }
+.mood.on { background: var(--ink); color: var(--paper); border-color: var(--ink); }
 .sun-btn, .pwr-btn {
   width: 32px; height: 32px; border-radius: 8px;
   border: 1px solid var(--line); background: var(--card); cursor: pointer;
@@ -423,6 +424,18 @@ const CSS = `
 }
 .ctl .st { font-size: 12px; font-weight: 600; color: var(--muted); margin-top: 6px; }
 .ctl.on, .ctl.busy { box-shadow: 0 0 0 1px var(--accent-ui), var(--shadow); }
+.clim-stats {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px;
+}
+.stepper {
+  display: flex; align-items: center; gap: 6px; flex-shrink: 0;
+}
+.stepper button {
+  width: 36px; height: 36px; border-radius: 50%;
+  border: 1px solid var(--line); background: var(--wash); color: var(--ink);
+  font: inherit; font-size: 20px; font-weight: 600; cursor: pointer; padding: 0;
+}
+.mode-row { display: flex; gap: 6px; margin-top: 10px; }
 .chip-row { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 12px; }
 .opt {
   border: 1px solid var(--line); background: var(--card); border-radius: 8px;
@@ -1145,6 +1158,8 @@ const ICONS = {
   dine: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 4v7a3 3 0 006 0V4M8 4v16M16 8v12M16 8s3-1 3-4-3-3-3-3"/></svg>',
   cover: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 6h16M6 6v12h12V6"/></svg>',
   plug: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 7v5M15 7v5M7 12h10v3a5 5 0 01-10 0v-3zM12 20v2"/></svg>',
+  drop: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3s6 7 6 11a6 6 0 11-12 0c0-4 6-11 6-11z"/></svg>',
+  thermo: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M10 5a2 2 0 114 0v8.1a4 4 0 11-4 0V5z"/><path d="M12 13v4"/></svg>',
 };
 
 const LIGHT_DOTS = [
@@ -1259,6 +1274,11 @@ const GARAGE_LIGHTS = [
   { entity: "light.ratgdov25i_c849a9_light", name: "Door 1 light" },
   { entity: "light.ratgdov25i_e4516b_light", name: "Door 2 light" },
   { entity: "light.ratgdov25i_ca0b6e_light", name: "Door 3 light" },
+];
+
+const GARAGE_FANS = [
+  { entity: "light.north_fan", name: "North fan" },
+  { entity: "light.garage_south_fan", name: "South fan" },
 ];
 
 const GARAGE_DOORS = [
@@ -1800,7 +1820,9 @@ class WrightWayCalendarCard extends HTMLElement {
     if (areaId === "garage") {
       return GARAGE_DOORS.filter((d) => this._entOn(d.entity)).length
         + HOME_OUTSIDE.filter((e) => this._entOn(e.entity)).length
-        + GARAGE_LIGHTS.filter((e) => this._entOn(e.entity)).length;
+        + GARAGE_LIGHTS.filter((e) => this._entOn(e.entity)).length
+        + GARAGE_FANS.filter((e) => this._entOn(e.entity)).length
+        + (this._entOn("switch.air_exchanger") ? 1 : 0);
     }
     const sections = HOME_SECTIONS[areaId] || [];
     let n = 0;
@@ -1821,8 +1843,12 @@ class WrightWayCalendarCard extends HTMLElement {
     ids.push("select.kitchen_roborock_qrevo_pro_cleaning_mode", "sensor.roborock_qrevo_pro_battery");
     ids.push("sensor.roborock_qrevo_pro_status", "image.roborock_qrevo_pro_upstairs");
     GARAGE_DOORS.forEach((d) => ids.push(d.entity));
+    GARAGE_FANS.forEach((e) => ids.push(e.entity));
     ids.push("camera.garage_high", "binary_sensor.tesla_wall_connector_vehicle_connected");
     ids.push("climate.garage_thermostat", "switch.air_exchanger");
+    ids.push("sensor.temperature_sensor", "sensor.temperature_sensor_humidity_sensor");
+    ids.push("input_number.garage_humidity_setpoint", "input_boolean.enable_garage_humidity_sensor");
+    ids.push("sensor.current_charge_cost", "sensor.tesla_wall_connector_status", "input_boolean.fan_periodic_run");
     (this._cfg.scenes || []).forEach((s) => ids.push(s.entity));
     return ids;
   }
@@ -2266,6 +2292,25 @@ class WrightWayCalendarCard extends HTMLElement {
       this._toggleEntity(t.dataset.entity);
       return;
     }
+    if (act === "clim-mode" && this._hass) {
+      this._hass.callService("climate", "set_hvac_mode", {
+        entity_id: t.dataset.entity,
+        hvac_mode: t.dataset.mode,
+      });
+      return;
+    }
+    if (act === "num-step" && this._hass) {
+      const id = t.dataset.entity;
+      const st = this._hass.states[id];
+      if (!st) return;
+      const a = st.attributes || {};
+      const step = Number(a.step) || 1;
+      const min = a.min != null ? Number(a.min) : 0;
+      const max = a.max != null ? Number(a.max) : 100;
+      const next = Math.min(max, Math.max(min, Number(st.state) + (t.dataset.dir === "-1" ? -step : step)));
+      this._hass.callService("input_number", "set_value", { entity_id: id, value: next });
+      return;
+    }
     if (act === "vac") {
       this._vacuumCmd(t.dataset.cmd);
       return;
@@ -2544,6 +2589,20 @@ class WrightWayCalendarCard extends HTMLElement {
         this._hass.callService("fan", "set_percentage", { entity_id: t.dataset.fanPct, percentage: val });
       }, 80);
     }
+    if (t.dataset.num && this._hass) {
+      const val = Number(t.value);
+      clearTimeout(this._numT);
+      this._numT = setTimeout(() => {
+        this._hass.callService("input_number", "set_value", { entity_id: t.dataset.num, value: val });
+      }, 80);
+    }
+    if (t.dataset.climTemp && this._hass) {
+      const val = Number(t.value);
+      clearTimeout(this._climT);
+      this._climT = setTimeout(() => {
+        this._hass.callService("climate", "set_temperature", { entity_id: t.dataset.climTemp, temperature: val });
+      }, 80);
+    }
   }
 
   _renderHeader() {
@@ -2638,10 +2697,10 @@ class WrightWayCalendarCard extends HTMLElement {
     </button>`;
   }
 
-  _deviceIcon(domain) {
-    if (domain === "fan") return ICONS.fan;
+  _deviceIcon(domain, name) {
+    if (domain === "fan" || /fan|exchanger/i.test(name || "")) return ICONS.fan;
     if (domain === "cover") return ICONS.cover;
-    if (domain === "switch") return ICONS.power;
+    if (domain === "switch" || domain === "input_boolean") return ICONS.power;
     return ICONS.bulb;
   }
 
@@ -2661,7 +2720,7 @@ class WrightWayCalendarCard extends HTMLElement {
       const fill = on && pct != null ? Math.round(pct) : (on ? 100 : 0);
       return `<div class="wcard ${on ? "on" : ""}" style="--rgb:${rgb};--pct:${fill}%">
         <button type="button" class="wrow" data-act="ent-toggle" data-entity="${esc(entity)}">
-          <span class="wico">${this._deviceIcon(domain)}</span>
+          <span class="wico">${this._deviceIcon(domain, name)}</span>
           <span class="wmeta">
             <span class="wname">${esc(name)}</span>
             <span class="wst">${esc(status)}</span>
@@ -2747,22 +2806,110 @@ class WrightWayCalendarCard extends HTMLElement {
       }).join("")}</div>`;
   }
 
+  _numCard(entity, name, rgb) {
+    const st = this._hass && this._hass.states[entity];
+    if (!st || st.state === "unavailable") return "";
+    const a = st.attributes || {};
+    const val = Number(st.state);
+    if (!Number.isFinite(val)) return "";
+    const min = a.min != null ? Number(a.min) : 0;
+    const max = a.max != null ? Number(a.max) : 100;
+    const step = a.step != null ? Number(a.step) : 1;
+    const unit = a.unit_of_measurement === "Percent" ? "%" : (a.unit_of_measurement || "");
+    const pct = max === min ? 0 : Math.round(((val - min) / (max - min)) * 100);
+    return `<div class="wcard on" style="--rgb:${rgb || "14, 165, 233"};--pct:${pct}%">
+      <div class="wrow" style="cursor:default">
+        <span class="wico">${ICONS.drop}</span>
+        <span class="wmeta">
+          <span class="wname">${esc(name)}</span>
+          <span class="wst">${Math.round(val)}${esc(unit)}</span>
+        </span>
+        <span class="stepper">
+          <button type="button" data-act="num-step" data-entity="${esc(entity)}" data-dir="-1">−</button>
+          <button type="button" data-act="num-step" data-entity="${esc(entity)}" data-dir="1">+</button>
+        </span>
+      </div>
+      <div class="wsliders">
+        <input class="m-slider" type="range" min="${min}" max="${max}" step="${step}" value="${val}" data-num="${esc(entity)}"/>
+      </div>
+    </div>`;
+  }
+
+  _climateCard() {
+    const st = this._hass && this._hass.states["climate.garage_thermostat"];
+    if (!st || st.state === "unavailable") {
+      return `<div class="wcard">
+        <div class="wrow" style="cursor:default">
+          <span class="wico">${ICONS.thermo}</span>
+          <span class="wmeta">
+            <span class="wname">Thermostat</span>
+            <span class="wst">Offline</span>
+          </span>
+        </div>
+      </div>`;
+    }
+    const heat = st.state === "heat";
+    const a = st.attributes || {};
+    const target = a.temperature != null ? Number(a.temperature) : null;
+    const min = a.min_temp != null ? Number(a.min_temp) : 50;
+    const max = a.max_temp != null ? Number(a.max_temp) : 90;
+    return `<div class="wcard ${heat ? "on" : ""}" style="--rgb:234, 88, 12;--pct:${target != null ? Math.round(((target - min) / (max - min)) * 100) : 0}%">
+      <button type="button" class="wrow" data-act="clim-mode" data-entity="climate.garage_thermostat" data-mode="${heat ? "off" : "heat"}">
+        <span class="wico">${ICONS.thermo}</span>
+        <span class="wmeta">
+          <span class="wname">Thermostat</span>
+          <span class="wst">${heat ? "Heat" : "Off"}${target != null ? ` · ${Math.round(target)}°` : ""}</span>
+        </span>
+      </button>
+      ${target != null ? `<div class="wsliders">
+        <input class="m-slider" type="range" min="${min}" max="${max}" step="1" value="${target}" data-clim-temp="climate.garage_thermostat"/>
+      </div>
+      <div class="mode-row">
+        <button type="button" class="mood ${st.state === "off" ? "on" : ""}" data-act="clim-mode" data-entity="climate.garage_thermostat" data-mode="off">Off</button>
+        <button type="button" class="mood ${heat ? "on" : ""}" data-act="clim-mode" data-entity="climate.garage_thermostat" data-mode="heat">Heat</button>
+      </div>` : ""}
+    </div>`;
+  }
+
   _renderGarage() {
     const cam = this._pic("camera.garage_high");
     const tesla = this._entOn("binary_sensor.tesla_wall_connector_vehicle_connected");
-    const clim = this._hass && this._hass.states["climate.garage_thermostat"];
-    const temp = clim && clim.attributes ? Math.round(clim.attributes.current_temperature || 0) : "";
+    const teslaSt = (this._entState("sensor.tesla_wall_connector_status") || "").replace(/_/g, " ");
+    const costRaw = this._entState("sensor.current_charge_cost");
+    const cost = Number(costRaw);
+    const teslaLine = tesla
+      ? (teslaSt ? teslaSt.charAt(0).toUpperCase() + teslaSt.slice(1) : "Plugged in")
+      : "Not connected";
+    const teslaCost = Number.isFinite(cost) ? ` · $${cost.toFixed(2)}` : "";
+    const tempN = Number(this._entState("sensor.temperature_sensor"));
+    const humN = Number(this._entState("sensor.temperature_sensor_humidity_sensor"));
+    const temp = Number.isFinite(tempN) ? `${Math.round(tempN)}°` : "—";
+    const hum = Number.isFinite(humN) ? `${Math.round(humN)}%` : "—";
     return `<div class="gar-layout">
         <div class="gar-cam">
           ${cam ? `<img src="${esc(cam)}" alt="Garage">` : ""}
           <div class="cap">Garage</div>
         </div>
         <div class="gar-side">
-          <div class="ctl ${tesla ? "on" : ""}"><span>Tesla</span><span class="st">${tesla ? "Plugged in" : "Not connected"}</span></div>
-          <div class="ctl"><span>Garage</span><span class="st">${temp ? `${temp}°` : "—"}</span></div>
+          <div class="ctl ${tesla ? "on" : ""}"><span>Tesla</span><span class="st">${esc(teslaLine)}${esc(teslaCost)}</span></div>
+          <div class="ctl"><span>Garage</span><span class="st">${esc(temp)} · ${esc(hum)}</span></div>
           ${this._ctlTile("switch.air_exchanger", "Air exchanger")}
         </div>
       </div>
+      <div class="sec-head"><div class="sec-title">Climate</div></div>
+      <div class="clim-stats">
+        <div class="stat"><div class="big">${esc(temp)}</div><div class="sub">Temperature</div></div>
+        <div class="stat"><div class="big">${esc(hum)}</div><div class="sub">Humidity</div></div>
+      </div>
+      <div class="wgrid">
+        ${this._climateCard()}
+        ${this._numCard("input_number.garage_humidity_setpoint", "Humidity setpoint", "14, 165, 233")}
+        ${this._deviceRow("input_boolean.enable_garage_humidity_sensor", "Enable setpoint")}
+        ${this._deviceRow("switch.air_exchanger", "Air exchanger")}
+        ${this._deviceRow("input_boolean.fan_periodic_run", "Periodic fans")}
+      </div>
+      <div class="sec-head"><div class="sec-title">Fans</div></div>
+      <div class="wgrid">${GARAGE_FANS.map((e) => this._deviceRow(e.entity, e.name)).join("")}</div>
       <div class="sec-head"><div class="sec-title">Doors</div></div>
       <div class="gdoors">${GARAGE_DOORS.map((d) => {
         const open = this._entOn(d.entity);
