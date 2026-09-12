@@ -1350,9 +1350,11 @@ class WrightWayCalendarCard extends HTMLElement {
     this._slideLock = false;
     this._themeSnap = "";
     this._photoUrls = null;
+    this._photoLoadedAt = 0;
+    this._icloudNote = "";
     this._slideOnAt = 0;
     this._sleepSent = false;
-    this._prefs = { muted: true, order: DEFAULT_ORDER.slice(), colors: {}, calEntities: {}, theme: "auto", idle_seconds: 90, photo_seconds: 12, sleep_minutes: 0 };
+    this._prefs = { muted: true, order: DEFAULT_ORDER.slice(), colors: {}, calEntities: {}, theme: "auto", idle_seconds: 90, photo_seconds: 12, sleep_minutes: 0, icloud_album: "" };
     this._loadPrefs();
   }
 
@@ -1374,6 +1376,7 @@ class WrightWayCalendarCard extends HTMLElement {
         this._tickHelpers();
         this._tickHome();
         this._applyMute();
+        if (Date.now() - (this._photoLoadedAt || 0) > 15 * 60 * 1000) this._loadPhotos();
       }, 1000);
       this._loadEvents();
       this._loadTodos();
@@ -1510,9 +1513,10 @@ class WrightWayCalendarCard extends HTMLElement {
         idle_seconds: Number.isFinite(Number(raw.idle_seconds)) ? Number(raw.idle_seconds) : 90,
         photo_seconds: Number.isFinite(Number(raw.photo_seconds)) ? Number(raw.photo_seconds) : 12,
         sleep_minutes: Number.isFinite(Number(raw.sleep_minutes)) ? Number(raw.sleep_minutes) : 0,
+        icloud_album: raw.icloud_album || "",
       };
     } catch (e) {
-      this._prefs = { muted: true, order: DEFAULT_ORDER.slice(), colors: {}, calEntities: {}, theme: "auto", idle_seconds: 90, photo_seconds: 12, sleep_minutes: 0 };
+      this._prefs = { muted: true, order: DEFAULT_ORDER.slice(), colors: {}, calEntities: {}, theme: "auto", idle_seconds: 90, photo_seconds: 12, sleep_minutes: 0, icloud_album: "" };
     }
   }
 
@@ -1640,6 +1644,83 @@ class WrightWayCalendarCard extends HTMLElement {
     return PLACEHOLDER_PHOTOS;
   }
 
+  _icloudToken() {
+    const raw = (this._prefs && this._prefs.icloud_album) || this._cfg.icloud_album || "";
+    const s = String(raw).trim();
+    if (!s) return "";
+    const hash = s.split("#")[1];
+    if (hash) return hash.replace(/[^A-Za-z0-9]/g, "");
+    const m = s.match(/shared\/album\/([A-Za-z0-9]+)/i) || s.match(/sharedalbum\/([A-Za-z0-9]+)/i);
+    if (m) return m[1];
+    if (/^[A-Za-z0-9]{8,}$/.test(s)) return s;
+    return "";
+  }
+
+  _icloudBase(token) {
+    const set = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+    const toInt = (e) => {
+      let t = 0;
+      for (let n = 0; n < e.length; n += 1) t = t * 62 + Math.max(0, set.indexOf(e[n]));
+      return t;
+    };
+    const n = token[0] === "A" ? toInt(token[1] || "0") : toInt(token.substring(1, 3));
+    const part = n < 10 ? `0${n}` : String(n);
+    return `https://p${part}-sharedstreams.icloud.com/${token}/sharedstreams/`;
+  }
+
+  async _icloudPost(url, body) {
+    const res = await fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "text/plain" },
+      body: JSON.stringify(body),
+    });
+    const text = await res.text();
+    let data = {};
+    try { data = JSON.parse(text); } catch (e) { data = {}; }
+    return { status: res.status, data };
+  }
+
+  async _loadICloudAlbum() {
+    const token = this._icloudToken();
+    if (!token) return [];
+    let base = this._icloudBase(token);
+    try {
+      let stream = await this._icloudPost(`${base}webstream`, { streamCtag: null });
+      if (stream.status === 330 && stream.data && stream.data["X-Apple-MMe-Host"]) {
+        base = `https://${stream.data["X-Apple-MMe-Host"]}/${token}/sharedstreams/`;
+        stream = await this._icloudPost(`${base}webstream`, { streamCtag: null });
+      }
+      const photos = (stream.data && stream.data.photos) || [];
+      const guids = photos.map((p) => p.photoGuid).filter(Boolean);
+      const items = {};
+      for (let i = 0; i < guids.length; i += 20) {
+        const chunk = guids.slice(i, i + 20);
+        const assets = await this._icloudPost(`${base}webasseturls`, { photoGuids: chunk });
+        Object.assign(items, (assets.data && assets.data.items) || {});
+      }
+      const urls = [];
+      photos.forEach((photo) => {
+        if (photo.mediaAssetType === "video") return;
+        const ders = Object.values(photo.derivatives || {});
+        let best = null;
+        ders.forEach((d) => {
+          const w = Number(d.width) || 0;
+          if (!best || Math.abs(w - 1920) < Math.abs((Number(best.width) || 0) - 1920)) best = d;
+        });
+        if (!best || !best.checksum || !items[best.checksum]) return;
+        const it = items[best.checksum];
+        if (it.url_location && it.url_path) urls.push(`https://${it.url_location}${it.url_path}`);
+      });
+      this._icloudNote = urls.length
+        ? `Loaded ${urls.length} photos from the iCloud shared album.`
+        : "Shared album opened, but no still photos came back.";
+      return urls.slice(0, 80);
+    } catch (e) {
+      this._icloudNote = "This tablet cannot talk to iCloud directly (Apple blocks it in the browser). Put JPEGs in Home Assistant Media → family, or keep the album link for a later HA sync.";
+      return [];
+    }
+  }
+
   async _loadPhotos() {
     const urls = [];
     const listed = this._cfg.photos;
@@ -1649,6 +1730,8 @@ class WrightWayCalendarCard extends HTMLElement {
         if (u) urls.push(u);
       });
     }
+    const icloud = await this._loadICloudAlbum();
+    icloud.forEach((u) => urls.push(u));
     if (this._hass && this._hass.connection) {
       const folder = this._cfg.photo_folder || "family";
       try {
@@ -1676,6 +1759,7 @@ class WrightWayCalendarCard extends HTMLElement {
       } catch (e) { /* no family folder yet */ }
     }
     this._photoUrls = urls.length ? urls : PLACEHOLDER_PHOTOS.slice();
+    this._photoLoadedAt = Date.now();
   }
 
   _fully() {
@@ -2692,6 +2776,12 @@ class WrightWayCalendarCard extends HTMLElement {
       this._savePrefs();
       this._applyMute();
     }
+    if (t.dataset.prefIcloud !== undefined) {
+      this._prefs.icloud_album = t.value.trim();
+      this._savePrefs();
+      this._icloudNote = "Loading…";
+      this._loadPhotos();
+    }
   }
 
   _onInput(e) {
@@ -3343,7 +3433,10 @@ class WrightWayCalendarCard extends HTMLElement {
             `<button type="button" class="${sleep === min ? "on" : ""}" data-act="sleep-min" data-min="${min}">${label}</button>`
           ).join("")}
         </div>
-        <p class="shop-note">On: dashboard. Screensaver: family photos. Sleep: backlight off on Fully Kiosk. Put JPEGs in Home Assistant Media → local/family, or list them under photos: in the card. Landscape 1920×1080, JPEG (not HEIC).</p>`;
+        <p class="shop-note">On: dashboard. Screensaver: family photos. Sleep: backlight off on Fully Kiosk. Landscape 1920×1080 JPEGs. HEIC will not show.</p>
+        <div class="sub">iCloud shared album</div>
+        <input data-pref-icloud placeholder="https://www.icloud.com/sharedalbum/#…" value="${esc((this._prefs && this._prefs.icloud_album) || "")}"/>
+        <p class="shop-note">${esc(this._icloudNote || "In Photos: album → Share → Shared Album → add the family → Public Website → copy link. Apple does not let the wall read your private library. If this tablet cannot reach iCloud, drop the same JPEGs in Home Assistant Media → family.")}</p>`;
     } else if (tab === "people") {
       const opts = this._calendarOptions();
       body = `<div class="sub">Order, color, and which Home Assistant calendar each person uses. Saved on this tablet.</div>

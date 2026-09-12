@@ -93,3 +93,18 @@ idle_seconds: 90
 ```
 
 On the tablet: **Settings → Display** sets how long until the screensaver, how long each photo stays, and whether Fully Kiosk should sleep the backlight after that (never, 5/15/30 minutes, or only in the evening). Photos crossfade. Keep Fully Kiosk’s own screensaver **off** so these two do not fight.
+
+### iCloud / Apple Photos
+
+The private Photos library cannot be read (Apple does not allow that). A **Shared Album** can:
+
+1. In Photos, create an album (or use one you already have).
+2. Share it as a **Shared Album**, then turn on **Public Website**.
+3. Copy the link (`icloud.com/sharedalbum/#…` or `photos.icloud.com/shared/album/…`).
+4. Paste it in **Settings → Display → iCloud shared album**, or in YAML:
+
+```yaml
+icloud_album: https://www.icloud.com/sharedalbum/#B0xxxxxxxx
+```
+
+If the tablet’s browser is blocked from talking to iCloud (common), keep the same pictures in **Media → family** as well.
