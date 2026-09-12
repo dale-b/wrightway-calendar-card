@@ -328,7 +328,7 @@ const CSS = `
 }
 .wgrid {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
   gap: 10px;
   align-content: start;
 }
@@ -425,7 +425,10 @@ const CSS = `
 .ctl .st { font-size: 12px; font-weight: 600; color: var(--muted); margin-top: 6px; }
 .ctl.on, .ctl.busy { box-shadow: 0 0 0 1px var(--accent-ui), var(--shadow); }
 .clim-stats {
-  display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 10px;
+  margin-bottom: 10px;
 }
 .stepper {
   display: flex; align-items: center; gap: 6px; flex-shrink: 0;
@@ -474,7 +477,7 @@ const CSS = `
   height: 6px; border-radius: 99px; background: var(--line); overflow: hidden; margin-top: 10px;
 }
 .batt span { display: block; height: 100%; background: #16a34a; border-radius: 99px; }
-.gdoors { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+.gdoors { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 10px; }
 .gdoor {
   background: var(--card); border: 1px solid var(--line); border-radius: 12px;
   padding: 10px 12px 12px; cursor: pointer; font: inherit; text-align: left;
