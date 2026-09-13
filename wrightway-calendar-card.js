@@ -735,6 +735,21 @@ h2 { font-size: 22px; margin: 8px 0 14px; }
 }
 .who button.on { border-color: #1c1917; }
 .dlg .row { display: flex; gap: 8px; margin: 8px 0; }
+.time-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin: 8px 0 12px;
+}
+.time-row label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--muted);
+}
+.dlg.allday .time-row { display: none; }
 .dlg .actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 12px; }
 .dlg .ghost { background: transparent; border: 0; font: inherit; font-weight: 600; cursor: pointer; color: var(--muted); }
 .gear {
@@ -2320,14 +2335,49 @@ class WrightWayCalendarCard extends HTMLElement {
 
   _openAdd(date) {
     const cals = this._cals();
+    const when = date || new Date();
+    const sameDay = isoDay(when) === isoDay(this._now);
+    let h = sameDay ? this._now.getHours() + 1 : 9;
+    if (h > 22) h = 22;
+    if (h < 0) h = 9;
+    const start = `${pad(h)}:00`;
+    const endH = Math.min(h + 1, 23);
     this._sheet = {
       type: "add",
-      date: date || new Date(),
+      date: when,
       cal: cals[0] && cals[0].entity,
       title: "",
-      allDay: true,
+      allDay: false,
+      start,
+      end: `${pad(endH)}:00`,
     };
     this._render();
+  }
+
+  _eventDateTime(day, hm) {
+    const parts = String(hm || "09:00").split(":");
+    const hh = pad(Math.max(0, Math.min(23, Number(parts[0]) || 0)));
+    const mm = pad(Math.max(0, Math.min(59, Number(parts[1]) || 0)));
+    return `${day}T${hh}:${mm}:00`;
+  }
+
+  _eventEndAfter(day, startHm, endHm) {
+    const start = this._eventDateTime(day, startHm);
+    let endDay = day;
+    let end = this._eventDateTime(day, endHm);
+    if (end <= start) {
+      const parts = String(startHm || "09:00").split(":");
+      let h = (Number(parts[0]) || 0) + 1;
+      let m = Number(parts[1]) || 0;
+      if (h >= 24) {
+        h -= 24;
+        const n = new Date(day + "T12:00:00");
+        n.setDate(n.getDate() + 1);
+        endDay = isoDay(n);
+      }
+      end = this._eventDateTime(endDay, `${pad(h)}:${pad(m)}`);
+    }
+    return end;
   }
 
   async _saveEvent() {
@@ -2341,8 +2391,8 @@ class WrightWayCalendarCard extends HTMLElement {
       n.setDate(n.getDate() + 1);
       data.end_date = isoDay(n);
     } else {
-      data.start_date_time = `${day}T09:00:00`;
-      data.end_date_time = `${day}T10:00:00`;
+      data.start_date_time = this._eventDateTime(day, s.start);
+      data.end_date_time = this._eventEndAfter(day, s.start, s.end);
     }
     await this._hass.callService("calendar", "create_event", data);
     this._sheet = null;
@@ -2707,7 +2757,26 @@ class WrightWayCalendarCard extends HTMLElement {
       if (this._hidden.has(id)) this._hidden.delete(id);
       else this._hidden.add(id);
     }
-    if (act === "who") this._sheet.cal = t.dataset.entity;
+    if (act === "who") {
+      this._sheet.cal = t.dataset.entity;
+      const form = t.closest("form");
+      if (form && this._sheet) {
+        const title = form.querySelector("[name=title]");
+        if (title) this._sheet.title = title.value;
+        const start = form.querySelector("[name=start]");
+        const end = form.querySelector("[name=end]");
+        if (start) this._sheet.start = start.value;
+        if (end) this._sheet.end = end.value;
+        const ad = form.querySelector("[name=allday]");
+        if (ad) this._sheet.allDay = ad.checked;
+      }
+    }
+    if (act === "all-day") {
+      if (this._sheet) this._sheet.allDay = t.checked;
+      const form = t.closest("form");
+      if (form) form.classList.toggle("allday", t.checked);
+      return;
+    }
     if (act === "save") {
       this._saveEvent();
       return;
@@ -2773,6 +2842,10 @@ class WrightWayCalendarCard extends HTMLElement {
       const title = form.querySelector("[name=title]").value;
       this._sheet.title = title;
       this._sheet.allDay = form.querySelector("[name=allday]").checked;
+      const start = form.querySelector("[name=start]");
+      const end = form.querySelector("[name=end]");
+      this._sheet.start = start && start.value ? start.value : "09:00";
+      this._sheet.end = end && end.value ? end.value : "10:00";
       this._saveEvent();
     }
     if (form.dataset.form === "chore") {
@@ -3584,14 +3657,18 @@ class WrightWayCalendarCard extends HTMLElement {
     }
     const s = this._sheet;
     const cals = this._cals();
-    return `<div class="overlay" data-act="close"><form class="dlg" data-form="add">
+    return `<div class="overlay" data-act="close"><form class="dlg ${s.allDay ? "allday" : ""}" data-form="add">
       <h3>Add to the calendar</h3>
       <div class="sub">${esc(MONTHS[s.date.getMonth()])} ${s.date.getDate()}</div>
-      <input name="title" placeholder="What’s happening?" required autofocus/>
+      <input name="title" placeholder="What’s happening?" value="${esc(s.title || "")}" required autofocus/>
       <div class="sub">Who is this for?</div>
       <div class="who">${cals.map((c) => `
         <button type="button" class="${s.cal === c.entity ? "on" : ""}" data-act="who" data-entity="${esc(c.entity)}" style="background:${esc(c.color)}">${esc(c.name)}</button>`).join("")}</div>
-      <label><input type="checkbox" name="allday" checked/> All day</label>
+      <label><input type="checkbox" name="allday" data-act="all-day" ${s.allDay ? "checked" : ""}/> All day</label>
+      <div class="time-row">
+        <label>Starts<input type="time" name="start" value="${esc(s.start || "09:00")}"/></label>
+        <label>Ends<input type="time" name="end" value="${esc(s.end || "10:00")}"/></label>
+      </div>
       <div class="actions">
         <button type="button" class="ghost" data-act="close">Cancel</button>
         <button class="save" type="submit">Save</button>
