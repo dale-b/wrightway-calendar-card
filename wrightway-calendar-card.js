@@ -222,7 +222,7 @@ const CSS = `
   background: var(--wash);
   border-radius: 16px;
   padding: 8px 12px 6px;
-  max-height: 96px;
+  max-height: 119px;
   overflow: auto;
 }
 .today-box h4 {
@@ -2361,23 +2361,26 @@ class WrightWayCalendarCard extends HTMLElement {
     return `${day}T${hh}:${mm}:00`;
   }
 
+  _nextDay(day) {
+    const n = new Date(day + "T12:00:00");
+    n.setDate(n.getDate() + 1);
+    return isoDay(n);
+  }
+
   _eventEndAfter(day, startHm, endHm) {
     const start = this._eventDateTime(day, startHm);
-    let endDay = day;
-    let end = this._eventDateTime(day, endHm);
-    if (end <= start) {
-      const parts = String(startHm || "09:00").split(":");
-      let h = (Number(parts[0]) || 0) + 1;
-      let m = Number(parts[1]) || 0;
-      if (h >= 24) {
-        h -= 24;
-        const n = new Date(day + "T12:00:00");
-        n.setDate(n.getDate() + 1);
-        endDay = isoDay(n);
-      }
-      end = this._eventDateTime(endDay, `${pad(h)}:${pad(m)}`);
+    if (endHm) {
+      const end = this._eventDateTime(day, endHm);
+      // An end earlier than the start means the event runs past midnight.
+      if (end < start) return this._eventDateTime(this._nextDay(day), endHm);
+      if (end > start) return end;
     }
-    return end;
+    // No end time, or the same time twice: give it an hour.
+    const parts = String(startHm || "09:00").split(":");
+    const h = (Number(parts[0]) || 0) + 1;
+    const m = Number(parts[1]) || 0;
+    if (h >= 24) return this._eventDateTime(this._nextDay(day), `${pad(h - 24)}:${pad(m)}`);
+    return this._eventDateTime(day, `${pad(h)}:${pad(m)}`);
   }
 
   async _saveEvent() {
@@ -2845,7 +2848,8 @@ class WrightWayCalendarCard extends HTMLElement {
       const start = form.querySelector("[name=start]");
       const end = form.querySelector("[name=end]");
       this._sheet.start = start && start.value ? start.value : "09:00";
-      this._sheet.end = end && end.value ? end.value : "10:00";
+      // Leave a blank end alone so it becomes an hour after the start.
+      this._sheet.end = end ? end.value : "";
       this._saveEvent();
     }
     if (form.dataset.form === "chore") {
@@ -3336,9 +3340,10 @@ class WrightWayCalendarCard extends HTMLElement {
       const weekend = d.getDay() === 0 || d.getDay() === 6;
       const today = key === todayKey;
       const evs = this._eventsOn(key);
-      const max = 1;
-      const show = evs.slice(0, max);
-      const extra = evs.length > max ? evs.length - max : 0;
+      // A cell fits about three rows on the 21-inch panel, fewer on a small tablet.
+      const fit = window.innerHeight >= 900 ? 3 : window.innerHeight >= 700 ? 2 : 1;
+      const show = evs.length > fit ? evs.slice(0, Math.max(1, fit - 1)) : evs;
+      const extra = evs.length - show.length;
       cells.push(`
         <div class="day ${other ? "other" : ""} ${weekend ? "weekend" : ""} ${today ? "today" : ""}" data-act="day" data-date="${key}">
           <div class="day-head"><span class="num">${d.getDate()}</span></div>
