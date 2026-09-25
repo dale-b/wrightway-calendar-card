@@ -1,0 +1,7 @@
+# Never commit credentials, album links, or family photos.
+*.env
+.env
+secrets.yaml
+*.pem
+*.key
+photos/
