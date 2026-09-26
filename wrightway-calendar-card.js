@@ -4593,7 +4593,7 @@ class WrightWayCalendarCard extends HTMLElement {
         ${chips([[0, "Never"], [5, "5 minutes"], [15, "15 minutes"], [30, "30 minutes"], [-1, "Only in the evening"]], sleep, "sleep-min", "min")}</div>
       <div class="set-sec"><h3 class="eyebrow">Family photos</h3>
         <div class="kv"><span>Photos found</span><span class="${n ? "ok" : "no"}">${n ? `${n} photos` : "None yet, showing the clock instead"}</span></div>
-        <p class="note">${this._cfg.photos_url ? "Add or remove photos from the WrightWay app on your phone (Photos tab)." : "Easiest: in Home Assistant open Media, then My media, make a folder called family, and upload JPEG photos. iPhone HEIC photos won't show; export them as JPEG."}</p>
+        <p class="note">Easiest: open the WrightWay app on your phone and tap Photos. Photos can also go straight into Home Assistant's Media, in a folder called family (as JPEG; iPhone HEIC photos won't show there).</p>
         <div class="field" style="margin-top:14px"><span class="eyebrow">iCloud shared album link</span>
           <input class="inp sm" data-pref-icloud data-k="icloud" placeholder="https://www.icloud.com/sharedalbum/#…" value="${esc((this._prefs && this._prefs.icloud_album) || "")}"/></div>
         <p class="note">${esc(this._icloudNote || "In Photos: album, Share, Shared Album, turn on Public Website, copy the link.")}</p></div>`;
