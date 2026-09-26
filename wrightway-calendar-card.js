@@ -553,7 +553,11 @@ button { -webkit-tap-highlight-color: transparent; }
   --r: 22px;
   --ease: cubic-bezier(.2, .8, .2, 1);
   position: absolute;
-  inset: 0;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  transform-origin: 0 0;
   overflow: hidden;
   background: var(--canvas);
   color: var(--ink);
@@ -911,10 +915,11 @@ select.inp { appearance: none; -webkit-appearance: none; padding-right: 40px; }
   display: grid; place-items: center; transition: background .2s, color .2s;
 }
 .ch-item .ck svg { width: 18px; height: 18px; stroke-width: 3; }
-.ch-item .nm { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ch-item .nm { flex: 1; min-width: 0; overflow: hidden; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; line-height: 1.2; overflow-wrap: break-word; }
 .ch-item .auto { display: grid; color: var(--ink-3); }
 .ch-item .auto svg { width: 18px; height: 18px; }
 .ch-item .late { font-size: 12.5px; font-weight: 800; color: var(--bad); }
+.ch-item.late .ck { border-color: var(--bad); }
 .ch-item.done { background: transparent; border-color: transparent; }
 .ch-item.done .ck { background: var(--pm); border-color: var(--pm); color: #fff; }
 .ch-item.done .nm { color: var(--ink-3); text-decoration: line-through; text-decoration-thickness: 2px; }
@@ -1222,39 +1227,34 @@ select.inp { appearance: none; -webkit-appearance: none; padding-right: 40px; }
 .saver .hint { position: absolute; top: 28px; right: 32px; font-size: 15px; font-weight: 650; opacity: 0; transition: opacity .4s; }
 .saver.fresh .hint { opacity: .7; }
 
-/* A shorter or narrower screen, like the iPad preview */
-@media (max-width: 1500px) {
-  .side { width: 340px; flex-basis: 340px; }
-  .walmart { width: 380px; flex-basis: 380px; }
-  .fc { display: none; }
-  .clock { font-size: 46px; }
-  .cal-title { font-size: 28px; }
-}
-@media (max-width: 1200px) {
-  .rail { width: 84px; flex-basis: 84px; }
-  .rail-btn { width: 70px; }
-  .side { width: 300px; flex-basis: 300px; }
-  .date b { font-size: 20px; }
-  .pchip { padding-right: 12px; }
-  .areas { width: 210px; flex-basis: 210px; }
-  .mgrid { grid-template-columns: repeat(4, minmax(0, 1fr)); overflow-y: auto; }
-  .help-grid, .setup { grid-template-columns: 1fr; }
-  .ch-grid { grid-template-columns: repeat(auto-fit, minmax(126px, 1fr)); gap: 8px; }
-  .ch-item { font-size: 14.5px; gap: 8px; padding-right: 8px; }
-  .ch-item .auto { display: none; }
-  .ch-who { font-size: 14.5px; }
-  .ag-row { gap: 9px; }
-  .ag-row .tm { width: 62px; font-size: 13.5px; }
-  .ag-row .tt { font-size: 16px; }
-  .ag-row .av { width: 26px; height: 26px; }
-  .cal-bar { padding-left: 18px; }
-}
-@media (max-height: 900px) {
-  .scenes-card { display: none; }
-  .clock { font-size: 42px; }
-  .top { min-height: 54px; }
-  .ch-item { min-height: 44px; }
-}
+/* A layout drawn narrower or shorter, like the iPad preview (classes set by _applyScale) */
+.frame.cw-md .side { width: 340px; flex-basis: 340px; }
+.frame.cw-md .walmart { width: 380px; flex-basis: 380px; }
+.frame.cw-md .fc { display: none; }
+.frame.cw-md .clock { font-size: 46px; }
+.frame.cw-md .cal-title { font-size: 28px; }
+.frame.cw-md .ch-item .late, .frame.cw-md .ch-item .auto { display: none; }
+.frame.cw-sm .rail { width: 84px; flex-basis: 84px; }
+.frame.cw-sm .rail-btn { width: 70px; }
+.frame.cw-sm .side { width: 300px; flex-basis: 300px; }
+.frame.cw-sm .date b { font-size: 20px; }
+.frame.cw-sm .pchip { padding-right: 12px; }
+.frame.cw-sm .areas { width: 210px; flex-basis: 210px; }
+.frame.cw-sm .mgrid { grid-template-columns: repeat(4, minmax(0, 1fr)); overflow-y: auto; }
+.frame.cw-sm .help-grid, .frame.cw-sm .setup { grid-template-columns: 1fr; }
+.frame.cw-sm .ch-grid { grid-template-columns: repeat(auto-fit, minmax(126px, 1fr)); gap: 8px; }
+.frame.cw-sm .ch-item { font-size: 14.5px; gap: 8px; padding-right: 8px; }
+.frame.cw-sm .ch-item .auto { display: none; }
+.frame.cw-sm .ch-who { font-size: 14.5px; }
+.frame.cw-sm .ag-row { gap: 9px; }
+.frame.cw-sm .ag-row .tm { width: 62px; font-size: 13.5px; }
+.frame.cw-sm .ag-row .tt { font-size: 16px; }
+.frame.cw-sm .ag-row .av { width: 26px; height: 26px; }
+.frame.cw-sm .cal-bar { padding-left: 18px; }
+.frame.ch-sm .scenes-card { display: none; }
+.frame.ch-sm .clock { font-size: 42px; }
+.frame.ch-sm .top { min-height: 54px; }
+.frame.ch-sm .ch-item { min-height: 44px; }
 `;
 
 
@@ -1500,6 +1500,31 @@ class WrightWayCalendarCard extends HTMLElement {
     this._injectFont();
   }
 
+  // The wall is designed as a 1920 by 1080 picture. A panel that reports fewer
+  // pixels (Android's display size turned up) or a tablet gets the same layout
+  // drawn smaller, so nothing wraps or gets cut off. Size in Settings adjusts it.
+  _applyScale() {
+    const f = this._frame;
+    if (!f) return;
+    const vw = this.clientWidth || window.innerWidth || 1920;
+    const vh = this.clientHeight || window.innerHeight || 1080;
+    const wide = vw / vh >= 1.7;
+    let auto = 1;
+    if (wide && vw < 1920) auto = vw / 1920;
+    else if (!wide && vw < 1440) auto = vw / 1440;
+    auto = Math.max(0.6, Math.min(1, auto));
+    const scale = auto * (Number(this._prefs.size) || 1);
+    const cw = Math.ceil(vw / scale);
+    const ch = Math.ceil(vh / scale);
+    Object.assign(this, { _scale: scale, _cw: cw, _ch: ch, _vw: vw, _vh: vh });
+    f.style.width = `${cw}px`;
+    f.style.height = `${ch}px`;
+    f.style.transform = scale === 1 ? "" : `scale(${scale})`;
+    f.classList.toggle("cw-md", cw <= 1500);
+    f.classList.toggle("cw-sm", cw <= 1200);
+    f.classList.toggle("ch-sm", ch <= 900);
+  }
+
   _injectFont() {
     const doc = this.ownerDocument || document;
     if (!doc.getElementById("ww-font")) {
@@ -1573,7 +1598,7 @@ class WrightWayCalendarCard extends HTMLElement {
     const d = {
       muted: true, order: DEFAULT_ORDER.slice(), colors: {}, calEntities: {}, theme: "auto",
       idle_seconds: 90, photo_seconds: 12, sleep_minutes: 0, icloud_album: "", tips: true,
-      calMode: "month", staples: {}, favorites: [], meal_notes: "",
+      calMode: "month", staples: {}, favorites: [], meal_notes: "", size: 1,
     };
     const num = (v, dflt) => (v != null && Number.isFinite(Number(v)) ? Number(v) : dflt);
     try {
@@ -1591,6 +1616,7 @@ class WrightWayCalendarCard extends HTMLElement {
         icloud_album: raw.icloud_album || "",
         tips: raw.tips !== false,
         calMode: raw.calMode === "week" ? "week" : "month",
+        size: [0.9, 1, 1.12, 1.25].includes(Number(raw.size)) ? Number(raw.size) : 1,
         staples: raw.staples && typeof raw.staples === "object" ? raw.staples : {},
         favorites: Array.isArray(raw.favorites) ? raw.favorites.filter(Boolean).slice(0, 24) : [],
         meal_notes: String(raw.meal_notes || ""),
@@ -2156,7 +2182,8 @@ class WrightWayCalendarCard extends HTMLElement {
     } else {
       const f = this._frame.getBoundingClientRect();
       const r = slot.getBoundingClientRect();
-      layer.style.cssText = `left:${r.left - f.left}px;top:${r.top - f.top}px;width:${r.width}px;height:${r.height}px`;
+      const k = this._scale || 1;
+      layer.style.cssText = `left:${(r.left - f.left) / k}px;top:${(r.top - f.top) / k}px;width:${r.width / k}px;height:${r.height / k}px`;
     }
     this._mountCamera(id);
     layer.querySelector(".cam-tag").textContent = this._cameraLabel(id);
@@ -3123,6 +3150,7 @@ class WrightWayCalendarCard extends HTMLElement {
   _render() {
     if (!this.shadowRoot) return;
     this._ensureFrame();
+    this._applyScale();
     const root = this._root;
     const keep = this._captureUi(root);
     this._frame.classList.toggle("night", this._theme() === "night");
@@ -3381,6 +3409,8 @@ class WrightWayCalendarCard extends HTMLElement {
       const last = chips[chips.length - 1];
       if (total <= chips.length && last.offsetTop + last.offsetHeight <= limit + 1) return;
       more.hidden = false;
+      // Measure the label with text in it; an empty one is only its padding tall.
+      more.textContent = `+${total} more`;
       const room = limit - more.offsetHeight - 3;
       let shown = 0;
       for (const c of chips) {
@@ -3517,11 +3547,12 @@ class WrightWayCalendarCard extends HTMLElement {
       return { p, items: open.concat(done), left: open.length };
     });
     // A shorter screen keeps one row of chores so the calendar still has room.
-    const cap = window.innerHeight < 900 ? 1 : window.innerHeight < 1000 ? 2 : 3;
+    const h = this._ch || window.innerHeight;
+    const cap = h < 900 ? 1 : h < 1000 ? 2 : 3;
     const rows = Math.max(1, Math.min(cap, Math.max(...cols.map((c) => c.items.length))));
     return `<div class="panel chores">
       <div class="ch-h"><h3 class="eyebrow">Today's chores</h3><button type="button" data-act="settings-tab" data-tab="chores">Edit chores</button></div>
-      <div class="ch-grid">${cols.map(({ p, items, left }) => {
+      <div class="ch-grid" style="grid-template-columns:repeat(${cols.length},minmax(0,1fr))">${cols.map(({ p, items, left }) => {
         const shown = items.slice(0, rows);
         const extra = items.length - shown.length;
         const cnt = !items.length ? "" : left ? `${left} left` : "All done";
@@ -3542,7 +3573,7 @@ class WrightWayCalendarCard extends HTMLElement {
     if (i.kind === "helper") {
       return `<button type="button" class="ch-item" data-act="helper-toggle" data-helper="${esc(i.h.helper)}" data-mode="${esc(i.h.mode || "done")}">${ck}<span class="nm">${esc(i.h.name)}</span><span class="auto" aria-label="The house keeps track of this one">${ICONS.sensor}</span></button>`;
     }
-    return `<button type="button" class="ch-item" data-act="todo-toggle" data-entity="${esc(i.entity)}" data-uid="${esc(this._todoId(i.it))}">${ck}<span class="nm">${esc(i.it.summary)}</span>${i.late ? `<span class="late">Late</span>` : ""}</button>`;
+    return `<button type="button" class="ch-item ${i.late ? "late" : ""}" data-act="todo-toggle" data-entity="${esc(i.entity)}" data-uid="${esc(this._todoId(i.it))}">${ck}<span class="nm">${esc(i.it.summary)}</span>${i.late ? `<span class="late">Late</span>` : ""}</button>`;
   }
 
   _pic(entity) {
@@ -4171,7 +4202,10 @@ class WrightWayCalendarCard extends HTMLElement {
     const sleep = this._prefs && Number(this._prefs.sleep_minutes);
     const chips = (list, cur, act, key) => `<div class="chips">${list.map(([v, l]) => `<button type="button" class="chip-btn ${cur === v ? "on" : ""}" data-act="${act}" data-${key}="${v}">${l}</button>`).join("")}</div>`;
     const n = this._photos().length;
-    return `<div class="set-sec"><h3 class="eyebrow">Day and evening</h3>
+    return `<div class="set-sec"><h3 class="eyebrow">Size on screen</h3>
+        ${chips([[0.9, "Smaller"], [1, "Standard"], [1.12, "Larger"], [1.25, "Largest"]], Number(this._prefs.size) || 1, "size-set", "size")}
+        <p class="note">Larger makes everything easier to read from across the room, with a little less on screen.</p></div>
+      <div class="set-sec"><h3 class="eyebrow">Day and evening</h3>
         ${chips([["auto", "Automatic"], ["light", "Always day"], ["night", "Always evening"]], theme, "theme", "theme")}
         <p class="note">Automatic turns dark at 7 PM and light again at 6:30 in the morning.</p></div>
       <div class="set-sec"><h3 class="eyebrow">Photos start after nobody taps for</h3>
@@ -4191,7 +4225,11 @@ class WrightWayCalendarCard extends HTMLElement {
   _settingsSetup() {
     const staples = Object.keys(this._prefs.staples || {}).length;
     const ai = this._aiEntity();
-    return `<div class="set-sec"><h3 class="eyebrow">Camera</h3>
+    const dpr = Math.round((window.devicePixelRatio || 1) * 100) / 100;
+    return `<div class="set-sec"><h3 class="eyebrow">This screen</h3>
+        <div class="kv"><span>The browser reports</span><span>${this._vw} × ${this._vh} · pixel ratio ${dpr}</span></div>
+        <div class="kv"><span>WrightWay draws</span><span>a ${this._cw} × ${this._ch} layout at ${Math.round((this._scale || 1) * 100)}%</span></div></div>
+      <div class="set-sec"><h3 class="eyebrow">Camera</h3>
         <button type="button" class="switch-row" data-act="mute-toggle"><span>Keep camera sound off</span><span class="sw ${this._muted() ? "on" : ""}"></span></button></div>
       <div class="set-sec"><h3 class="eyebrow">Walmart</h3>
         <div class="kv"><span>Products the wall remembers</span><span>${staples}</span></div>
@@ -4310,6 +4348,10 @@ class WrightWayCalendarCard extends HTMLElement {
         break;
       case "photo-sec":
         this._prefs.photo_seconds = Number(d.sec);
+        this._savePrefs();
+        break;
+      case "size-set":
+        this._prefs.size = Number(d.size) || 1;
         this._savePrefs();
         break;
       case "sleep-min":
