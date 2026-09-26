@@ -1436,7 +1436,8 @@ class WrightWayCalendarCard extends HTMLElement {
     // Phones add events all day; the wall has to go and look for them.
     if (t - this._evAt > 5 * 60 * 1000) this._loadEvents();
     if (this._pollTodos && t - this._todoAt > 60 * 1000) this._loadTodos();
-    if (t - (this._photoLoadedAt || 0) > 15 * 60 * 1000) this._loadPhotos();
+    // Often enough that a photo added from a phone shows up soon.
+    if (t - (this._photoLoadedAt || 0) > 5 * 60 * 1000) this._loadPhotos();
   }
 
   _onNewDay() {
@@ -4287,8 +4288,11 @@ class WrightWayCalendarCard extends HTMLElement {
         if (this._view === "home") this._homeTab = this._homeTab || "main";
         break;
       case "photos-now":
-        this._saverForced = true;
-        this._startSaver();
+        // Look for new photos first, so one just added from a phone is in the show.
+        this._loadPhotos().finally(() => {
+          this._saverForced = true;
+          this._startSaver();
+        });
         return;
       case "cal-mode":
         if (d.mode === this._calMode) return;
