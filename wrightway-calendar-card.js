@@ -2075,6 +2075,26 @@ class WrightWayCalendarCard extends HTMLElement {
       [out[i], out[j]] = [out[j], out[i]];
     }
     this._photoUrls = out;
+    this._syncSaverPhotos();
+  }
+
+  // Photos can arrive while the screensaver is already showing the clock
+  // (someone adds one from their phone); switch over to the slideshow then.
+  _syncSaverPhotos() {
+    if (!this._slideOn || !this._saver) return;
+    const have = this._photos().length > 0;
+    const ambient = this._saver.classList.contains("ambient");
+    if (have && ambient) {
+      this._saver.classList.remove("ambient");
+      clearInterval(this._slideTimer);
+      this._advanceSlide();
+      this._slideTimer = setInterval(() => this._advanceSlide(), this._photoWait() * 1000);
+    } else if (!have && !ambient) {
+      clearInterval(this._slideTimer);
+      this._slideTimer = null;
+      this._saver.classList.add("ambient");
+      this._saver.querySelectorAll("img").forEach((i) => i.classList.remove("on", "kb"));
+    }
   }
 
   _fully() {
@@ -2213,6 +2233,8 @@ class WrightWayCalendarCard extends HTMLElement {
     this._renderSaverMeta();
     clearInterval(this._slideTimer);
     this._slideTimer = null;
+    // Look for photos added since the last check; any found switch the clock to the slideshow.
+    if (Date.now() - (this._photoLoadedAt || 0) > 60 * 1000) this._loadPhotos();
     if (photos.length) {
       this._advanceSlide();
       this._slideTimer = setInterval(() => this._advanceSlide(), this._photoWait() * 1000);
