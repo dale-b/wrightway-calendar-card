@@ -316,6 +316,7 @@ const ICONS = {
   external: S('<path d="M14 4h6v6M20 4l-9 9M18 14v4.5A1.5 1.5 0 0 1 16.5 20h-11A1.5 1.5 0 0 1 4 18.5v-11A1.5 1.5 0 0 1 5.5 6H10"/>'),
   bag: S('<path d="M5 8h14l-1.2 11.2a1.5 1.5 0 0 1-1.5 1.3H7.7a1.5 1.5 0 0 1-1.5-1.3z"/><path d="M9 8V7a3 3 0 0 1 6 0v1"/>'),
   sensor: S('<path d="M8.5 15.5a5 5 0 0 1 0-7M15.5 8.5a5 5 0 0 1 0 7M5.6 18.4a9 9 0 0 1 0-12.8M18.4 5.6a9 9 0 0 1 0 12.8"/><circle cx="12" cy="12" r="1.4"/>'),
+  listcheck: S('<path d="M10 6h10M10 12h10M10 18h10"/><path d="m3.5 6 1.5 1.5L7.5 5M3.5 12l1.5 1.5L7.5 11M3.5 18l1.5 1.5L7.5 17"/>'),
   tune: S('<path d="M4 7h10M18 7h2M4 17h2M10 17h10"/><circle cx="16" cy="7" r="2"/><circle cx="8" cy="17" r="2"/>'),
   play: S('<path d="M7 4.5v15l12-7.5z"/>'),
   pause: S('<path d="M8.5 5v14M15.5 5v14"/>'),
@@ -550,6 +551,7 @@ button { -webkit-tap-highlight-color: transparent; }
   --shadow-2: 0 2px 6px rgba(58, 44, 28, .07), 0 14px 36px rgba(58, 44, 28, .09);
   --shadow-3: 0 30px 80px rgba(40, 28, 16, .24);
   --scrim: rgba(35, 27, 19, .34);
+  --glass: rgba(255, 255, 255, .9);
   --r: 22px;
   --ease: cubic-bezier(.2, .8, .2, 1);
   position: absolute;
@@ -592,6 +594,7 @@ button { -webkit-tap-highlight-color: transparent; }
   --shadow-2: 0 10px 30px rgba(0, 0, 0, .4);
   --shadow-3: 0 30px 80px rgba(0, 0, 0, .6);
   --scrim: rgba(0, 0, 0, .55);
+  --glass: rgba(29, 26, 23, .92);
 }
 .root { position: absolute; inset: 0; }
 input, textarea, select { user-select: text; -webkit-user-select: text; }
@@ -1255,6 +1258,149 @@ select.inp { appearance: none; -webkit-appearance: none; padding-right: 40px; }
 .frame.ch-sm .clock { font-size: 42px; }
 .frame.ch-sm .top { min-height: 54px; }
 .frame.ch-sm .ch-item { min-height: 44px; }
+
+/* Phone: the same parts, one column, tabs at the bottom. */
+.frame.phone { font-size: 16px; }
+.p-app { display: flex; flex-direction: column; height: 100%; }
+.p-top { display: flex; align-items: center; gap: 8px; padding: calc(10px + env(safe-area-inset-top)) 14px 8px 18px; }
+.p-title { flex: 1; min-width: 0; }
+.p-title .eyebrow { font-size: 11.5px; }
+.p-title h1 { margin: 3px 0 0; font-size: 30px; font-weight: 800; letter-spacing: -.035em; line-height: 1.05; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.p-title .eyebrow { display: flex; align-items: center; gap: 10px; }
+.p-wx { display: inline-flex; align-items: center; gap: 3px; color: var(--ink-2); letter-spacing: 0; }
+.p-wx svg { width: 17px; height: 17px; }
+.icon-btn.sm { width: 44px; height: 44px; }
+.icon-btn.sm svg { width: 21px; height: 21px; }
+.icon-btn.on { background: var(--ink); color: var(--canvas); }
+.p-body { flex: 1; min-height: 0; overflow-y: auto; -webkit-overflow-scrolling: touch; overscroll-behavior-y: contain; padding: 4px 12px calc(100px + env(safe-area-inset-bottom)); }
+.p-stack { display: flex; flex-direction: column; gap: 12px; }
+.p-tabs {
+  position: absolute; left: 0; right: 0; bottom: 0; z-index: 10;
+  display: grid; grid-template-columns: repeat(5, minmax(0, 1fr));
+  padding: 6px 4px calc(4px + env(safe-area-inset-bottom));
+  background: var(--glass); border-top: 1px solid var(--line);
+  -webkit-backdrop-filter: blur(18px); backdrop-filter: blur(18px);
+}
+.p-tab { border: 0; background: transparent; color: var(--ink-3); display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 6px 0 4px; font-size: 11.5px; font-weight: 750; cursor: pointer; }
+.p-tab svg { width: 26px; height: 26px; }
+.p-tab.on { color: var(--accent); }
+.frame.phone .agenda { flex: none; padding: 16px 14px 8px; }
+.frame.phone .agenda-scroll { overflow: visible; }
+.frame.phone .ag-row .tt { font-size: 17px; }
+.frame.phone .dinner { padding: 14px 16px; }
+.frame.phone .chores { padding: 14px 12px; }
+.frame.phone .ch-grid { grid-template-columns: 1fr !important; gap: 14px; }
+.frame.phone .ch-h button { display: none; }
+.frame.phone .scenes-card { display: block; }
+.frame.phone .scene { height: 66px; font-size: 13px; }
+.p-cams-card { padding: 14px 12px 12px; }
+.p-cams-card .eyebrow { margin: 0 4px 10px; }
+.p-cams { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.p-cam { position: relative; aspect-ratio: 16 / 9; padding: 0; border: 0; border-radius: 14px; overflow: hidden; background: #0e0c0a; cursor: pointer; }
+.p-cam img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.p-cam span { position: absolute; left: 8px; bottom: 8px; padding: 3px 9px; border-radius: 999px; background: rgba(0, 0, 0, .55); color: #fff; font-size: 12px; font-weight: 750; }
+.p-month { padding: 14px 10px 10px; }
+.p-mhead { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin: 0 6px 12px; }
+.p-mhead .cal-title { font-size: 24px; margin: 0; }
+.p-mhead .navs button { height: 40px; min-width: 40px; padding: 0 12px; font-size: 14px; }
+.p-mhead .navs button.icon { padding: 0; }
+.p-dow { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); text-align: center; font-size: 12px; font-weight: 800; color: var(--ink-3); margin-bottom: 4px; }
+.p-grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 2px; }
+.pc-day { height: 52px; padding: 5px 0 0; border: 0; border-radius: 13px; background: transparent; color: var(--ink); display: flex; flex-direction: column; align-items: center; gap: 4px; font-size: 16px; font-weight: 700; cursor: pointer; font-variant-numeric: tabular-nums; }
+.pc-day .n { min-width: 30px; height: 30px; display: grid; place-items: center; border-radius: 999px; }
+.pc-day.other { color: var(--ink-3); opacity: .45; }
+.pc-day.today .n { background: var(--accent); color: var(--accent-ink); }
+.pc-day.sel { background: var(--sunk); }
+.pc-day .dots { display: flex; gap: 3px; height: 6px; }
+.pc-day .dots i { width: 6px; height: 6px; border-radius: 50%; background: var(--pm); }
+.p-people { flex-wrap: nowrap; overflow-x: auto; padding: 2px; }
+.p-people .pchip { flex-shrink: 0; }
+.p-daylist { padding: 14px 14px 8px; }
+.p-seg { align-self: stretch; }
+.p-seg button { flex: 1; height: 42px; }
+.frame.phone .shop { flex-direction: column; }
+.frame.phone .shop-list { padding: 16px 14px 8px; }
+.frame.phone .shop-h h2 { font-size: 26px; }
+.frame.phone .glist { overflow: visible; }
+.frame.phone .gck { min-height: 54px; font-size: 17px; }
+.frame.phone .walmart { width: auto; flex: none; }
+.frame.phone .add-bar .inp { height: 52px; font-size: 17px; }
+.frame.phone .add-bar .btn { height: 52px; padding: 0 18px; }
+.frame.phone .meals-v { gap: 12px; }
+.frame.phone .meals-h { flex-direction: column; align-items: stretch; padding: 4px 4px 0; }
+.frame.phone .meals-h h2 { font-size: 26px; }
+.frame.phone .mgrid { grid-template-columns: 1fr; }
+.frame.phone .mcard { padding: 14px 16px; }
+.frame.phone .minp { min-height: 52px; font-size: 19px; }
+.frame.phone .md em { font-size: 22px; }
+.frame.phone .home { flex-direction: column; gap: 12px; }
+.frame.phone .areas { width: auto; flex: none; flex-direction: row; overflow-x: auto; padding: 8px; align-self: stretch; }
+.frame.phone .area { flex: 0 0 auto; height: 50px; padding-right: 14px; font-size: 15px; }
+.frame.phone .area .ai { width: 36px; height: 36px; }
+.frame.phone .area-body { overflow: visible; padding: 0; }
+.frame.phone .area-top h2 { font-size: 26px; }
+.frame.phone .tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.frame.phone .tile { min-height: 118px; padding: 12px; border-radius: 20px; }
+.frame.phone .tile-h { gap: 9px; }
+.frame.phone .tico { width: 44px; height: 44px; }
+.frame.phone .tname { font-size: 15px; }
+.frame.phone .tst { font-size: 13px; }
+.frame.phone .tune { width: 34px; height: 34px; margin-right: -4px; }
+.frame.phone .slider, .frame.phone .capbtn, .frame.phone .pair button { height: 42px; }
+.frame.phone .step { width: 42px; height: 42px; }
+.frame.phone .hero { grid-template-columns: 1fr; }
+.frame.phone .snap { min-height: 200px; }
+.frame.phone .sec-h { flex-wrap: wrap; }
+.frame.phone .moods { justify-content: flex-start; flex-wrap: nowrap; overflow-x: auto; width: 100%; padding-bottom: 2px; }
+.frame.phone .mood { flex-shrink: 0; }
+.frame.phone .doors { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.frame.phone .btn-row { flex-wrap: wrap; }
+.p-hero { padding: 18px; }
+.p-hero h2 { margin: 4px 0 4px; font-size: 30px; font-weight: 800; letter-spacing: -.03em; }
+.p-hero p { margin: 0 0 14px; color: var(--ink-2); font-weight: 550; line-height: 1.4; }
+.btn.wide { width: 100%; }
+.p-who { align-items: center; }
+.p-who .eyebrow { margin-right: 4px; }
+.ph-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
+.ph-cell { position: relative; aspect-ratio: 1; padding: 0; border: 0; border-radius: 12px; overflow: hidden; background: var(--sunk); cursor: pointer; }
+.ph-cell img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.ph-cell.off img { opacity: .35; filter: grayscale(1); }
+.ph-badge { position: absolute; left: 6px; bottom: 6px; padding: 3px 8px; border-radius: 999px; background: rgba(0, 0, 0, .7); color: #fff; font-size: 11px; font-weight: 750; }
+.ph-big { display: block; width: 100%; max-height: 55vh; object-fit: contain; border-radius: 16px; background: var(--sunk); margin-bottom: 10px; }
+.frame.phone .overlay { align-items: flex-end; padding: 0; }
+.frame.phone .dlg, .frame.phone .dlg.wide { width: 100%; max-height: 92%; border-radius: 26px 26px 0 0; padding: 22px 18px calc(20px + env(safe-area-inset-bottom)); }
+.frame.phone .overlay.enter .dlg { animation: sheet-up .3s var(--ease) both; }
+@keyframes sheet-up { from { opacity: 0; transform: translateY(48px); } }
+.frame.phone .dlg h2 { font-size: 25px; }
+.frame.phone .who-row button { height: 44px; font-size: 15px; }
+.frame.phone .who-row button .av { width: 32px; height: 32px; }
+.frame.phone .help-grid, .frame.phone .setup { grid-template-columns: 1fr; }
+.frame.phone .tabs { width: 100%; flex-wrap: nowrap; overflow-x: auto; }
+.frame.phone .tabs button { flex-shrink: 0; padding: 0 14px; }
+.frame.phone .prow { flex-wrap: wrap; }
+.frame.phone .prow select { flex-basis: 100%; }
+.frame.phone .actions { flex-wrap: wrap; }
+.frame.phone .drow { flex-wrap: wrap; }
+.frame.phone .drow .tm { width: auto; }
+.frame.phone .toast-layer { bottom: calc(96px + env(safe-area-inset-bottom)); padding: 0 12px; }
+.frame.phone .toast { font-size: 15px; padding-left: 18px; }
+.frame.phone .cam-layer.full .cam-bar { top: calc(12px + env(safe-area-inset-top)); left: 12px; right: 12px; overflow-x: auto; }
+.frame.phone .cam-bar button { flex-shrink: 0; height: 42px; padding: 0 16px; font-size: 14px; }
+.p-people, .cam-pills, .frame.phone .areas, .frame.phone .moods, .frame.phone .tabs, .frame.phone .cam-bar { scrollbar-width: none; }
+.p-people::-webkit-scrollbar, .cam-pills::-webkit-scrollbar, .frame.phone .areas::-webkit-scrollbar,
+.frame.phone .moods::-webkit-scrollbar, .frame.phone .tabs::-webkit-scrollbar, .frame.phone .cam-bar::-webkit-scrollbar { display: none; }
+.frame.phone .tname { white-space: normal; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; line-height: 1.2; }
+.frame.phone .mcard { display: grid; grid-template-columns: 56px minmax(0, 1fr); column-gap: 12px; align-items: center; padding: 12px 14px; }
+.frame.phone .md { grid-row: 1 / span 2; flex-direction: column; align-items: center; gap: 0; }
+.frame.phone .md em { font-size: 24px; }
+.frame.phone .minp { grid-column: 2; min-height: 0; height: 50px; font-size: 18px; padding-top: 12px; }
+.frame.phone .mbusy { grid-column: 2; margin: 0; padding: 6px 0 2px; border-top: 0; }
+.frame.phone .mbusy.free, .frame.phone .mbusy > .eyebrow { display: none; }
+.frame.phone .row2 { gap: 10px; }
+.frame.phone .row2 .field { min-width: 0; }
+.frame.phone .inp[type=time], .frame.phone .inp[type=date] { min-width: 0; font-size: 17px; padding: 0 12px; }
+.frame.phone .mtag { top: 8px; right: 10px; font-size: 10.5px; padding: 3px 8px; }
+.frame.phone .mcard.past { display: none; }
 `;
 
 
@@ -1314,7 +1460,12 @@ class WrightWayCalendarCard extends HTMLElement {
   }
 
   setConfig(config) {
+    const first = !this._cfg || !this._cfg.type && !Object.keys(this._cfg).length;
     this._cfg = config || {};
+    if (first && this._phone()) {
+      this._view = "today";
+      this._calMode = "month";
+    }
     this._homeCam = this._cfg.camera || null;
     if (!this._liveCam) this._liveCam = this._homeCam;
     this._render();
@@ -1341,6 +1492,11 @@ class WrightWayCalendarCard extends HTMLElement {
 
   get hass() { return this._hass; }
 
+  // The same card runs on the kitchen wall and, fed through the NAS, on phones.
+  _phone() {
+    return this._cfg && this._cfg.layout === "phone";
+  }
+
   getCardSize() { return 24; }
 
   getGridOptions() {
@@ -1354,11 +1510,11 @@ class WrightWayCalendarCard extends HTMLElement {
       // A wall panel should never scroll by accident; only marked areas scroll.
       const scrolls = "[data-scroll], .dlg, .area-body, .glist, input[type=range], textarea";
       sr.addEventListener("touchmove", (e) => {
-        if (e.target.closest && e.target.closest(scrolls)) return;
+        if (this._phone() || (e.target.closest && e.target.closest(scrolls))) return;
         e.preventDefault();
       }, { passive: false });
       sr.addEventListener("wheel", (e) => {
-        if (e.target.closest && e.target.closest(scrolls)) return;
+        if (this._phone() || (e.target.closest && e.target.closest(scrolls))) return;
         e.preventDefault();
       }, { passive: false });
       sr.addEventListener("click", (e) => {
@@ -1452,7 +1608,7 @@ class WrightWayCalendarCard extends HTMLElement {
   // Back to today's calendar, the way the family expects to find the wall.
   _goHome() {
     const now = new Date();
-    this._view = "calendar";
+    this._view = this._phone() ? "today" : "calendar";
     this._sheet = null;
     this._camFull = false;
     this._hidden.clear();
@@ -1509,6 +1665,15 @@ class WrightWayCalendarCard extends HTMLElement {
     if (!f) return;
     const vw = this.clientWidth || window.innerWidth || 1920;
     const vh = this.clientHeight || window.innerHeight || 1080;
+    f.classList.toggle("phone", this._phone());
+    if (this._phone()) {
+      Object.assign(this, { _scale: 1, _cw: vw, _ch: vh, _vw: vw, _vh: vh });
+      f.style.width = "";
+      f.style.height = "";
+      f.style.transform = "";
+      ["cw-md", "cw-sm", "ch-sm"].forEach((c) => f.classList.remove(c));
+      return;
+    }
     const wide = vw / vh >= 1.7;
     let auto = 1;
     if (wide && vw < 1920) auto = vw / 1920;
@@ -1966,6 +2131,7 @@ class WrightWayCalendarCard extends HTMLElement {
   _theme() {
     const pref = (this._prefs && this._prefs.theme) || "auto";
     if (pref === "light" || pref === "night") return pref;
+    if (this._phone() && window.matchMedia) return window.matchMedia("(prefers-color-scheme: dark)").matches ? "night" : "light";
     const h = this._now.getHours() + this._now.getMinutes() / 60;
     return (h >= 19 || h < 6.5) ? "night" : "light";
   }
@@ -2015,6 +2181,7 @@ class WrightWayCalendarCard extends HTMLElement {
       }
       return;
     }
+    if (this._phone()) return;
     const wait = this._idleWait();
     const want = this._saverForced || (wait > 0 && Date.now() - this._idleAt > wait * 1000);
     if (want && !this._slideOn) this._startSaver();
@@ -2174,7 +2341,7 @@ class WrightWayCalendarCard extends HTMLElement {
     if (!layer || !this._root) return;
     const id = this._liveCam || this._homeCam;
     const slot = this._root.querySelector("#cam-slot");
-    const show = !!id && !!this._hass && !this._slideOn && (this._camFull || (!!slot && this._view === "calendar"));
+    const show = !!id && !!this._hass && !this._slideOn && (this._camFull || (!this._phone() && !!slot && this._view === "calendar"));
     if (!show) {
       if (!layer.hidden) {
         layer.hidden = true;
@@ -3263,6 +3430,7 @@ class WrightWayCalendarCard extends HTMLElement {
   }
 
   _renderApp(entering) {
+    if (this._phone()) return this._renderPhone(entering);
     const v = this._view;
     const body = v === "home" ? this._renderHome()
       : v === "lists" ? this._renderShop()
@@ -3276,6 +3444,184 @@ class WrightWayCalendarCard extends HTMLElement {
         </div>
       </div>
       ${this._renderSheet(entering)}`;
+  }
+
+  _renderPhone(entering) {
+    const v = this._view;
+    const body = v === "calendar" ? this._phoneCalendar()
+      : v === "lists" ? this._phoneLists()
+        : v === "meals" ? this._renderMeals()
+          : v === "home" ? this._renderHome()
+            : v === "photos" ? this._phonePhotos()
+              : this._phoneToday();
+    const n = this._now;
+    const titles = { calendar: "Calendar", lists: "Lists", meals: "Meals", home: "Home", photos: "Photos" };
+    const wx = this._weather();
+    const temp = wx && wx.attributes && wx.attributes.temperature != null ? `${Math.round(wx.attributes.temperature)}°` : "";
+    const tab = (id, icon, label) => `<button type="button" class="p-tab ${v === id ? "on" : ""}" data-act="view" data-view="${id}">${ICONS[icon]}<span>${label}</span></button>`;
+    return `<div class="app p-app">
+        <header class="p-top">
+          <div class="p-title">
+            <span class="eyebrow">${WEEKDAYS_LONG[n.getDay()]}, ${MONTHS[n.getMonth()]} ${n.getDate()}${temp ? `<span class="p-wx">${wxIcon(wx.state)}${esc(temp)}</span>` : ""}</span>
+            <h1 ${v === "today" ? 'id="greet"' : ""}>${esc(titles[v] || this._greeting())}</h1>
+          </div>
+          <button type="button" class="icon-btn sm ${v === "photos" ? "on" : ""}" data-act="view" data-view="photos" aria-label="Photos">${ICONS.photos}</button>
+          <button type="button" class="icon-btn sm" data-act="settings" aria-label="Settings">${ICONS.gear}</button>
+        </header>
+        <main class="p-body" data-sk="p-${esc(v)}">${body}</main>
+        <nav class="p-tabs">${tab("today", "sun", "Today")}${tab("calendar", "calendar", "Calendar")}${tab("lists", "listcheck", "Lists")}${tab("meals", "meals", "Meals")}${tab("home", "home", "Home")}</nav>
+      </div>
+      ${this._renderSheet(entering)}`;
+  }
+
+  _phoneToday() {
+    return `<div class="p-stack">
+      <div class="panel agenda"><div class="agenda-scroll" data-sk="agenda">${this._renderAgendaBody()}</div></div>
+      ${this._renderDinner()}
+      ${this._renderChores()}
+      ${this._renderScenes()}
+      ${this._phoneCams()}
+    </div>`;
+  }
+
+  // Camera stills; a tap opens the live view full screen.
+  _phoneCams() {
+    const cams = this._cameraList();
+    if (!cams.length || !this._hass) return "";
+    return `<div class="panel p-cams-card"><h3 class="eyebrow">Cameras</h3><div class="p-cams">${cams.map((c) => {
+      const st = this._hass.states[c.entity];
+      const pic = st && st.attributes && st.attributes.entity_picture ? this._hass.hassUrl(st.attributes.entity_picture) : "";
+      return `<button type="button" class="p-cam" data-act="cam-open" data-entity="${esc(c.entity)}">${pic ? `<img src="${esc(pic)}" alt="" loading="lazy">` : ""}<span>${esc(c.name)}</span></button>`;
+    }).join("")}</div></div>`;
+  }
+
+  _phoneCalendar() {
+    const y = this._cursor.getFullYear();
+    const m = this._cursor.getMonth();
+    const { start, weeks } = monthGrid(y, m);
+    const todayKey = isoDay(this._now);
+    const sel = this._pDay || todayKey;
+    let cells = "";
+    for (let i = 0; i < weeks * 7; i += 1) {
+      const d = addDays(start, i);
+      const key = isoDay(d);
+      const who = [...new Set(this._dayList(key).map((ev) => ev._name))].slice(0, 3);
+      cells += `<button type="button" class="pc-day ${d.getMonth() !== m ? "other" : ""} ${key === todayKey ? "today" : ""} ${key === sel ? "sel" : ""}" data-act="p-day" data-date="${key}">
+        <span class="n">${d.getDate()}</span><span class="dots">${who.map((w) => `<i class="${this._pp(w)}"></i>`).join("")}</span>
+      </button>`;
+    }
+    const sd = localDate(sel);
+    const evs = this._dayList(sel);
+    const label = sel === todayKey ? "Today" : sel === isoDay(addDays(this._now, 1)) ? "Tomorrow" : WEEKDAYS_LONG[sd.getDay()];
+    const rows = evs.map((ev) => `<div class="ag-row ${this._pp(ev._name)}" data-act="day" data-date="${sel}">
+        <span class="tm">${esc(eventTimeLabel(ev, sel))}</span><span class="bar"></span>
+        <span class="tt">${esc(ev.summary || "Event")}</span>${this._avatar(ev._name)}
+      </div>`).join("");
+    return `<div class="p-stack">
+      <div class="panel p-month">
+        <div class="p-mhead"><div class="cal-title">${MONTHS[m]} <span>${y}</span></div>
+          <div class="navs"><button type="button" class="icon" data-act="prev" aria-label="Back">${ICONS.chevL}</button><button type="button" data-act="today">Today</button><button type="button" class="icon" data-act="next" aria-label="Forward">${ICONS.chevR}</button></div>
+        </div>
+        <div class="p-dow">${DAY_LETTERS.map((l) => `<span>${l}</span>`).join("")}</div>
+        <div class="p-grid">${cells}</div>
+      </div>
+      <div class="people p-people">${this._cals().map((c) => `<button type="button" class="pchip ${this._pp(c.name)} ${this._hidden.has(c.entity) ? "off" : ""}" data-act="filter" data-entity="${esc(c.entity)}">${this._avatar(c.name)}${esc(c.name)}</button>`).join("")}</div>
+      <div class="panel p-daylist">
+        <div class="ag-h"><h3 class="eyebrow">${label}<em>${MONTHS[sd.getMonth()].slice(0, 3)} ${sd.getDate()}</em></h3>
+          <button type="button" class="ag-add" data-act="add-on" data-date="${sel}">${ICONS.plus}Add</button></div>
+        ${rows || `<div class="ag-empty">Nothing planned</div>`}
+      </div>
+    </div>`;
+  }
+
+  _phoneLists() {
+    const tab = this._listTab || "chores";
+    return `<div class="p-stack">
+      <div class="seg p-seg">
+        <button type="button" class="${tab === "chores" ? "on" : ""}" data-act="list-tab" data-tab="chores">Chores</button>
+        <button type="button" class="${tab === "shop" ? "on" : ""}" data-act="list-tab" data-tab="shop">Groceries</button>
+      </div>
+      ${tab === "shop" ? this._renderShop() : `${this._renderChores()}<button type="button" class="add-chore" data-act="settings-tab" data-tab="chores">+ Add or change chores</button>`}
+    </div>`;
+  }
+
+  async _loadPhonePhotos() {
+    try {
+      const r = await fetch(`${this._cfg.photos_api}/photos`, { cache: "no-store" });
+      this._pPhotos = r.ok ? (await r.json()).photos || [] : [];
+    } catch (e) {
+      this._pPhotos = [];
+    }
+    this._render();
+  }
+
+  _phonePhotos() {
+    if (!this._cfg.photos_api) return `<div class="panel p-hero"><h2>Photos</h2><p>Photos are managed from the WrightWay app.</p></div>`;
+    const photos = this._pPhotos;
+    if (!photos) return `<div class="panel p-hero"><h2>Loading photos…</h2></div>`;
+    const shown = photos.filter((ph) => !ph.hidden).length;
+    let who = "";
+    try { who = localStorage.getItem("ww-who") || ""; } catch (e) { who = ""; }
+    return `<div class="p-stack">
+      <div class="panel p-hero">
+        <span class="eyebrow">On the kitchen wall</span>
+        <h2>${shown} ${shown === 1 ? "photo" : "photos"}</h2>
+        <p>They fade in one after another whenever the wall sits idle.</p>
+        <label class="btn primary wide">${ICONS.plus}Add photos<input type="file" accept="image/*" multiple hidden data-photo-input="1"></label>
+      </div>
+      <div class="chips p-who"><span class="eyebrow">Adding as</span>${this._cals().filter((c) => c.name !== "Family").map((c) => `<button type="button" class="chip-btn ${who === c.name ? "on" : ""}" data-act="p-who" data-name="${esc(c.name)}">${esc(c.name)}</button>`).join("")}</div>
+      ${photos.length ? `<div class="ph-grid">${photos.map((ph) => `<button type="button" class="ph-cell ${ph.hidden ? "off" : ""}" data-act="p-photo" data-id="${ph.id}"><img src="${esc(ph.thumb)}" alt="" loading="lazy">${ph.hidden ? `<span class="ph-badge">Hidden</span>` : ""}</button>`).join("")}</div>`
+        : `<div class="panel p-hero"><p>No photos yet. Add a few and they'll show on the kitchen wall.</p></div>`}
+      <p class="note" style="text-align:center">Photos are sized for the wall and saved without location data.</p>
+    </div>`;
+  }
+
+  _sheetPhoto(s) {
+    const ph = (this._pPhotos || []).find((x) => x.id === s.id);
+    if (!ph) return "";
+    const day = (iso, year) => new Date(iso).toLocaleDateString(undefined, { month: "short", day: "numeric", ...(year ? { year: "numeric" } : {}) });
+    const bits = [`${ph.added_by ? `Added by ${esc(ph.added_by)}` : "Added"} ${day(ph.added_at)}`];
+    if (ph.taken_at) bits.push(`taken ${day(ph.taken_at, true)}`);
+    return `<div class="dlg">
+      <img class="ph-big" src="${esc(ph.full)}" alt="">
+      <div class="sub">${bits.join(" · ")}${ph.hidden ? " · hidden from the wall" : ""}</div>
+      <div class="actions">
+        <button type="button" class="btn ${s.confirm ? "danger" : "ghost"} left" data-act="p-photo-del" data-id="${ph.id}">${s.confirm ? "Tap again to remove" : "Remove"}</button>
+        <button type="button" class="btn ${ph.hidden ? "primary" : ""}" data-act="p-photo-hide" data-id="${ph.id}" data-hidden="${ph.hidden ? "0" : "1"}">${ph.hidden ? "Show on the wall" : "Hide from the wall"}</button>
+      </div>
+    </div>`;
+  }
+
+  // One photo per request: progress for a big batch, and one bad file can't sink the rest.
+  async _uploadPhotos(files) {
+    const list = Array.from(files || []);
+    if (!list.length) return;
+    let who = "";
+    try { who = localStorage.getItem("ww-who") || ""; } catch (e) { who = ""; }
+    let added = 0;
+    let dupes = 0;
+    let failed = 0;
+    for (let i = 0; i < list.length; i += 1) {
+      this._showToast(list.length > 1 ? `Adding ${i + 1} of ${list.length}…` : "Adding your photo…");
+      const fd = new FormData();
+      fd.append("files", list[i], list[i].name || "photo.jpg");
+      if (who) fd.append("added_by", who);
+      try {
+        const r = await fetch(`${this._cfg.photos_api}/photos`, { method: "POST", body: fd });
+        const res = ((await r.json()).results || [])[0] || {};
+        if (res.status === "added") added += 1;
+        else if (res.status === "duplicate") dupes += 1;
+        else failed += 1;
+      } catch (e) {
+        failed += 1;
+      }
+    }
+    const parts = [];
+    if (added) parts.push(`${added} ${added === 1 ? "photo" : "photos"} added to the wall`);
+    if (dupes) parts.push(`${dupes} already there`);
+    if (failed) parts.push(`${failed} couldn't be read`);
+    this._showToast(parts.join(" · ") || "Nothing was added", null, failed && !added ? "bad" : "");
+    this._loadPhonePhotos();
   }
 
   _renderRail() {
@@ -3556,7 +3902,7 @@ class WrightWayCalendarCard extends HTMLElement {
     });
     // A shorter screen keeps one row of chores so the calendar still has room.
     const h = this._ch || window.innerHeight;
-    const cap = h < 900 ? 1 : h < 1000 ? 2 : 3;
+    const cap = this._phone() ? 12 : h < 900 ? 1 : h < 1000 ? 2 : 3;
     const rows = Math.max(1, Math.min(cap, Math.max(...cols.map((c) => c.items.length))));
     return `<div class="panel chores">
       <div class="ch-h"><h3 class="eyebrow">Today's chores</h3><button type="button" data-act="settings-tab" data-tab="chores">Edit chores</button></div>
@@ -3981,6 +4327,7 @@ class WrightWayCalendarCard extends HTMLElement {
     else if (s.type === "ai-setup") inner = this._sheetAiSetup();
     else if (s.type === "ai-plan") inner = this._sheetAiPlan(s);
     else if (s.type === "fav") inner = this._sheetFavorites();
+    else if (s.type === "photo") inner = this._sheetPhoto(s);
     if (!inner) return "";
     return `<div class="overlay ${entering ? "enter" : ""}" data-act="close">${inner}</div>`;
   }
@@ -4146,7 +4493,7 @@ class WrightWayCalendarCard extends HTMLElement {
     else body = this._settingsChores();
     return `<div class="dlg wide" data-sk="settings">
       <h2>Settings</h2>
-      <div class="tabs">${t("help", "How to use")}${t("chores", "Chores")}${t("people", "People")}${t("display", "Screen")}${t("camera", "Setup")}</div>
+      <div class="tabs">${t("help", "How to use")}${t("chores", "Chores")}${t("people", "People")}${this._phone() ? "" : t("display", "Screen")}${t("camera", "Setup")}</div>
       ${body}
       <div class="actions"><button type="button" class="btn primary" data-act="close">Done</button></div>
     </div>`;
@@ -4286,7 +4633,47 @@ class WrightWayCalendarCard extends HTMLElement {
         this._view = d.view;
         this._sheet = null;
         if (this._view === "home") this._homeTab = this._homeTab || "main";
+        if (this._view === "photos") this._loadPhonePhotos();
         break;
+      case "p-day":
+        this._pDay = d.date;
+        break;
+      case "list-tab":
+        this._listTab = d.tab;
+        break;
+      case "cam-open":
+        this._liveCam = d.entity;
+        this._camFull = true;
+        this._idleAt = Date.now();
+        this._placeCamera();
+        return;
+      case "p-who": {
+        let cur = "";
+        try { cur = localStorage.getItem("ww-who") || ""; localStorage.setItem("ww-who", cur === d.name ? "" : d.name); } catch (e) { /* private mode */ }
+        break;
+      }
+      case "p-photo":
+        this._sheet = { type: "photo", id: Number(d.id) };
+        break;
+      case "p-photo-hide":
+        fetch(`${this._cfg.photos_api}/photos/${d.id}/hidden`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ hidden: d.hidden === "1" }) })
+          .then(() => {
+            this._sheet = null;
+            this._showToast(d.hidden === "1" ? "Hidden from the wall" : "Back on the wall");
+            this._loadPhonePhotos();
+          });
+        return;
+      case "p-photo-del":
+        if (!this._sheet || !this._sheet.confirm) {
+          this._sheet = { ...this._sheet, confirm: true };
+          break;
+        }
+        fetch(`${this._cfg.photos_api}/photos/${d.id}`, { method: "DELETE" }).then(() => {
+          this._sheet = null;
+          this._showToast("Removed from the wall");
+          this._loadPhonePhotos();
+        });
+        return;
       case "photos-now":
         // Look for new photos first, so one just added from a phone is in the show.
         this._loadPhotos().finally(() => {
@@ -4312,10 +4699,15 @@ class WrightWayCalendarCard extends HTMLElement {
         const dir = act === "next" ? 1 : -1;
         if (this._calMode === "week") this._weekStart = addDays(this._weekStart, 7 * dir);
         else this._cursor = new Date(this._cursor.getFullYear(), this._cursor.getMonth() + dir, 1);
+        if (this._phone()) {
+          const inMonth = this._cursor.getFullYear() === now.getFullYear() && this._cursor.getMonth() === now.getMonth();
+          this._pDay = inMonth ? isoDay(now) : isoDay(this._cursor);
+        }
         this._loadEvents();
         break;
       }
       case "today":
+        this._pDay = isoDay(now);
         this._cursor = new Date(now.getFullYear(), now.getMonth(), 1);
         this._weekStart = startOfWeek(now);
         this._loadEvents();
@@ -4662,6 +5054,11 @@ class WrightWayCalendarCard extends HTMLElement {
 
   _onChange(e) {
     const t = e.target;
+    if (t.dataset.photoInput !== undefined && t.files) {
+      this._uploadPhotos(t.files);
+      t.value = "";
+      return;
+    }
     if (t.dataset.meal) {
       const v = String(t.value || "").replace(/\s+/g, " ").trim().slice(0, 80);
       this._setMeal(t.dataset.meal, v).catch(() => this._showToast("That dinner didn't save.", null, "bad"));
