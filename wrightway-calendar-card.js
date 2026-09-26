@@ -869,6 +869,8 @@ select.inp { appearance: none; -webkit-appearance: none; padding-right: 40px; }
 /* Live camera lives in its own layer so a redraw never restarts the stream. */
 .cam-layer { position: absolute; z-index: 6; overflow: hidden; background: #0e0c0a; border-radius: var(--r) var(--r) 0 0; cursor: pointer; }
 .cam-layer.full { inset: 0 !important; width: auto !important; height: auto !important; border-radius: 0; z-index: 40; }
+/* HA's player caps video at 100vh minus 97px (room for its own dialog); lift that here. */
+.cam-host { --video-max-height: none; }
 .cam-host, .cam-host > * { width: 100%; height: 100%; display: block; }
 .cam-host img, .cam-host video { width: 100%; height: 100%; object-fit: cover; display: block; }
 .cam-layer.full .cam-host img, .cam-layer.full .cam-host video { object-fit: contain; }
@@ -1560,6 +1562,23 @@ class WrightWayCalendarCard extends HTMLElement {
     this._subscribeForecast();
     this._loadPhotos();
     this._ensureCameraStream();
+    this._checkForUpdate();
+  }
+
+  // Nobody ever reloads a wall. Notice when a new version of this card is
+  // installed, and pick it up once the screen has sat untouched for a while.
+  async _checkForUpdate() {
+    this._updateAt = Date.now();
+    if (this._phone()) return;
+    try {
+      const url = new URL(import.meta.url);
+      url.search = "";
+      const r = await fetch(url.href, { method: "HEAD", cache: "no-store" });
+      const stamp = r.headers.get("last-modified") || r.headers.get("etag") || "";
+      if (!stamp) return;
+      if (!this._builtStamp) this._builtStamp = stamp;
+      else if (stamp !== this._builtStamp) this._updateReady = true;
+    } catch (e) { /* offline: try again later */ }
   }
 
   _stop() {
@@ -1594,6 +1613,8 @@ class WrightWayCalendarCard extends HTMLElement {
     if (this._pollTodos && t - this._todoAt > 60 * 1000) this._loadTodos();
     // Often enough that a photo added from a phone shows up soon.
     if (t - (this._photoLoadedAt || 0) > 5 * 60 * 1000) this._loadPhotos();
+    if (t - (this._updateAt || 0) > 10 * 60 * 1000) this._checkForUpdate();
+    if (this._updateReady && !this._sheet && !this._camFull && t - this._idleAt > 3 * 60 * 1000) window.location.reload();
   }
 
   _onNewDay() {
@@ -2399,6 +2420,7 @@ class WrightWayCalendarCard extends HTMLElement {
       if (this._camEl.tagName !== "IMG") {
         this._camEl.fitMode = fit;
         this._camEl.setAttribute("fit-mode", fit);
+        this._fitStream();
       }
       this._applyMute();
       return;
@@ -2429,6 +2451,29 @@ class WrightWayCalendarCard extends HTMLElement {
     this._applyMute();
   }
 
+  // Home Assistant's player sizes its video by width only, so full screen it
+  // sat at the top with a black band below. Size every layer of it to the box.
+  // Re-run each second: the player swaps its inner parts as the stream connects.
+  _fitStream() {
+    const el = this._camEl;
+    if (!el || el.tagName === "IMG" || !el.shadowRoot) return;
+    const fit = this._camFull ? "contain" : "cover";
+    const walk = (root) => {
+      root.querySelectorAll("*").forEach((n) => {
+        const tag = n.tagName;
+        if (tag === "VIDEO" || tag === "IMG" || tag === "HA-WEB-RTC-PLAYER" || tag === "HA-HLS-PLAYER") {
+          n.style.setProperty("width", "100%");
+          n.style.setProperty("height", "100%");
+          n.style.setProperty("display", "block");
+          n.style.setProperty("max-height", "none");
+          if (tag === "VIDEO" || tag === "IMG") n.style.setProperty("object-fit", fit);
+        }
+        if (n.shadowRoot) walk(n.shadowRoot);
+      });
+    };
+    walk(el.shadowRoot);
+  }
+
   _dropCamera() {
     clearInterval(this._snapTimer);
     this._snapTimer = null;
@@ -2440,6 +2485,7 @@ class WrightWayCalendarCard extends HTMLElement {
   // A stream nobody can see still costs the tablet; let it go after a minute.
   _tickCamera() {
     if (this._camAwayAt && this._camEl && Date.now() - this._camAwayAt > 60 * 1000) this._dropCamera();
+    if (this._camEl && this._camLayer && !this._camLayer.hidden) this._fitStream();
   }
 
   _switchCamera(entity) {
